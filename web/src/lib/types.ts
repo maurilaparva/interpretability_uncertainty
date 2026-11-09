@@ -55,6 +55,9 @@ export interface Stats {
   maxAlpha: number;
   /** Stand-in margin value for censored items (ranks above every tested strength). */
   cap: number;
+  /** Top of every robustness axis: fits the data; includes the "never flipped" zone only if needed. */
+  displayMax: number;
+  anyCensored: boolean;
   /** Tertile thresholds on margins. */
   t1: number;
   t2: number;
@@ -64,4 +67,6 @@ export interface Stats {
   layers: number[];
   /** Share of *other* items whose margin is strictly larger (0..1). */
   fragilerThan: Map<string, number>;
+  /** Share of *other* items whose margin is strictly smaller (0..1). */
+  robusterThan: Map<string, number>;
 }

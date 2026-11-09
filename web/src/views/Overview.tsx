@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { useState } from 'react';
-import { fmtMargin, mval, pct, pushScale, pushTicks, quadrantOf, tok, type Quadrant } from '../lib/data';
+import { fmtMargin, mval, pct, pushScale, pushTicks, quadrantOf, spearman, tok, type Quadrant } from '../lib/data';
 import { useSize } from '../lib/hooks';
 import type { Item, Stats } from '../lib/types';
 import { Tip } from '../components/Tip';
@@ -41,7 +41,9 @@ export function Overview({ items, stats, selectedId, revealKey, onOpen }: Props)
             )}
           </p>
           <p className="caption" style={{ marginTop: 4 }}>
-            {revealKey && cf.length > 0 && <>{cfWrong} of those {cf.length} are wrong. </>}
+            {revealKey && cf.length > 0 && (
+              <>{cfWrong === 0 ? `None of those ${cf.length} is wrong` : `${cfWrong} of those ${cf.length} ${cfWrong === 1 ? 'is' : 'are'} wrong`}. </>
+            )}
             Rank correlation between confidence and robustness: ρ = {rho.toFixed(2)}
             {Math.abs(rho) < 0.5 ? ' (weak, so the margin adds information).' : ' (strong, so the signals largely overlap).'}{' '}
             Click a point to open its flip curve.
@@ -87,7 +89,8 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen }: Props) {
 
   const pExt = d3.extent(items, (it) => it.p_answer) as [number, number];
   const x = d3.scaleLinear().domain([Math.min(0, pExt[0]), 1]).range([0, iw]);
-  const yMax = stats.cap + 0.08;
+  const yMax = stats.displayMax;
+  const yTop = stats.anyCensored ? stats.maxAlpha : yMax;
   const y = pushScale(yMax, [ih, 0]);
   const yCens = y(stats.cap);
   const mxp = x(stats.medP);
@@ -95,14 +98,14 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen }: Props) {
 
   const cornerPad = 10;
   const quadText: { q: Quadrant; x: number; y: number; anchor: 'start' | 'end' }[] = [
-    { q: 'unsure-stable', x: cornerPad, y: y(stats.maxAlpha) + 16, anchor: 'start' },
-    { q: 'confident-robust', x: iw - cornerPad, y: y(stats.maxAlpha) + 16, anchor: 'end' },
+    { q: 'unsure-stable', x: cornerPad, y: y(yTop) + 16, anchor: 'start' },
+    { q: 'confident-robust', x: iw - cornerPad, y: y(yTop) + 16, anchor: 'end' },
     { q: 'unsure-fragile', x: cornerPad, y: ih - 10, anchor: 'start' },
     { q: 'confident-fragile', x: iw - cornerPad, y: ih - 10, anchor: 'end' },
   ];
 
   const pos = (it: Item) => ({ cx: x(it.p_answer), cy: y(mval(it, stats)) });
-  const yTicks = pushTicks(stats.maxAlpha);
+  const yTicks = pushTicks(yTop);
 
   return (
     <div ref={ref} className="chart-fill" style={{ minHeight: 280 }}>
@@ -111,12 +114,16 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen }: Props) {
           <g transform={`translate(${m.left},${m.top})`}>
             {/* highlight the key quadrant */}
             <rect x={mxp} y={myp} width={Math.max(0, iw - mxp)} height={Math.max(0, ih - myp)} fill="var(--alt-soft)" opacity={0.55} />
-            {/* censored band */}
-            <rect x={0} y={y(yMax)} width={iw} height={y(stats.maxAlpha) - y(yMax) - 4} fill="var(--accent-bg)" />
-            <text className="annot-muted" x={-8} y={yCens + 4} textAnchor="end">&gt; {stats.maxAlpha}</text>
-            <text className="annot-muted" x={iw / 2} y={y(yMax) + 11} textAnchor="middle" fontSize={10}>
-              never flipped within tested pushes
-            </text>
+            {/* censored band (only when some answer never flipped) */}
+            {stats.anyCensored && (
+              <>
+                <rect x={0} y={y(yMax)} width={iw} height={y(stats.maxAlpha) - y(yMax) - 4} fill="var(--accent-bg)" />
+                <text className="annot-muted" x={-8} y={yCens + 4} textAnchor="end">&gt; {stats.maxAlpha}</text>
+                <text className="annot-muted" x={iw / 2} y={y(yMax) + 11} textAnchor="middle" fontSize={10}>
+                  never flipped within tested pushes
+                </text>
+              </>
+            )}
 
             {yTicks.map((t) => (
               <g key={t}>
@@ -212,30 +219,4 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen }: Props) {
       )}
     </div>
   );
-}
-
-function rank(v: number[]): number[] {
-  const idx = v.map((x, i) => [x, i] as const).sort((a, b) => a[0] - b[0]);
-  const r = new Array(v.length);
-  for (let i = 0; i < idx.length; ) {
-    let j = i;
-    while (j + 1 < idx.length && idx[j + 1][0] === idx[i][0]) j++;
-    for (let k = i; k <= j; k++) r[idx[k][1]] = (i + j) / 2;
-    i = j + 1;
-  }
-  return r;
-}
-
-function spearman(a: number[], b: number[]): number {
-  const ra = rank(a);
-  const rb = rank(b);
-  const ma = d3.mean(ra)!;
-  const mb = d3.mean(rb)!;
-  let num = 0, da = 0, db = 0;
-  for (let i = 0; i < a.length; i++) {
-    num += (ra[i] - ma) * (rb[i] - mb);
-    da += (ra[i] - ma) ** 2;
-    db += (rb[i] - mb) ** 2;
-  }
-  return da && db ? num / Math.sqrt(da * db) : 0;
 }

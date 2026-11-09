@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { bandOf, fmtMargin, mval, pct, pushScale, pushTicks } from '../lib/data';
+import { bandOf, comparePhrase, fmtMargin, mval, pushScale, pushTicks } from '../lib/data';
 import { useSize } from '../lib/hooks';
 import type { Band, Item, Stats } from '../lib/types';
 import { Tip } from '../components/Tip';
@@ -20,12 +20,11 @@ interface Props {
 
 export function R1Score({ item, items, stats, compact }: Props) {
   const band = bandOf(item, stats);
-  const fr = stats.fragilerThan.get(item.id) ?? 0;
   const censored = item.censored || item.margin == null;
 
   const sentence = censored
     ? `No push we tested (up to ${stats.maxAlpha}) changed this answer — among the most robust in the set.`
-    : `This answer changes with a smaller internal push than ${pct(fr)} of the other answers.`;
+    : comparePhrase(item, stats, 'long');
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: compact ? 6 : 14, flex: compact ? 1 : undefined, minHeight: 0 }}>
@@ -63,14 +62,17 @@ function Gauge({ item, items, stats, height }: { item: Item; items: Item[]; stat
   const m = { left: 8, right: 8 };
   const top = 30; // room for marker label
   const barH = 26;
-  const x = pushScale(stats.cap + 0.05, [m.left, Math.max(m.left + 10, width - m.right)]);
+  const x = pushScale(stats.displayMax, [m.left, Math.max(m.left + 10, width - m.right)]);
   const bands: { b: Band; from: number; to: number }[] = [
     { b: 'Fragile', from: 0, to: stats.t1 },
     { b: 'Moderate', from: stats.t1, to: stats.t2 },
-    { b: 'Robust', from: stats.t2, to: stats.cap + 0.05 },
+    { b: 'Robust', from: stats.t2, to: stats.displayMax },
   ];
   const mx = x(mval(item, stats));
-  const ticks = pushTicks(stats.maxAlpha).filter((t) => t < stats.maxAlpha);
+  const narrow = width < 560;
+  const ticks = stats.anyCensored
+    ? pushTicks(stats.maxAlpha, narrow).filter((t) => t < stats.maxAlpha)
+    : pushTicks(stats.displayMax, narrow);
   const label = `${fmtMargin(item, stats)}`;
 
   return (
@@ -104,7 +106,9 @@ function Gauge({ item, items, stats, height }: { item: Item; items: Item[]; stat
             ) : null,
           )}
           {/* censored region marker */}
-          <line x1={x(stats.maxAlpha)} x2={x(stats.maxAlpha)} y1={top - 3} y2={top + barH + 3} stroke="#fff" strokeWidth={2} strokeDasharray="3 2" />
+          {stats.anyCensored && (
+            <line x1={x(stats.maxAlpha)} x2={x(stats.maxAlpha)} y1={top - 3} y2={top + barH + 3} stroke="#fff" strokeWidth={2} strokeDasharray="3 2" />
+          )}
           {/* other items */}
           {items.map((o) =>
             o.id === item.id ? null : (
@@ -143,9 +147,11 @@ function Gauge({ item, items, stats, height }: { item: Item; items: Item[]; stat
               {t}
             </text>
           ))}
-          <text x={x(stats.cap)} y={top + barH + 26} textAnchor="middle" className="tick-label">
-            {stats.maxAlpha}+
-          </text>
+          {stats.anyCensored && (
+            <text x={x(stats.cap)} y={top + barH + 26} textAnchor="middle" className="tick-label">
+              {stats.maxAlpha}+
+            </text>
+          )}
           {/* marker */}
           <g style={{ transform: `translateX(${mx}px)`, transition: 'transform var(--t) ease-out' }}>
             <line x1={0} x2={0} y1={top - 6} y2={top + barH + 2} stroke="var(--ink)" strokeWidth={2.5} />

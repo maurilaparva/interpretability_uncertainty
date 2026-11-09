@@ -1,12 +1,11 @@
-import { BAND_WORD, bandOf, flipToken, pct, tok } from '../lib/data';
+import { BAND_WORD, bandOf, comparePhrase, flipToken, fmtPush, tok, wordFor } from '../lib/data';
 import type { Item, Stats } from '../lib/types';
 
 export function R4Counterfactual({ item, stats, compact }: { item: Item; stats: Stats; compact?: boolean }) {
   const censored = item.censored || item.margin == null;
   const band = bandOf(item, stats);
-  const fr = stats.fragilerThan.get(item.id) ?? 0;
   const answer = item.answer_text || tok(item.answer_token);
-  const toward = tok(item.alt_token);
+  const toward = wordFor(item, item.alt_token);
   const flipTo = flipToken(item, stats);
   // What the model says after the push; fall back to the flipped token if generation is empty.
   const cf = (item.counterfactual_text || (flipTo ? tok(flipTo) : toward)).trim();
@@ -31,7 +30,7 @@ export function R4Counterfactual({ item, stats, compact }: { item: Item; stats: 
           <>
             A <strong>{BAND_WORD[band]}</strong> internal nudge toward “<span className="tok alt">{toward}</span>”{' '}
             <span style={{ color: 'var(--muted)', fontSize: '0.62em', whiteSpace: 'nowrap' }}>
-              (strength {item.margin!.toFixed(2)}, layer {item.margin_layer})
+              (strength {fmtPush(item.margin!)}, layer {item.margin_layer})
             </span>{' '}
             makes the model answer “<strong className={`tok ${sameAsAnswer ? 'answer' : 'alt'}`}>{cf}</strong>” instead
             of “<span className="tok answer">{answer}</span>”.
@@ -39,11 +38,11 @@ export function R4Counterfactual({ item, stats, compact }: { item: Item; stats: 
         )}
       </blockquote>
       <p style={{ color: 'var(--muted)', fontSize: compact ? 13 : 15 }}>
-        {censored ? 'Among the most robust answers tested.' : `More fragile than ${pct(fr)} of questions tested.`}
+        {censored ? 'Among the most robust answers tested.' : comparePhrase(item, stats, 'short')}
       </p>
       {!compact && (
         <p className="caption" style={{ maxWidth: '70ch' }}>
-          “Nudge” = adding a direction to the model's internal state at one layer, pointing from “{tok(item.answer_token)}”
+          “Nudge” = adding a direction to the model's internal state at one layer, pointing from “{answer}”
           toward “{toward}”, sized relative to the state itself. Size word: small / moderate / large = the lower, middle
           or upper third of robustness scores in this set.
         </p>

@@ -60,21 +60,31 @@ export function computeStats(data: Dataset): Stats {
   const layers =
     data.meta.layers && data.meta.layers.length === nRows ? data.meta.layers : d3.range(nRows);
   const fragilerThan = new Map<string, number>();
+  const robusterThan = new Map<string, number>();
+  const others = Math.max(items.length - 1, 1);
   for (const it of items) {
     const m = mval(it, { cap });
-    const larger = items.filter((o) => o !== it && mval(o, { cap }) > m).length;
-    fragilerThan.set(it.id, items.length > 1 ? larger / (items.length - 1) : 0);
+    fragilerThan.set(it.id, items.filter((o) => o !== it && mval(o, { cap }) > m).length / others);
+    robusterThan.set(it.id, items.filter((o) => o !== it && mval(o, { cap }) < m).length / others);
   }
+  const anyCensored = items.some((it) => it.censored || it.margin == null);
+  const maxFlip = d3.max(items, (it) => (it.censored || it.margin == null ? 0 : it.margin)) ?? maxAlpha;
+  const displayMax = anyCensored
+    ? cap + 0.05
+    : (PUSH_TICK_CANDIDATES.find((t) => t >= maxFlip * 1.15) ?? maxAlpha);
   return {
     alphas,
     maxAlpha,
     cap,
+    displayMax,
+    anyCensored,
     t1: Math.min(d3.quantileSorted(ms, 1 / 3) ?? 0.5, maxAlpha),
     t2: Math.min(d3.quantileSorted(ms, 2 / 3) ?? 1, maxAlpha),
     medP: d3.median(ps) ?? 0.5,
     medM: d3.median(ms) ?? 0.5,
     layers,
     fragilerThan,
+    robusterThan,
   };
 }
 
@@ -96,26 +106,59 @@ export function quadrantOf(it: Item, stats: Stats): Quadrant {
   return fragile ? 'unsure-fragile' : 'unsure-stable';
 }
 
+/** Best human-readable word for a top-1 token: the full answer / counterfactual when the token starts it
+ *  (so "Bras" shows as "Brasilia", "Kath" as "Kathmandu"); otherwise the stripped token. */
+export function wordFor(it: Item, t: string): string {
+  const role = tokenRole(it, t);
+  if (role === 'answer') return it.answer_text || tok(it.answer_token);
+  const s = tok(t);
+  const cf = (it.counterfactual_text || '').trim();
+  if (cf && s !== '␣' && cf.toLowerCase().startsWith(s.toLowerCase())) return cf;
+  return s;
+}
+
 /** Display form of a raw token: strip whitespace, make empty visible. */
 export function tok(s: string | null | undefined): string {
   const t = (s ?? '').trim();
   return t.length ? t : '␣';
 }
 
+/** Push strengths can be as small as 0.002, so use 3 decimals below 0.1. */
+export function fmtPush(a: number): string {
+  return a < 0.1 && a > 0 ? a.toFixed(3) : a.toFixed(2);
+}
+
 export function fmtMargin(it: Item, stats: Stats): string {
-  return it.censored || it.margin == null ? `> ${stats.maxAlpha}` : it.margin.toFixed(2);
+  return it.censored || it.margin == null ? `> ${stats.maxAlpha}` : fmtPush(it.margin);
 }
 
 export const pct = (x: number) => `${Math.round(x * 100)}%`;
+
+/** Comparison sentence, phrased from whichever side the item is on (never "more fragile than 0%"). */
+export function comparePhrase(it: Item, stats: Stats, style: 'long' | 'short'): string {
+  const fr = stats.fragilerThan.get(it.id) ?? 0;
+  const rb = stats.robusterThan.get(it.id) ?? 0;
+  if (fr >= rb) {
+    return style === 'long'
+      ? `This answer changes with a smaller internal push than ${pct(fr)} of the other answers.`
+      : `More fragile than ${pct(fr)} of questions tested.`;
+  }
+  return style === 'long'
+    ? `It takes a bigger internal push to change this answer than ${pct(rb)} of the other answers.`
+    : `More robust than ${pct(rb)} of questions tested.`;
+}
 
 /** Push strengths span ~0.002 .. 1.5, so every push axis uses one shared square-root scale. */
 export function pushScale(domainMax: number, range: [number, number]) {
   return d3.scaleSqrt().domain([0, domainMax]).range(range).clamp(true);
 }
 
+const PUSH_TICK_CANDIDATES = [0, 0.005, 0.01, 0.02, 0.05, 0.1, 0.25, 0.5, 1, 1.5];
+
+/** Tick values for a sqrt push axis ending at `max`, thinned so labels don't collide near zero. */
 export function pushTicks(max: number, compact = false): number[] {
-  const t = compact ? [0, 0.1, 0.5, 1, 1.5] : [0, 0.05, 0.1, 0.25, 0.5, 1, 1.5];
-  return t.filter((v) => v <= max + 1e-9);
+  const t = PUSH_TICK_CANDIDATES.filter((v) => v <= max + 1e-9 && (v === 0 || v >= max / (compact ? 12 : 30)));
+  return compact && t.length > 5 ? t.filter((_, i) => i === 0 || i % 2 === (t.length - 1) % 2) : t;
 }
 
 /** Index of the grid strength nearest to a. */
@@ -144,4 +187,30 @@ export function tokenRole(it: Item, t: string): 'answer' | 'alt' | 'other' {
   if (it.same_answer_tokens?.includes(t)) return 'answer';
   if (t === it.alt_token || tok(t).toLowerCase() === tok(it.alt_token).toLowerCase()) return 'alt';
   return 'other';
+}
+
+function rank(v: number[]): number[] {
+  const idx = v.map((x, i) => [x, i] as const).sort((a, b) => a[0] - b[0]);
+  const r = new Array(v.length);
+  for (let i = 0; i < idx.length; ) {
+    let j = i;
+    while (j + 1 < idx.length && idx[j + 1][0] === idx[i][0]) j++;
+    for (let k = i; k <= j; k++) r[idx[k][1]] = (i + j) / 2;
+    i = j + 1;
+  }
+  return r;
+}
+
+export function spearman(a: number[], b: number[]): number {
+  const ra = rank(a);
+  const rb = rank(b);
+  const ma = d3.mean(ra)!;
+  const mb = d3.mean(rb)!;
+  let num = 0, da = 0, db = 0;
+  for (let i = 0; i < a.length; i++) {
+    num += (ra[i] - ma) * (rb[i] - mb);
+    da += (ra[i] - ma) ** 2;
+    db += (rb[i] - mb) ** 2;
+  }
+  return da && db ? num / Math.sqrt(da * db) : 0;
 }

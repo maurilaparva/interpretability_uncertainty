@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { Loaded } from '../lib/data';
+import { mval, spearman, type Loaded } from '../lib/data';
 import type { Stats } from '../lib/types';
 
 export function AboutDrawer({ loaded, stats, onClose }: { loaded: Loaded; stats: Stats; onClose: () => void }) {
@@ -7,6 +7,10 @@ export function AboutDrawer({ loaded, stats, onClose }: { loaded: Loaded; stats:
   const closeRef = useRef<HTMLButtonElement>(null);
   useEffect(() => closeRef.current?.focus(), []);
   const nLayers = stats.layers.length;
+  const items = loaded.data.items;
+  const rho = spearman(items.map((it) => it.p_answer), items.map((it) => mval(it, stats)));
+  const mLayers = [...new Set(items.filter((it) => !it.censored).map((it) => it.margin_layer))].sort((a, b) => a - b);
+  const lateOnly = mLayers.length > 0 && mLayers[0] >= meta.n_layers - 3;
 
   return (
     <>
@@ -55,6 +59,29 @@ export function AboutDrawer({ loaded, stats, onClose }: { loaded: Loaded; stats:
             charts), with the flip point refined by binary search. “&gt; {stats.maxAlpha}” means it never flipped.
           </li>
         </ul>
+
+        {!loaded.isMock && (
+          <>
+            <h3>What this data shows</h3>
+            <ul>
+              <li>
+                Rank correlation between output confidence and robustness: <strong>ρ = {rho.toFixed(2)}</strong>.
+                {Math.abs(rho) >= 0.5 ? ' The two signals largely agree; the interesting cases are the exceptions.' : ' The margin carries information that confidence does not.'}
+              </li>
+              {lateOnly && (
+                <li>
+                  The most fragile layer is always one of the last ({mLayers.join(', ')}). There, a push along the
+                  answer-vs-runner-up direction mostly edits the output scores directly, which is why this margin tracks
+                  confidence. Whether the paper's Jacobian-lens directions separate the two more is untested here.
+                </li>
+              )}
+              <li>
+                A flip to another piece of the <em>same</em> answer (e.g. “Shakespeare” for “William Shakespeare”) is not
+                counted as a change.
+              </li>
+            </ul>
+          </>
+        )}
 
         <h3>Limitations</h3>
         <ul>

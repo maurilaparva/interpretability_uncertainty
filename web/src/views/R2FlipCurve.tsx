@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { useMemo, useState } from 'react';
-import { flipToken, nearestAlphaIndex, pct, pushScale, pushTicks, rowOfLayer, tok, tokenRole } from '../lib/data';
+import { flipToken, fmtPush, nearestAlphaIndex, pct, pushScale, pushTicks, rowOfLayer, tok, tokenRole, wordFor } from '../lib/data';
 import { useSize } from '../lib/hooks';
 import type { Item, Stats } from '../lib/types';
 import { Tip } from '../components/Tip';
@@ -24,8 +24,8 @@ export function R2FlipCurve({ item, stats, compact }: Props) {
   const [hoverRow, setHoverRow] = useState<number | null>(null);
   const mRow = rowOfLayer(stats, item.margin_layer);
   const flipTo = flipToken(item, stats);
-  const ans = tok(item.answer_token);
-  const alt = tok(item.alt_token);
+  const ans = wordFor(item, item.answer_token);
+  const alt = wordFor(item, item.alt_token);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, gap: 8 }}>
@@ -96,7 +96,7 @@ function LineChart({
   const yTicks = compact ? [0, 0.5, 1] : [0, 0.25, 0.5, 0.75, 1];
   const xTicks = pushTicks(stats.maxAlpha, compact);
   const labelRight = mx != null && mx > iw - 150;
-  const flipLabel = flipTo ? tok(flipTo) : tok(item.alt_token);
+  const flipLabel = wordFor(item, flipTo ?? item.alt_token);
 
   return (
     <div ref={ref} className="chart-fill" style={{ minHeight: compact ? 110 : 170 }}>
@@ -157,7 +157,7 @@ function LineChart({
               <g style={{ transform: `translateX(${mx}px)`, transition: 'transform var(--t) ease-out' }}>
                 <line y1={-6} y2={ih} stroke="var(--ink)" strokeWidth={1.5} strokeDasharray="3 3" />
                 <text className="annot halo" x={labelRight ? -6 : 6} y={-10} textAnchor={labelRight ? 'end' : 'start'}>
-                  Flips to <tspan fontStyle="italic" fill="var(--alt)">{flipLabel}</tspan> here ({item.margin!.toFixed(2)})
+                  Flips to <tspan fontStyle="italic" fill="var(--alt)">{flipLabel}</tspan> here ({fmtPush(item.margin!)})
                 </text>
               </g>
             ) : (
@@ -183,10 +183,10 @@ function LineChart({
             {tip.row === mRow ? ' (most fragile)' : ''}:{' '}
             {item.per_layer_margin[tip.row] == null
               ? 'never flips'
-              : `flips at ${item.per_layer_margin[tip.row]!.toFixed(2)}`}
+              : `flips at ${fmtPush(item.per_layer_margin[tip.row]!)}`}
           </div>
           <div className="t-muted">
-            At push {stats.alphas[tip.ai].toFixed(2)}: P(“{tok(item.answer_token)}”) {pct(item.curves.p_answer[tip.row][tip.ai])},
+            At push {fmtPush(stats.alphas[tip.ai])}: P(“{wordFor(item, item.answer_token)}”) {pct(item.curves.p_answer[tip.row][tip.ai])},
             top word “{tok(item.curves.top1[tip.row][tip.ai])}”
           </div>
         </Tip>
@@ -202,7 +202,7 @@ function Heatmap({
   const [tip, setTip] = useState<{ x: number; y: number; row: number; ai: number } | null>(null);
   const nR = item.curves.top1.length;
   const nA = stats.alphas.length;
-  const cellH = Math.max(4, Math.min(7, Math.floor(150 / nR)));
+  const cellH = Math.max(3, Math.min(window.innerHeight < 760 ? 4 : 6, Math.floor(150 / nR)));
   const m = { top: 2, right: MARGIN.right, bottom: 18, left: MARGIN.left };
   const iw = Math.max(10, width - m.left - m.right);
   const ih = nR * cellH;
@@ -256,7 +256,7 @@ function Heatmap({
       )}
       {tip && (
         <Tip x={tip.x} y={tip.y} width={width}>
-          <div className="t-head">Layer {stats.layers[tip.row]}, push {stats.alphas[tip.ai].toFixed(2)}</div>
+          <div className="t-head">Layer {stats.layers[tip.row]}, push {fmtPush(stats.alphas[tip.ai])}</div>
           <div className="t-muted">Model says “{tok(item.curves.top1[tip.row][tip.ai])}”</div>
         </Tip>
       )}

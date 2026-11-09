@@ -57,6 +57,8 @@ function Shell({ loaded }: { loaded: Loaded }) {
   const [aboutOpen, setAboutOpen] = useState(false);
 
   const item: Item = items.find((it) => it.id === itemId) ?? items[0];
+  // TODO(study): participant logging and study conditions (which representation a participant sees,
+  // randomized order) would plug in here, gating `view` and recording item/view/time events.
 
   // URL <- state
   useEffect(() => {

@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
-import { useEffect, useRef, useState } from 'react';
-import { pct, rowOfLayer, tok, tokenRole } from '../lib/data';
+import { useEffect, useState } from 'react';
+import { fmtPush, pct, rowOfLayer, tokenRole, wordFor } from '../lib/data';
 import type { Item, Stats } from '../lib/types';
 
 interface Props {
@@ -17,23 +17,21 @@ export function R3Push({ item, stats, compact }: Props) {
   const [ai, setAi] = useState(0);
   const [row, setRow] = useState(() => rowOfLayer(stats, item.margin_layer));
   const [playing, setPlaying] = useState(false);
-  const timer = useRef<number | null>(null);
 
   const perLayer = item.per_layer_margin[row];
   // first grid index at which this layer's top-1 differs from the answer
   const flipIdx = item.curves.top1[row].findIndex((t) => tokenRole(item, t) !== 'answer');
   const playEnd = flipIdx >= 0 ? Math.min(nA - 1, flipIdx + 3) : nA - 1;
 
+  // Auto-play: one grid step per tick; stops a few steps past this layer's flip.
   useEffect(() => {
     if (!playing) return;
-    if (ai >= playEnd) {
-      setPlaying(false);
-      return;
-    }
-    timer.current = window.setTimeout(() => setAi((a) => a + 1), ai === 0 ? 400 : STEP_MS);
-    return () => {
-      if (timer.current) window.clearTimeout(timer.current);
-    };
+    const id = window.setTimeout(() => {
+      const next = Math.min(ai + 1, playEnd);
+      setAi(next);
+      if (next >= playEnd) setPlaying(false);
+    }, ai === 0 ? 400 : STEP_MS);
+    return () => window.clearTimeout(id);
   }, [playing, ai, playEnd]);
 
   const play = () => {
@@ -52,14 +50,15 @@ export function R3Push({ item, stats, compact }: Props) {
   const a = alphas[ai];
 
   const flipPct = perLayer == null ? null : Math.max(0, d3.bisectLeft(alphas, perLayer) - 0.5) / (nA - 1);
-  const big = compact ? 30 : 44;
+  const word = wordFor(item, top);
+  const big = (compact ? 30 : 44) * (word.length > 12 ? (compact ? 0.62 : 0.8) : 1);
 
   const controls = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: compact ? 8 : 16, minWidth: 0 }}>
       <label style={{ display: 'block' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
           <strong>Push strength</strong>
-          <span style={{ fontVariantNumeric: 'tabular-nums' }}>{a.toFixed(2)}</span>
+          <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtPush(a)}</span>
         </div>
         <input
           type="range"
@@ -69,7 +68,7 @@ export function R3Push({ item, stats, compact }: Props) {
           value={ai}
           onChange={(e) => { setPlaying(false); setAi(Number(e.target.value)); }}
           style={{ width: '100%', accentColor: 'var(--ink)' }}
-          aria-valuetext={`push ${a.toFixed(2)}`}
+          aria-valuetext={`push ${fmtPush(a)}`}
         />
         <div style={{ position: 'relative', height: 16, fontSize: 11, color: 'var(--muted)' }}>
           {flipPct != null ? (
@@ -81,7 +80,7 @@ export function R3Push({ item, stats, compact }: Props) {
                 transition: 'left var(--t)',
               }}
             >
-              {flipPct > 0.7 ? `flips at ${perLayer!.toFixed(2)} ▲` : `▲ flips at ${perLayer!.toFixed(2)}`}
+              {flipPct > 0.7 ? `flips at ${fmtPush(perLayer!)} ▲` : `▲ flips at ${fmtPush(perLayer!)}`}
             </span>
           ) : (
             <span>never flips on this layer (≤ {stats.maxAlpha})</span>
@@ -125,15 +124,16 @@ export function R3Push({ item, stats, compact }: Props) {
   const result = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: compact ? 6 : 12, minWidth: 0 }}>
       <div style={{ fontSize: 13, color: 'var(--ink-2)' }}>
-        At push {a.toFixed(2)} on layer {layers[row]}, the model would say:
+        At push {fmtPush(a)} on layer {layers[row]}, the model would say:
       </div>
-      <div style={{ height: big * 1.25, overflow: 'hidden', position: 'relative' }}>
+      <div style={{ height: (compact ? 30 : 44) * 1.25, overflow: 'hidden', position: 'relative', display: 'flex', alignItems: 'flex-end' }}>
         <div
           key={`${top}-${row}`}
           className={`tok ${role} swap-in`}
-          style={{ fontSize: big, lineHeight: 1.2, letterSpacing: '-0.01em' }}
+          style={{ fontSize: big, lineHeight: 1.2, letterSpacing: '-0.01em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+          title={word}
         >
-          {tok(top)}
+          {word}
           {role === 'other' && <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--muted)' }}> (a third word)</span>}
           {role !== 'answer' && (
             <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-2)', marginLeft: 10, verticalAlign: 'middle' }}>
@@ -142,8 +142,8 @@ export function R3Push({ item, stats, compact }: Props) {
           )}
         </div>
       </div>
-      <ProbBar label={`P(“${tok(item.answer_token)}”)`} p={pA} color="var(--answer)" />
-      <ProbBar label={`P(“${tok(item.alt_token)}”)`} p={pB} color="var(--alt)" />
+      <ProbBar label={`P(“${wordFor(item, item.answer_token)}”)`} p={pA} color="var(--answer)" />
+      <ProbBar label={`P(“${wordFor(item, item.alt_token)}”)`} p={pB} color="var(--alt)" />
     </div>
   );
 
