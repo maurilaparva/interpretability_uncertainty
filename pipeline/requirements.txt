@@ -1,0 +1,5 @@
+torch>=2.2
+transformers>=4.45
+numpy
+tqdm
+hf_xet  # fast Hugging Face downloads (required by recent huggingface_hub for Qwen weights)

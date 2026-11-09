@@ -1,0 +1,28 @@
+[
+  {"id": "q01", "question": "What is the capital of Japan?", "gold": "Tokyo", "difficulty": "easy"},
+  {"id": "q02", "question": "What is the chemical symbol for gold?", "gold": "Au", "difficulty": "easy"},
+  {"id": "q03", "question": "Which planet is known as the Red Planet?", "gold": "Mars", "difficulty": "easy"},
+  {"id": "q04", "question": "What is the largest ocean on Earth?", "gold": "Pacific", "difficulty": "easy"},
+  {"id": "q05", "question": "Who wrote Romeo and Juliet?", "gold": "Shakespeare", "aliases": ["William"], "difficulty": "easy"},
+  {"id": "q06", "question": "What is the capital of Italy?", "gold": "Rome", "aliases": ["Roma"], "difficulty": "easy"},
+  {"id": "q07", "question": "What is the largest planet in the Solar System?", "gold": "Jupiter", "difficulty": "easy"},
+  {"id": "q08", "question": "What is the capital of Germany?", "gold": "Berlin", "difficulty": "easy"},
+
+  {"id": "q09", "question": "What is the capital of Australia?", "gold": "Canberra", "difficulty": "medium"},
+  {"id": "q10", "question": "Who wrote One Hundred Years of Solitude?", "gold": "Gabriel García Márquez", "aliases": ["Gabriel", "García", "Garcia", "Márquez", "Marquez"], "difficulty": "medium"},
+  {"id": "q11", "question": "What is the capital of Canada?", "gold": "Ottawa", "difficulty": "medium"},
+  {"id": "q12", "question": "What is the capital of Turkey?", "gold": "Ankara", "difficulty": "medium"},
+  {"id": "q13", "question": "Who composed The Four Seasons?", "gold": "Vivaldi", "aliases": ["Antonio"], "difficulty": "medium"},
+  {"id": "q14", "question": "Which element has the chemical symbol K?", "gold": "Potassium", "difficulty": "medium"},
+  {"id": "q15", "question": "What is the capital of Brazil?", "gold": "Brasília", "aliases": ["Brasilia"], "difficulty": "medium"},
+  {"id": "q16", "question": "Who developed the theory of general relativity?", "gold": "Einstein", "aliases": ["Albert"], "difficulty": "medium"},
+
+  {"id": "q17", "question": "What is the capital of Burkina Faso?", "gold": "Ouagadougou", "difficulty": "hard"},
+  {"id": "q18", "question": "What is the capital of Kazakhstan?", "gold": "Astana", "aliases": ["Nur-Sultan"], "difficulty": "hard"},
+  {"id": "q19", "question": "Which element has the chemical symbol W?", "gold": "Tungsten", "aliases": ["Wolfram"], "difficulty": "hard"},
+  {"id": "q20", "question": "What is the capital of Myanmar?", "gold": "Naypyidaw", "aliases": ["Nay Pyi Taw", "Naypyitaw"], "difficulty": "hard"},
+  {"id": "q21", "question": "Who painted The Garden of Earthly Delights?", "gold": "Bosch", "aliases": ["Hieronymus"], "difficulty": "hard"},
+  {"id": "q22", "question": "What is the capital of Bhutan?", "gold": "Thimphu", "difficulty": "hard"},
+  {"id": "q23", "question": "Who discovered the electron?", "gold": "Thomson", "aliases": ["J.J. Thomson", "Joseph"], "difficulty": "hard"},
+  {"id": "q24", "question": "What is the capital of Nigeria?", "gold": "Abuja", "difficulty": "hard"}
+]
