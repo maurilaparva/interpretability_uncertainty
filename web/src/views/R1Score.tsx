@@ -3,6 +3,7 @@ import { bandOf, comparePhrase, fmtMargin, mval, pushScale, pushTicks } from '..
 import { useSize } from '../lib/hooks';
 import type { Band, Item, Stats } from '../lib/types';
 import { Tip } from '../components/Tip';
+import { useGuidance } from '../components/GuidanceContext';
 
 const BAND_FILL: Record<Band, string> = {
   Fragile: 'var(--band-fragile)',
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export function R1Score({ item, items, stats, compact }: Props) {
+  const guided = useGuidance();
   const band = bandOf(item, stats);
   const censored = item.censored || item.margin == null;
 
@@ -40,6 +42,7 @@ export function R1Score({ item, items, stats, compact }: Props) {
         >
           {band}
         </span>
+        {guided && <span className="caption">relative to this set</span>}
       </div>
       <Gauge item={item} items={items} stats={stats} height={compact ? 94 : 120} />
       <p className={compact ? 'caption' : 'lede'} style={compact ? { color: 'var(--ink-2)', fontSize: 13 } : undefined}>
@@ -50,6 +53,7 @@ export function R1Score({ item, items, stats, compact }: Props) {
           Robustness = the smallest internal push (relative to the size of the model's internal state) that changes the
           answer. Bands are the lower, middle and upper thirds of the {items.length} questions in this set. Faint ticks
           show the other questions.
+          {guided && ' High robustness does not mean the answer is correct.'}
         </p>
       )}
     </div>

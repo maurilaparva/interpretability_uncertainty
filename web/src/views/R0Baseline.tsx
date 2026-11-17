@@ -1,10 +1,12 @@
 import { pct, tok, tokenRole } from '../lib/data';
 import type { Item } from '../lib/types';
+import { useGuidance } from '../components/GuidanceContext';
 
 const ROLE_COLOR = { answer: 'var(--answer)', alt: 'var(--alt)', other: 'var(--other)' } as const;
 
 /** Full R0 view: output confidence + top-5 next-word distribution. */
 export function R0Baseline({ item }: { item: Item }) {
+  const guided = useGuidance();
   return (
     <div className="baseline-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(260px, 1fr) minmax(280px, 1fr)', gap: 36 }}>
       <div>
@@ -15,12 +17,13 @@ export function R0Baseline({ item }: { item: Item }) {
         </div>
         <ConfidenceBar p={item.p_answer} />
         <p className="caption" style={{ marginTop: 12, maxWidth: '52ch' }}>
-          This is what products typically show today: how likely the model's chosen first word was,
-          read from its output. It says nothing about how stable the internal computation is.
+          {guided
+            ? 'Probability assigned to the chosen first token, not the probability that the answer is correct.'
+            : "This is what products typically show today: how likely the model's chosen first word was, read from its output. It says nothing about how stable the internal computation is."}
         </p>
       </div>
       <div>
-        <div className="panel-title"><span className="name">Top 5 next words</span></div>
+        <div className="panel-title"><span className="name">Top 5 next {guided ? 'tokens' : 'words'}</span></div>
         <Top5 item={item} />
       </div>
     </div>

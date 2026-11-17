@@ -43,6 +43,10 @@ Starting a new session replaces the saved session after confirmation; download t
 Download **CSV** for responses or **JSON** for responses and interaction events, including views, question
 selection, sliders, autoplay, About-panel use, and step timings.
 
+A quick guide appears after first impressions and can be reopened from the task toolbar. CSV includes
+`guidance_version`; JSON includes guide exposure and navigation events, including earlier explorer use
+in the same browser tab. Section B receives no new hints; Section F and D2 measure post-guidance comprehension.
+
 ### Google Sheets upload
 
 When `VITE_SHEETS_URL` is set, a finished session is POSTed once to a Google Apps Script web app, which writes

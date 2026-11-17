@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import test, { type TestContext } from 'node:test';
 import { advanceSession, canGoBack, isAnswered, missingRequired, stepDuration } from './flow.ts';
+import { canShowStudyGuide, getExplorerGuideExposure, GUIDE_VERSION, guideVersionFor, recordExplorerGuideExposure, shouldAutoShowGuide } from './guidance.ts';
 import { clearSession, createSession, downloadSession, loadSession, saveSession, sessionToCsv } from './storage.ts';
 import type { StudyQuestion, StudyStep } from './questionnaire';
 import type { StudySession } from './storage';
@@ -34,9 +35,9 @@ function replaceGlobal(t: TestContext, key: string, value: unknown): void {
   });
 }
 
-function mockStorage(t: TestContext): Map<string, string> {
+function mockStorage(t: TestContext, kind: 'localStorage' | 'sessionStorage' = 'localStorage'): Map<string, string> {
   const data = new Map<string, string>();
-  replaceGlobal(t, 'localStorage', {
+  replaceGlobal(t, kind, {
     getItem: (key: string) => data.get(key) ?? null,
     setItem: (key: string, value: string) => data.set(key, value),
     removeItem: (key: string) => data.delete(key),
@@ -146,6 +147,91 @@ test('Back permits adjacent survey pages but never returns from reveal to predic
   assert.equal(canGoBack(steps, 99), false);
 });
 
+test('guidance stays unavailable during free exploration, first impressions, and understanding checks', () => {
+  for (const current of [
+    step('explore', 'explore', [], 'B'),
+    step('first-impressions', 'form', [], 'B'),
+    step('understanding-scores', 'form', [], 'F'),
+    step('understanding-interventions', 'form', [], 'F'),
+    step('reveal-answers', 'reveal'),
+  ]) {
+    assert.equal(canShowStudyGuide(current), false);
+    assert.equal(shouldAutoShowGuide(current, []), false);
+  }
+  assert.equal(canShowStudyGuide(step('read-answer', 'task')), true);
+  assert.equal(canShowStudyGuide(step('steer-answer', 'task')), true);
+  assert.equal(shouldAutoShowGuide(step('steer-answer', 'task'), []), false);
+});
+
+test('the guide automatically appears at the first reading task until its current version is closed', () => {
+  const current = step('read-answer', 'task');
+  assert.equal(shouldAutoShowGuide(current, []), true);
+  const opened = session({ events: [
+    { type: 'guide_opened', stepId: current.id, at: NOW, details: { version: GUIDE_VERSION } },
+  ] });
+  assert.equal(shouldAutoShowGuide(current, opened.events), true, 'an interrupted guide may resume');
+  const closed = [...opened.events, { type: 'guide_closed', stepId: current.id, at: LATER, details: { version: GUIDE_VERSION } }];
+  assert.equal(shouldAutoShowGuide(current, closed), false);
+  assert.equal(canShowStudyGuide(current), true, 'closing the guide must not disable manual reopening');
+  assert.equal(shouldAutoShowGuide(current, [{ type: 'guide_closed', at: NOW, details: { version: 'old-guide' } }]), true);
+});
+
+test('guide exposure uses the latest opened version and legacy sessions remain unchanged', (t) => {
+  mockStorage(t);
+  const legacy = session({ stepIndex: 7, answers: { A2: 'PhD' } });
+  assert.equal(saveSession(legacy), true);
+  assert.deepEqual(loadSession('test-data'), legacy);
+  assert.equal(guideVersionFor(legacy.events), 'none');
+  assert.ok(sessionToCsv(legacy).includes('"A2","PhD","none"\r\n'));
+
+  const exposed = session({ answers: { A2: 'PhD', A3: 4 }, events: [
+    { type: 'guide_opened', at: NOW, details: { version: 'old-guide' } },
+    { type: 'guide_opened', at: LATER, details: { version: GUIDE_VERSION } },
+    { type: 'guide_step', at: LATER, details: { version: GUIDE_VERSION, step: 2 } },
+    { type: 'guide_closed', at: LATER, details: { version: GUIDE_VERSION } },
+  ] });
+  assert.equal(guideVersionFor(exposed.events), GUIDE_VERSION);
+  const rows = sessionToCsv(exposed).trimEnd().split('\r\n');
+  assert.equal(rows.length, 3);
+  assert.ok(rows.slice(1).every((row) => row.endsWith(`"${GUIDE_VERSION}"`)));
+  assert.equal(saveSession(exposed), true);
+  assert.deepEqual(loadSession('test-data'), exposed);
+});
+
+test('explorer guide exposure survives storage reads with its original timestamp and version', (t) => {
+  const data = mockStorage(t, 'sessionStorage');
+  assert.equal(getExplorerGuideExposure(), null);
+  recordExplorerGuideExposure();
+  const stored = JSON.parse(data.get('uncircuit.guide.exposure.v1')!);
+  assert.equal(stored.version, GUIDE_VERSION);
+  assert.ok(Number.isFinite(Date.parse(stored.at)));
+  assert.deepEqual(getExplorerGuideExposure(), {
+    type: 'guide_opened', at: stored.at, details: { version: GUIDE_VERSION, source: 'explorer' },
+  });
+  data.set('uncircuit.guide.exposure.v1', JSON.stringify({ version: 'earlier-guide', at: NOW }));
+  assert.deepEqual(getExplorerGuideExposure(), {
+    type: 'guide_opened', at: NOW, details: { version: 'earlier-guide', source: 'explorer' },
+  });
+});
+
+test('missing or malformed explorer exposure does not create a study event', (t) => {
+  const data = mockStorage(t, 'sessionStorage');
+  for (const value of ['{broken', 'null', '[]', '{}', JSON.stringify({ version: GUIDE_VERSION, at: 'invalid' }), JSON.stringify({ version: 1, at: NOW })]) {
+    data.set('uncircuit.guide.exposure.v1', value);
+    assert.equal(getExplorerGuideExposure(), null);
+    assert.equal(data.get('uncircuit.guide.exposure.v1'), value);
+  }
+});
+
+test('explorer guide remains usable when session storage is blocked', (t) => {
+  replaceGlobal(t, 'sessionStorage', {
+    getItem() { throw new Error('Storage blocked'); },
+    setItem() { throw new Error('Storage blocked'); },
+  });
+  assert.doesNotThrow(() => recordExplorerGuideExposure());
+  assert.equal(getExplorerGuideExposure(), null);
+});
+
 test('autosave preserves the entire session and prevents cross-dataset resume', (t) => {
   const data = mockStorage(t);
   const original = session({
@@ -192,7 +278,7 @@ test('CSV preserves quoted/multiline responses and neutralizes spreadsheet formu
   const csv = sessionToCsv(session({
     answers: { B1: 'Hello, "world"\nA second line', B3: ['r0', 'r3'], A3: 4, H4: '=HYPERLINK("bad")', H5: '\t=2+2', H6: '  @SUM(1,2)' },
   }));
-  assert.ok(csv.startsWith('"participant_id","task_set","started_at","completed_at","question_id","response"\r\n'));
+  assert.ok(csv.startsWith('"participant_id","task_set","started_at","completed_at","question_id","response","guidance_version"\r\n'));
   assert.ok(csv.includes('"Hello, ""world""\nA second line"'));
   assert.ok(csv.includes('"[""r0"",""r3""]"'));
   assert.ok(csv.includes('"A3","4"'));

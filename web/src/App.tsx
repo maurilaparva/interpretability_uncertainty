@@ -5,10 +5,13 @@ import { AboutDrawer } from './components/AboutDrawer';
 import { AnswerHeader } from './components/AnswerHeader';
 import { ItemList } from './components/ItemList';
 import { EvidenceView } from './components/EvidenceView';
+import { QuickGuide } from './components/QuickGuide';
+import { GuidanceContext } from './components/GuidanceContext';
 import { VIEWS, type ViewKey } from './lib/views';
 import { Study } from './study/Study';
-import { studyDatasetKey, supportsStudyDataset } from './study/questionnaire';
-import { loadSession } from './study/storage';
+import { buildStudySteps, studyDatasetKey, supportsStudyDataset } from './study/questionnaire';
+import { loadSession, saveSession } from './study/storage';
+import { GUIDE_VERSION, recordExplorerGuideExposure } from './study/guidance';
 
 function readUrl() {
   const p = new URLSearchParams(window.location.search);
@@ -49,6 +52,13 @@ function Shell({ loaded, onStartStudy }: { loaded: Loaded; onStartStudy: () => v
   const stats: Stats = useMemo(() => computeStats(data), [data]);
   const datasetKey = studyDatasetKey(data);
   const [answersLocked, setAnswersLocked] = useState(() => hasLockedStudy(datasetKey));
+  const guidanceAllowed = useCallback(() => {
+    const saved = loadSession(datasetKey);
+    if (!saved || saved.completedAt || !supportsStudyDataset(data)) return true;
+    const savedSteps = buildStudySteps(data, stats, saved.taskSet);
+    return saved.stepIndex >= savedSteps.findIndex((candidate) => candidate.id === 'read-answer');
+  }, [datasetKey, data, stats]);
+  const [guidanceEnabled, setGuidanceEnabled] = useState(guidanceAllowed);
 
   const initial = readUrl();
   const [view, setView] = useState<ViewKey>(
@@ -60,15 +70,31 @@ function Shell({ loaded, onStartStudy }: { loaded: Loaded; onStartStudy: () => v
   const [showAnswerKey, setShowAnswerKey] = useState(false);
   const revealKey = showAnswerKey && !answersLocked;
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
 
   const item: Item = items.find((it) => it.id === itemId) ?? items[0];
 
+  const openGuide = () => {
+    recordExplorerGuideExposure();
+    const saved = loadSession(datasetKey);
+    if (saved && !saved.completedAt) {
+      const at = new Date().toISOString();
+      saveSession({ ...saved, updatedAt: at, events: [...saved.events, {
+        type: 'guide_opened', at, details: { version: GUIDE_VERSION, source: 'explorer' },
+      }] });
+    }
+    setGuideOpen(true);
+  };
+
   useEffect(() => {
-    const refreshLock = () => setAnswersLocked(hasLockedStudy(datasetKey));
+    const refreshLock = () => {
+      setAnswersLocked(hasLockedStudy(datasetKey));
+      setGuidanceEnabled(guidanceAllowed());
+    };
     refreshLock();
     window.addEventListener('storage', refreshLock);
     return () => window.removeEventListener('storage', refreshLock);
-  }, [datasetKey]);
+  }, [datasetKey, guidanceAllowed]);
 
   const toggleAnswerKey = useCallback(() => {
     if (!answersLocked) setShowAnswerKey((shown) => !shown);
@@ -94,6 +120,7 @@ function Shell({ loaded, onStartStudy }: { loaded: Loaded; onStartStudy: () => v
   // Keyboard: up/down = item, 1-7 = tab, k = answer key, Esc = close drawer
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (guideOpen) return;
       const t = e.target as HTMLElement;
       if (t && (t.matches('input, textarea, select') || t.isContentEditable)) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -105,7 +132,7 @@ function Shell({ loaded, onStartStudy }: { loaded: Loaded; onStartStudy: () => v
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [step, toggleAnswerKey]);
+  }, [step, toggleAnswerKey, guideOpen]);
 
   const openItem = useCallback((id: string, v: ViewKey) => {
     setItemId(id);
@@ -131,6 +158,7 @@ function Shell({ loaded, onStartStudy }: { loaded: Loaded; onStartStudy: () => v
           </span>
         )}
         <div className="spacer" />
+        {guidanceEnabled && <button className="btn guide-entry" onClick={openGuide}>Quick guide</button>}
         {supportsStudyDataset(data) && <button className="btn primary" onClick={onStartStudy}>Start study</button>}
         {answersLocked ? <span className="caption">Study answers locked</span> : <label className="switch" title="Shortcut: K">
           <input type="checkbox" checked={revealKey} onChange={toggleAnswerKey} />
@@ -157,7 +185,9 @@ function Shell({ loaded, onStartStudy }: { loaded: Loaded; onStartStudy: () => v
           ))}
         </nav>
         <section className={`view ${fill ? 'fill' : ''}`} key={view}>
+          <GuidanceContext.Provider value={guidanceEnabled}>
           <EvidenceView view={view} item={item} items={items} stats={stats} header={header(view === 'compare')} revealKey={revealKey} allowReveal={!answersLocked} onOpenItem={openItem} />
+          </GuidanceContext.Provider>
         </section>
       </main>
 
@@ -170,6 +200,7 @@ function Shell({ loaded, onStartStudy }: { loaded: Loaded; onStartStudy: () => v
       </footer>
 
       {aboutOpen && <AboutDrawer loaded={loaded} stats={stats} onClose={() => setAboutOpen(false)} />}
+      {guideOpen && guidanceEnabled && <QuickGuide items={items} stats={stats} onClose={() => setGuideOpen(false)} />}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import { useEffect, useState } from 'react';
 import { fmtPush, pct, rowOfLayer, tokenRole, wordFor } from '../lib/data';
 import type { Item, Stats } from '../lib/types';
+import { useGuidance } from '../components/GuidanceContext';
 
 interface Props {
   item: Item;
@@ -12,6 +13,7 @@ interface Props {
 const STEP_MS = 160;
 
 export function R3Push({ item, stats, compact }: Props) {
+  const guided = useGuidance();
   const { alphas, layers } = stats;
   const nA = alphas.length;
   const [ai, setAi] = useState(0);
@@ -60,6 +62,11 @@ export function R3Push({ item, stats, compact }: Props) {
           <strong>Push strength</strong>
           <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtPush(a)}</span>
         </div>
+        {guided && !compact && (
+          <span className="caption" style={{ display: 'block' }}>
+            Temporary internal nudge toward “{wordFor(item, item.alt_token)}”.
+          </span>
+        )}
         <input
           type="range"
           min={0}
@@ -95,6 +102,11 @@ export function R3Push({ item, stats, compact }: Props) {
             {layers[row] === item.margin_layer && <span style={{ color: 'var(--muted)' }}> (most fragile)</span>}
           </span>
         </div>
+        {guided && !compact && (
+          <span className="caption" style={{ display: 'block' }}>
+            Stage in the model where the push is applied.
+          </span>
+        )}
         <input
           type="range"
           min={0}

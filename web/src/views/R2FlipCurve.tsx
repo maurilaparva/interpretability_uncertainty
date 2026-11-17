@@ -51,14 +51,14 @@ export function R2FlipCurve({ item, stats, compact }: Props) {
   );
 }
 
-const MARGIN = { top: 26, right: 18, bottom: 40, left: 56 };
+const MARGIN = { top: 26, right: 18, bottom: 40, left: 72 };
 
 function LineChart({
   item, stats, compact, hoverRow, setHoverRow, mRow, flipTo,
 }: Props & { compact: boolean; hoverRow: number | null; setHoverRow: (r: number | null) => void; mRow: number; flipTo: string | null }) {
   const [ref, { width, height }] = useSize<HTMLDivElement>();
   const [tip, setTip] = useState<{ x: number; y: number; row: number; ai: number } | null>(null);
-  const m = compact ? { top: 22, right: 12, bottom: 34, left: 44 } : MARGIN;
+  const m = compact ? { top: 22, right: 12, bottom: 34, left: 60 } : MARGIN;
   const iw = Math.max(10, width - m.left - m.right);
   const ih = Math.max(10, height - m.top - m.bottom);
   const { alphas } = stats;

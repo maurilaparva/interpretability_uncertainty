@@ -1,3 +1,5 @@
+import { guideVersionFor } from './guidance.ts';
+
 export interface StudyEvent {
   type: string;
   at: string;
@@ -116,7 +118,8 @@ function csvCell(value: string): string {
 }
 
 export function sessionToCsv(session: StudySession): string {
-  const rows: string[][] = [['participant_id', 'task_set', 'started_at', 'completed_at', 'question_id', 'response']];
+  const rows: string[][] = [['participant_id', 'task_set', 'started_at', 'completed_at', 'question_id', 'response', 'guidance_version']];
+  const guidanceVersion = guideVersionFor(session.events);
   for (const [questionId, answer] of Object.entries(session.answers)) {
     rows.push([
       session.id,
@@ -125,6 +128,7 @@ export function sessionToCsv(session: StudySession): string {
       session.completedAt ?? '',
       questionId,
       Array.isArray(answer) ? JSON.stringify(answer) : String(answer),
+      guidanceVersion,
     ]);
   }
   return `${rows.map((row) => row.map(csvCell).join(',')).join('\r\n')}\r\n`;

@@ -2,10 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AboutDrawer } from '../components/AboutDrawer';
 import { AnswerHeader } from '../components/AnswerHeader';
 import { EvidenceView } from '../components/EvidenceView';
+import { GuidanceContext } from '../components/GuidanceContext';
+import { QuickGuide } from '../components/QuickGuide';
 import { computeStats, type Loaded } from '../lib/data';
 import type { Item, Stats } from '../lib/types';
 import { VIEWS, type ViewKey } from '../lib/views';
 import { advanceSession, canGoBack, missingRequired, stepDuration } from './flow';
+import { canShowStudyGuide, getExplorerGuideExposure, GUIDE_VERSION, shouldAutoShowGuide } from './guidance';
 import { buildStudySteps, studyDatasetKey, type StudyStep } from './questionnaire';
 import { clearSession, createSession, downloadSession, loadSession, saveSession, sheetsEnabled, submitSession, type StudyEvent, type StudySession } from './storage';
 import { SurveyField } from './SurveyFields';
@@ -21,6 +24,9 @@ export function Study({ loaded, onExit }: { loaded: Loaded; onExit: () => void }
   const [active, setActive] = useState(false);
   const [saved, setSaved] = useState(true);
   const [resetting, setResetting] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
+  const autoGuideSession = useRef<string | null>(null);
+  const guideOpenedAt = useRef<number | null>(null);
   const [invalid, setInvalid] = useState<string[]>([]);
   const steps = useMemo(() => buildStudySteps(data, stats, session?.taskSet ?? 'A'), [data, stats, session?.taskSet]);
   const index = Math.min(session?.stepIndex ?? 0, steps.length - 1);
@@ -48,8 +54,9 @@ export function Study({ loaded, onExit }: { loaded: Loaded; onExit: () => void }
     const { session: current, step: currentStep } = latest.current;
     if (!current || current.completedAt || paused.current) return current;
     const at = new Date().toISOString();
+    const guideDuration = guideOpenedAt.current == null ? 0 : Date.now() - guideOpenedAt.current;
     const nextSession = { ...current, updatedAt: at, events: [...current.events, {
-      type: 'step_paused', at, stepId: currentStep.id, details: { durationMs: Date.now() - enteredAt.current },
+      type: 'step_paused', at, stepId: currentStep.id, details: { durationMs: Math.max(0, Date.now() - enteredAt.current - guideDuration) },
     }] };
     if (!saveSession(nextSession)) return null;
     paused.current = true;
@@ -77,9 +84,33 @@ export function Study({ loaded, onExit }: { loaded: Loaded; onExit: () => void }
     } : current);
   }, []);
 
+  const openGuide = useCallback(() => {
+    guideOpenedAt.current = Date.now();
+    setGuideOpen(true);
+    log({ type: 'guide_opened', stepId: step.id, details: { version: GUIDE_VERSION } });
+  }, [log, step.id]);
+
+  useEffect(() => {
+    if (active && session && !session.completedAt && autoGuideSession.current !== session.id && shouldAutoShowGuide(step, session.events)) {
+      autoGuideSession.current = session.id;
+      openGuide();
+    }
+  }, [active, session, step, openGuide]);
+
+  const closeGuide = (completed: boolean) => {
+    const durationMs = guideOpenedAt.current == null ? 0 : Date.now() - guideOpenedAt.current;
+    // Keep time spent reading instructions separate from task time.
+    enteredAt.current += durationMs;
+    guideOpenedAt.current = null;
+    setGuideOpen(false);
+    log({ type: 'guide_closed', stepId: step.id, details: { version: GUIDE_VERSION, completed, durationMs } });
+  };
+
   const begin = () => {
     const next = createSession(datasetKey);
+    const priorGuide = getExplorerGuideExposure();
     next.events = [
+      ...(priorGuide ? [priorGuide] : []),
       { type: 'study_started', at: next.startedAt },
       { type: 'step_started', stepId: steps[0].id, at: next.startedAt },
     ];
@@ -208,7 +239,7 @@ export function Study({ loaded, onExit }: { loaded: Loaded; onExit: () => void }
         <main className={`study-main${showEvidence ? ' with-evidence' : ''}`}>
           {showEvidence && (step.mode === 'reveal'
             ? <PredictionReview items={(step.itemIds ?? []).map((id) => data.items.find((item) => item.id === id)!)} answers={session.answers} />
-            : <StudyWorkspace key={step.id} step={step} loaded={loaded} stats={stats} log={log} />)}
+            : <StudyWorkspace key={step.id} step={step} loaded={loaded} stats={stats} log={log} onGuide={openGuide} />)}
           <form className={`study-survey${showEvidence ? ' beside-evidence' : ''}`} ref={formRef} onSubmit={next} noValidate>
             <div className="study-survey-heading">
               <div className="study-step-label"><span>{step.section}</span><span>{index + 1} / {steps.length}</span></div>
@@ -232,6 +263,9 @@ export function Study({ loaded, onExit }: { loaded: Loaded; onExit: () => void }
         </main>
       )}
 
+      {guideOpen && <QuickGuide items={data.items} stats={stats} onClose={closeGuide}
+        onStep={(guideStep) => log({ type: 'guide_step', stepId: step.id, details: { version: GUIDE_VERSION, step: guideStep + 1 } })} />}
+
       {active && resetting && session && (
         <div className="study-modal-backdrop">
           <LeaveDialog onCancel={() => setResetting(false)} onKeep={pauseAndExit} onDiscard={() => {
@@ -254,7 +288,7 @@ function ExploreClock() {
   return <div className="study-explore-clock"><span className="study-clock-number">{Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}</span><span>{elapsed < 180 ? 'Take about 3 minutes. Continue when you’re ready.' : 'Ready when you are.'}</span></div>;
 }
 
-function StudyWorkspace({ step, loaded, stats, log }: { step: StudyStep; loaded: Loaded; stats: Stats; log: LogEvent }) {
+function StudyWorkspace({ step, loaded, stats, log, onGuide }: { step: StudyStep; loaded: Loaded; stats: Stats; log: LogEvent; onGuide: () => void }) {
   const allItems = loaded.data.items;
   const availableItems = step.itemIds ? step.itemIds.map((id) => allItems.find((item) => item.id === id)!) : allItems;
   const [itemId, setItemId] = useState(availableItems[0].id);
@@ -280,7 +314,10 @@ function StudyWorkspace({ step, loaded, stats, log }: { step: StudyStep; loaded:
         {availableItems.length > 1 ? (
           <label className="study-question-select"><span>Question</span><select value={item.id} onChange={(e) => setItemId(e.target.value)}>{availableItems.map((candidate) => <option key={candidate.id} value={candidate.id}>{Number(candidate.id.slice(1))}. {candidate.question}</option>)}</select></label>
         ) : <span className="study-workspace-label">Interactive evidence</span>}
-        <button className="btn" ref={aboutRef} onClick={() => { setAboutOpen(true); log({ type: 'about_opened', stepId: step.id, itemId: item.id, view }); }}>About this method</button>
+        <div className="study-help-actions">
+          {canShowStudyGuide(step) && <button className="btn guide-entry" onClick={onGuide}>Quick guide</button>}
+          <button className="btn" ref={aboutRef} onClick={() => { setAboutOpen(true); log({ type: 'about_opened', stepId: step.id, itemId: item.id, view }); }}>About this method</button>
+        </div>
       </div>
       {step.id === 'predict-correctness' && <div className="study-question-chips" aria-label="Questions to judge">{availableItems.map((candidate, i) => <button key={candidate.id} aria-pressed={candidate.id === item.id} className={candidate.id === item.id ? 'selected' : ''} onClick={() => setItemId(candidate.id)}><span>{i + 1}</span>{candidate.question}</button>)}</div>}
       <nav className="study-view-tabs" aria-label="Evidence views">{tabs.map((tab) => <button key={tab.key} aria-pressed={view === tab.key} className={view === tab.key ? 'selected' : ''} onClick={() => setView(tab.key)}>{tab.label}</button>)}</nav>
@@ -297,9 +334,11 @@ function StudyWorkspace({ step, loaded, stats, log }: { step: StudyStep; loaded:
         if (button && /Auto-play|Stop|Reset/.test(button.textContent ?? '')) log({ type: 'control_clicked', stepId: step.id, itemId: item.id, view, details: { control: button.textContent?.trim() ?? '' } });
       }}>
         <div className={`study-evidence-content evidence-${view}`}>
+          <GuidanceContext.Provider value={canShowStudyGuide(step)}>
           <EvidenceView view={view} item={item} items={allItems} stats={stats}
             header={<AnswerHeader item={item} compact revealKey={false} allowReveal={false} onReveal={() => {}} />}
             revealKey={false} allowReveal={false} onOpenItem={(id, nextView) => { if (availableItems.some((candidate) => candidate.id === id)) { setItemId(id); setView(nextView); } }} />
+          </GuidanceContext.Provider>
         </div>
       </div>
       {aboutOpen && <AboutDrawer loaded={loaded} stats={stats} onClose={closeAbout} />}
