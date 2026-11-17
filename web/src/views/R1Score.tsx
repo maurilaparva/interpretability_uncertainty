@@ -41,7 +41,7 @@ export function R1Score({ item, items, stats, compact }: Props) {
           {band}
         </span>
       </div>
-      <Gauge item={item} items={items} stats={stats} height={compact ? 78 : 120} />
+      <Gauge item={item} items={items} stats={stats} height={compact ? 94 : 120} />
       <p className={compact ? 'caption' : 'lede'} style={compact ? { color: 'var(--ink-2)', fontSize: 13 } : undefined}>
         {sentence}
       </p>
@@ -76,7 +76,7 @@ function Gauge({ item, items, stats, height }: { item: Item; items: Item[]; stat
   const label = `${fmtMargin(item, stats)}`;
 
   return (
-    <div ref={ref} style={{ position: 'relative', height }}>
+    <div ref={ref} style={{ position: 'relative', height, flexShrink: 0 }}>
       {width > 0 && (
         <svg width={width} height={height} role="img" aria-label={`Robustness gauge: ${label}, ${bandOf(item, stats)}`}>
           {bands.map(({ b, from, to }, i) =>
@@ -143,12 +143,18 @@ function Gauge({ item, items, stats, height }: { item: Item; items: Item[]; stat
           )}
           {/* axis */}
           {ticks.map((t) => (
-            <text key={t} x={x(t)} y={top + barH + 26} textAnchor="middle" className="tick-label">
+            <text
+              key={t}
+              x={x(t)}
+              y={top + barH + 26}
+              textAnchor={t === 0 ? 'start' : t === stats.displayMax ? 'end' : 'middle'}
+              className="tick-label"
+            >
               {t}
             </text>
           ))}
           {stats.anyCensored && (
-            <text x={x(stats.cap)} y={top + barH + 26} textAnchor="middle" className="tick-label">
+            <text x={x(stats.cap)} y={top + barH + 26} textAnchor="end" className="tick-label">
               {stats.maxAlpha}+
             </text>
           )}

@@ -81,11 +81,7 @@ function Shell({ loaded }: { loaded: Loaded }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
-      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) {
-        if ((t as HTMLInputElement).type === 'range' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
-          // ranges use left/right; let up/down still switch items
-        } else if (!(e.key >= '1' && e.key <= '7')) return;
-      }
+      if (t && (t.matches('input, textarea, select') || t.isContentEditable)) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === 'Escape') setAboutOpen(false);
       else if (e.key === 'ArrowDown') { e.preventDefault(); step(1); }

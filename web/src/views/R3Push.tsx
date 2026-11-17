@@ -101,7 +101,7 @@ export function R3Push({ item, stats, compact }: Props) {
           max={layers.length - 1}
           step={1}
           value={row}
-          onChange={(e) => setRow(Number(e.target.value))}
+          onChange={(e) => { setPlaying(false); setRow(Number(e.target.value)); }}
           style={{ width: '100%', accentColor: 'var(--ink)' }}
           aria-valuetext={`layer ${layers[row]}`}
         />
