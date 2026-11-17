@@ -15,6 +15,8 @@ export interface StudySession {
   startedAt: string;
   updatedAt: string;
   completedAt?: string;
+  /** Set once the Google Sheets endpoint confirmed receipt. */
+  submittedAt?: string;
   stepIndex: number;
   answers: Record<string, string | string[] | number>;
   events: StudyEvent[];
@@ -48,6 +50,7 @@ function isSession(value: unknown): value is StudySession {
     && typeof value.datasetKey === 'string'
     && isDate(value.startedAt) && isDate(value.updatedAt)
     && (value.completedAt === undefined || isDate(value.completedAt))
+    && (value.submittedAt === undefined || isDate(value.submittedAt))
     && Number.isInteger(value.stepIndex) && (value.stepIndex as number) >= 0
     && isRecord(value.answers)
     && Object.values(value.answers).every((answer) =>
@@ -125,6 +128,30 @@ export function sessionToCsv(session: StudySession): string {
     ]);
   }
   return `${rows.map((row) => row.map(csvCell).join(',')).join('\r\n')}\r\n`;
+}
+
+/** Apps Script web app URL (…/exec). Set VITE_SHEETS_URL in web/.env.local; unset disables uploads. */
+// `env` is undefined when the tests import this file under plain Node.
+const SHEETS_URL = (import.meta.env?.VITE_SHEETS_URL as string | undefined)?.trim() || undefined;
+
+export const sheetsEnabled = SHEETS_URL !== undefined;
+
+/** POSTs the full session to the Google Sheets endpoint. Resolves true only when the script reports ok. */
+export async function submitSession(session: StudySession): Promise<boolean> {
+  if (!SHEETS_URL) return false;
+  try {
+    const response = await fetch(SHEETS_URL, {
+      method: 'POST',
+      // text/plain keeps this a "simple" request: Apps Script cannot answer a CORS preflight.
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(session),
+    });
+    if (!response.ok) return false;
+    const result: unknown = await response.json();
+    return isRecord(result) && result.ok === true;
+  } catch {
+    return false;
+  }
 }
 
 export function downloadSession(session: StudySession, format: 'csv' | 'json'): void {

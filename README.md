@@ -41,14 +41,35 @@ All questions are required; written feedback can use “None” when there is no
 Starting a new session replaces the saved session after confirmation; download the previous session first to keep it.
 
 Download **CSV** for responses or **JSON** for responses and interaction events, including views, question
-selection, sliders, autoplay, About-panel use, and step timings. Collect those files manually during the
-pilot. Nothing is sent to a server; Google Sheets and GitHub deployment are not configured.
+selection, sliders, autoplay, About-panel use, and step timings.
+
+### Google Sheets upload
+
+When `VITE_SHEETS_URL` is set, a finished session is POSTed once to a Google Apps Script web app, which writes
+one row per participant to a **Responses** tab and every interaction to an **Events** tab. If the upload fails,
+the completion screen offers a retry, and the download buttons remain as a fallback. Without the variable,
+nothing is sent and responses must be collected manually.
+
+1. In the Sheet, open **Extensions → Apps Script**, paste [apps-script/Code.gs](apps-script/Code.gs), and deploy it as a
+   **Web app** (Execute as: *Me*, Who has access: *Anyone*). After editing the script, use
+   **Manage deployments → Edit → Version: New version** so the `/exec` URL keeps working.
+2. Put the `/exec` URL in [web/.env](web/.env) as `VITE_SHEETS_URL=…` and commit it. Opening the URL in a browser
+   should show `{"ok":true,...}`.
+3. Restart `npm run dev` (Vite reads env files at startup). A `web/.env.local` overrides `web/.env` locally.
+
+The `/exec` URL ships in the public JavaScript, so anyone with the page can post to it.
 
 Participants see no grades. The answer key unlocks after predictions are submitted; this controls the
 study flow and stays locked in the explorer while predictions are pending. The underlying static dataset remains accessible.
 
 Task 3 is omitted because no current item has both ≥90% output confidence and a Fragile-band score.
 F7 tests fragility under the tested intervention rather than claiming that fragility predicts correctness.
+
+## Deploy to GitHub Pages
+
+[.github/workflows/deploy.yml](.github/workflows/deploy.yml) tests, builds, and publishes `web/dist` on every push to
+`main`. One-time setup: in the repository, open **Settings → Pages** and set **Source** to **GitHub Actions**.
+The site is then at `https://<user>.github.io/<repo>/`, and the study at `…/?mode=study`.
 
 ## Recompute the data
 

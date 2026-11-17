@@ -7,7 +7,7 @@ import type { Item, Stats } from '../lib/types';
 import { VIEWS, type ViewKey } from '../lib/views';
 import { advanceSession, canGoBack, missingRequired, stepDuration } from './flow';
 import { buildStudySteps, studyDatasetKey, type StudyStep } from './questionnaire';
-import { clearSession, createSession, downloadSession, loadSession, saveSession, type StudyEvent, type StudySession } from './storage';
+import { clearSession, createSession, downloadSession, loadSession, saveSession, sheetsEnabled, submitSession, type StudyEvent, type StudySession } from './storage';
 import { SurveyField } from './SurveyFields';
 import './study.css';
 
@@ -84,6 +84,7 @@ export function Study({ loaded, onExit }: { loaded: Loaded; onExit: () => void }
       { type: 'step_started', stepId: steps[0].id, at: next.startedAt },
     ];
     setSession(next);
+    setUpload('idle');
     setResetting(false);
     setActive(true);
   };
@@ -108,6 +109,28 @@ export function Study({ loaded, onExit }: { loaded: Loaded; onExit: () => void }
     }
     setSession((current) => current && advanceSession(current, steps, stepDuration(current, step.id, Date.now() - enteredAt.current)));
   };
+
+  // Upload a completed session to Google Sheets once; the download buttons stay as a fallback.
+  const [upload, setUpload] = useState<'idle' | 'sending' | 'failed'>('idle');
+  const uploading = useRef(false);
+  const sendToSheets = useCallback(async (toSend: StudySession) => {
+    if (uploading.current) return;
+    uploading.current = true;
+    setUpload('sending');
+    const ok = await submitSession(toSend);
+    uploading.current = false;
+    if (ok) {
+      const submittedAt = new Date().toISOString();
+      setSession((current) => current && current.id === toSend.id ? { ...current, submittedAt } : current);
+      setUpload('idle');
+    } else {
+      setUpload('failed');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (active && sheetsEnabled && session?.completedAt && !session.submittedAt && upload === 'idle') void sendToSheets(session);
+  }, [active, session, upload, sendToSheets]);
 
   const back = () => {
     if (!session || !canGoBack(steps, index)) return;
@@ -164,7 +187,18 @@ export function Study({ loaded, onExit }: { loaded: Loaded; onExit: () => void }
             <div className="study-done-mark" aria-hidden="true">✓</div>
             <div className="study-eyebrow">Session complete</div>
             <h1>Thanks for your feedback.</h1>
-            <p className="study-intro">Download your responses and share the file with the research team.</p>
+            {!sheetsEnabled ? (
+              <p className="study-intro">Download your responses and share the file with the research team.</p>
+            ) : session.submittedAt ? (
+              <p className="study-intro" role="status">Your responses were sent to the research team. You can also keep a copy below.</p>
+            ) : upload === 'failed' ? (
+              <div role="alert">
+                <p className="study-intro">We couldn’t send your responses automatically. Please try again, or download the file and share it with the research team.</p>
+                <div className="study-actions"><button className="btn" onClick={() => void sendToSheets(session)}>Try sending again</button></div>
+              </div>
+            ) : (
+              <p className="study-intro" role="status">Sending your responses to the research team…</p>
+            )}
             <div className="study-downloads"><button className="study-primary" onClick={() => downloadSession(session, 'csv')}>Download responses · CSV<span aria-hidden="true">↓</span></button><button className="btn" onClick={() => downloadSession(session, 'json')}>Full session · JSON</button></div>
             {!saved && <p className="study-local-note">Not saved in this browser. Download a copy before closing.</p>}
             <button className="btn-link" onClick={() => { setActive(false); setResetting(true); }}>Start another session</button>
