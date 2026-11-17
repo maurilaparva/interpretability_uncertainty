@@ -10,6 +10,7 @@ interface Props {
   stats: Stats;
   selectedId: string;
   revealKey: boolean;
+  allowReveal?: boolean;
   onOpen: (id: string) => void;
 }
 
@@ -20,7 +21,7 @@ const QLABEL: Record<Quadrant, string> = {
   'unsure-fragile': 'Unsure & fragile',
 };
 
-export function Overview({ items, stats, selectedId, revealKey, onOpen }: Props) {
+export function Overview({ items, stats, selectedId, revealKey, onOpen, allowReveal = true }: Props) {
   const cf = items.filter((it) => quadrantOf(it, stats) === 'confident-fragile');
   const cfWrong = cf.filter((it) => !it.correct).length;
   const n = items.length;
@@ -55,9 +56,9 @@ export function Overview({ items, stats, selectedId, revealKey, onOpen }: Props)
               <span><Glyph correct /> Correct</span>
               <span><Glyph correct={false} /> Incorrect</span>
             </>
-          ) : (
+          ) : allowReveal ? (
             <span className="caption">Turn on “Show answer key” to mark correct / incorrect answers.</span>
-          )}
+          ) : null}
           <span><span className="sw sw-dash" style={{ borderColor: '#a8a29e' }} />medians</span>
         </div>
       </div>

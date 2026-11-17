@@ -6,7 +6,7 @@ const ROLE_COLOR = { answer: 'var(--answer)', alt: 'var(--alt)', other: 'var(--o
 /** Full R0 view: output confidence + top-5 next-word distribution. */
 export function R0Baseline({ item }: { item: Item }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(260px, 1fr) minmax(280px, 1fr)', gap: 36 }}>
+    <div className="baseline-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(260px, 1fr) minmax(280px, 1fr)', gap: 36 }}>
       <div>
         <div className="panel-title"><span className="name">Output confidence</span></div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
@@ -62,7 +62,7 @@ export function Top5({ item, n = 5 }: { item: Item; n?: number }) {
 export function R0Strip({ item }: { item: Item }) {
   const others = item.top5.filter((t) => tokenRole(item, t.token) !== 'answer').slice(0, 3);
   return (
-    <div className="panel" style={{ padding: '8px 14px', flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+    <div className="panel baseline-strip" style={{ padding: '8px 14px', flexDirection: 'row', alignItems: 'center', gap: 16 }}>
       <span className="panel-title" style={{ margin: 0, whiteSpace: 'nowrap' }}>
         <span className="name">R0 · Baseline</span> output confidence
       </span>

@@ -32,6 +32,24 @@ Useful links while presenting:
 Keyboard: **↑/↓** question · **1–7** tabs · **K** answer key · **Esc** closes the About drawer.
 The answer key (gold answer, correct/incorrect) is hidden by default.
 
+## Run the local study
+
+Click **Start study** or open `?mode=study`. The guided flow uses [QUESTIONS.md](QUESTIONS.md), randomly
+assigns task set A or B without asking for birth month, and saves progress automatically. Resume in the
+same browser and origin (same address and port); progress lives in `localStorage` under `uncircuit.study.v1`.
+All questions are required; written feedback can use “None” when there is nothing to report.
+Starting a new session replaces the saved session after confirmation; download the previous session first to keep it.
+
+Download **CSV** for responses or **JSON** for responses and interaction events, including views, question
+selection, sliders, autoplay, About-panel use, and step timings. Collect those files manually during the
+pilot. Nothing is sent to a server; Google Sheets and GitHub deployment are not configured.
+
+Participants see no grades. The answer key unlocks after predictions are submitted; this controls the
+study flow and stays locked in the explorer while predictions are pending. The underlying static dataset remains accessible.
+
+Task 3 is omitted because no current item has both ≥90% output confidence and a Fragile-band score.
+F7 tests fragility under the tested intervention rather than claiming that fragility predicts correctness.
+
 ## Recompute the data
 
 See [pipeline/README.md](pipeline/README.md). About 5 minutes on a laptop CPU for Qwen2.5-0.5B-Instruct.

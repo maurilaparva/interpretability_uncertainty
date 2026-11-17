@@ -150,6 +150,7 @@ export function R3Push({ item, stats, compact }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: compact ? 4 : 10, flex: compact ? 1 : undefined, minHeight: 0 }}>
       <div
+        className="push-layout"
         style={{
           display: 'grid',
           gridTemplateColumns: compact ? '1fr 1.1fr' : 'minmax(260px, 380px) 1fr',

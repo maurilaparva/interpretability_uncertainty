@@ -5,9 +5,10 @@ interface Props {
   revealKey: boolean;
   onReveal: () => void;
   compact?: boolean;
+  allowReveal?: boolean;
 }
 
-export function AnswerHeader({ item, revealKey, onReveal, compact }: Props) {
+export function AnswerHeader({ item, revealKey, onReveal, compact, allowReveal = true }: Props) {
   return (
     <div className={`answer-header ${compact ? 'compact' : ''}`}>
       {compact ? (
@@ -23,7 +24,7 @@ export function AnswerHeader({ item, revealKey, onReveal, compact }: Props) {
           <div className="ans">{item.answer_text || item.answer_token.trim()}</div>
         </div>
       )}
-      <div className="key">
+      {allowReveal && <div className="key">
         {revealKey ? (
           <>
             <span>
@@ -39,7 +40,7 @@ export function AnswerHeader({ item, revealKey, onReveal, compact }: Props) {
             Reveal answer key
           </button>
         )}
-      </div>
+      </div>}
     </div>
   );
 }

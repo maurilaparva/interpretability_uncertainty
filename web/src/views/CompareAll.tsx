@@ -27,10 +27,11 @@ function Panel({ code, name, children }: { code: string; name: string; children:
 
 export function CompareAll({ header, item, items, stats }: Props) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1, minHeight: 0 }}>
+    <div className="compare-all" style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1, minHeight: 0 }}>
       {header}
       <R0Strip item={item} />
       <div
+        className="compare-grid"
         style={{
           flex: 1, minHeight: 0, display: 'grid', gap: 10,
           gridTemplateColumns: '1fr 1fr', gridTemplateRows: 'minmax(0, 1fr) minmax(0, 1fr)',
