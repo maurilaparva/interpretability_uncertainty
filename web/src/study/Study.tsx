@@ -16,7 +16,7 @@ import './study.css';
 
 type LogEvent = (event: Omit<StudyEvent, 'at'>) => void;
 
-export function Study({ loaded, onExit }: { loaded: Loaded; onExit: () => void }) {
+export function Study({ loaded, onExit, autoStart = false }: { loaded: Loaded; onExit: () => void; autoStart?: boolean }) {
   const { data } = loaded;
   const datasetKey = studyDatasetKey(data);
   const stats = useMemo(() => computeStats(data), [data]);
@@ -119,6 +119,16 @@ export function Study({ loaded, onExit }: { loaded: Loaded; onExit: () => void }
     setResetting(false);
     setActive(true);
   };
+
+  // Coming straight from the quick guide's "Start study" button: skip the welcome
+  // screen, unless a saved session exists (then let the participant choose).
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (!autoStart || autoStarted.current) return;
+    autoStarted.current = true;
+    if (!session) begin();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const answer = (id: string, value: StudySession['answers'][string]) => {
     setSession((current) => current && !current.completedAt ? {

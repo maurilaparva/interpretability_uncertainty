@@ -18,6 +18,9 @@ function readUrl() {
   return { view: p.get('view'), item: p.get('item') };
 }
 
+// Open the quick guide once per page load, not every time the explorer remounts.
+let guideAutoOpened = false;
+
 function hasLockedStudy(datasetKey: string): boolean {
   const session = loadSession(datasetKey);
   return !!session && !session.completedAt && !session.events.some((event) => event.type === 'answers_revealed');
@@ -27,8 +30,10 @@ export default function App() {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [studyMode, setStudyMode] = useState(() => new URLSearchParams(window.location.search).get('mode') === 'study');
+  const [autoStartStudy, setAutoStartStudy] = useState(false);
 
-  const setMode = (study: boolean) => {
+  const setMode = (study: boolean, autoStart = false) => {
+    setAutoStartStudy(study && autoStart);
     const url = new URL(window.location.href);
     if (study) url.searchParams.set('mode', 'study');
     else url.searchParams.delete('mode');
@@ -42,11 +47,11 @@ export default function App() {
 
   if (error) return <div className="center-msg">Could not load any data: {error}</div>;
   if (!loaded) return <div className="center-msg">Loading…</div>;
-  if (studyMode && supportsStudyDataset(loaded.data)) return <Study loaded={loaded} onExit={() => setMode(false)} />;
-  return <Shell loaded={loaded} onStartStudy={() => setMode(true)} />;
+  if (studyMode && supportsStudyDataset(loaded.data)) return <Study loaded={loaded} autoStart={autoStartStudy} onExit={() => setMode(false)} />;
+  return <Shell loaded={loaded} onStartStudy={(autoStart) => setMode(true, autoStart)} />;
 }
 
-function Shell({ loaded, onStartStudy }: { loaded: Loaded; onStartStudy: () => void }) {
+function Shell({ loaded, onStartStudy }: { loaded: Loaded; onStartStudy: (autoStart?: boolean) => void }) {
   const { data, isMock } = loaded;
   const items = data.items;
   const stats: Stats = useMemo(() => computeStats(data), [data]);
@@ -85,6 +90,14 @@ function Shell({ loaded, onStartStudy }: { loaded: Loaded; onStartStudy: () => v
     }
     setGuideOpen(true);
   };
+
+  // Show the quick guide by default when the site is first opened.
+  useEffect(() => {
+    if (guideAutoOpened) return;
+    guideAutoOpened = true;
+    if (guidanceEnabled) openGuide();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const refreshLock = () => {
@@ -159,7 +172,7 @@ function Shell({ loaded, onStartStudy }: { loaded: Loaded; onStartStudy: () => v
         )}
         <div className="spacer" />
         {guidanceEnabled && <button className="btn guide-entry" onClick={openGuide}>Quick guide</button>}
-        {supportsStudyDataset(data) && <button className="btn primary" onClick={onStartStudy}>Start study</button>}
+        {supportsStudyDataset(data) && <button className="btn primary" onClick={() => onStartStudy()}>Start study</button>}
         {answersLocked ? <span className="caption">Study answers locked</span> : <label className="switch" title="Shortcut: K">
           <input type="checkbox" checked={revealKey} onChange={toggleAnswerKey} />
           <span className="track" />
@@ -200,7 +213,9 @@ function Shell({ loaded, onStartStudy }: { loaded: Loaded; onStartStudy: () => v
       </footer>
 
       {aboutOpen && <AboutDrawer loaded={loaded} stats={stats} onClose={() => setAboutOpen(false)} />}
-      {guideOpen && guidanceEnabled && <QuickGuide items={items} stats={stats} onClose={() => setGuideOpen(false)} />}
+      {guideOpen && guidanceEnabled && <QuickGuide items={items} stats={stats}
+        finishLabel={supportsStudyDataset(data) ? 'Start study' : 'Got it'}
+        onClose={(completed) => { setGuideOpen(false); if (completed && supportsStudyDataset(data)) onStartStudy(true); }} />}
     </div>
   );
 }

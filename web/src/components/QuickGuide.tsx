@@ -8,11 +8,12 @@ interface Props {
   stats: Stats;
   onClose: (completed: boolean) => void;
   onStep?: (step: number) => void;
+  finishLabel?: string;
 }
 
 const CHAPTERS = ['Push strength', 'Layers', 'Read the scores'];
 
-export function QuickGuide({ items, stats, onClose, onStep }: Props) {
+export function QuickGuide({ items, stats, onClose, onStep, finishLabel = 'Got it' }: Props) {
   // Use a separate example from the study's reading, steering, and prediction tasks.
   const item = items.find((candidate) => candidate.id === 'q06') ?? items.find((candidate) => candidate.margin != null && !candidate.censored) ?? items[0];
   const defaultRow = rowOfLayer(stats, item.margin_layer);
@@ -149,7 +150,7 @@ export function QuickGuide({ items, stats, onClose, onStep }: Props) {
             <p id={instructionId} className="guide-data-note">Sliders replay measured results at tested strengths.</p>
           </section>
         </div>
-        <footer className="guide-footer"><span>{chapter + 1} of {CHAPTERS.length}</span><div>{chapter > 0 && <button type="button" className="btn" onClick={() => changeChapter(chapter - 1)}>Back</button>}<button type="button" className="guide-next" onClick={() => chapter < CHAPTERS.length - 1 ? changeChapter(chapter + 1) : onClose(true)}>{chapter === CHAPTERS.length - 1 ? 'Got it' : 'Next'}<span aria-hidden="true">→</span></button></div></footer>
+        <footer className="guide-footer"><span>{chapter + 1} of {CHAPTERS.length}</span><div>{chapter > 0 && <button type="button" className="btn" onClick={() => changeChapter(chapter - 1)}>Back</button>}<button type="button" className="guide-next" onClick={() => chapter < CHAPTERS.length - 1 ? changeChapter(chapter + 1) : onClose(true)}>{chapter === CHAPTERS.length - 1 ? finishLabel : 'Next'}<span aria-hidden="true">→</span></button></div></footer>
       </div>
     </dialog>
   );
