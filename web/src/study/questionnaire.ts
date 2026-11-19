@@ -38,15 +38,19 @@ export interface StudyStep {
   hideExplorer?: boolean;
 }
 
-/** The explore step walks through every view in this order, with one line on what each shows. */
-export const VIEW_TOUR: { view: StudyView | 'overview'; hint: string }[] = [
-  { view: 'overview', hint: 'All questions at once: how confident the model is versus how easy each answer is to flip.' },
-  { view: 'r0', hint: 'How likely the model’s answer is, judged from its output alone.' },
-  { view: 'r1', hint: 'One robustness score: how large a push it takes to flip the answer.' },
-  { view: 'r2', hint: 'How the answer’s probability drops as the push gets stronger, layer by layer.' },
-  { view: 'r3', hint: 'Push the model yourself with the sliders and watch the answer change.' },
-  { view: 'r4', hint: 'The flip described in one sentence.' },
-  { view: 'compare', hint: 'All the views side by side for one question.' },
+/** A stop on the explore step's tour: one of the views, or the opening "meet the question" page. */
+export type TourStop = StudyView | 'question';
+
+/** The explore step's tour: one question through every view, then out to all questions. */
+export const VIEW_TOUR: { view: TourStop; label: string; hint: string }[] = [
+  { view: 'question', label: 'The question', hint: 'What the model was asked, and what it answered.' },
+  { view: 'r0', label: 'R0 Baseline', hint: 'How likely the model’s answer is, judged from its output alone.' },
+  { view: 'r1', label: 'R1 Score', hint: 'One robustness score: how large a push it takes to flip the answer.' },
+  { view: 'r2', label: 'R2 Flip curve', hint: 'How the answer’s probability drops as the push gets stronger, layer by layer.' },
+  { view: 'r3', label: 'R3 Push it', hint: 'Push the model yourself with the sliders and watch the answer change.' },
+  { view: 'r4', label: 'R4 Counterfactual', hint: 'The flip described in one sentence.' },
+  { view: 'compare', label: 'Compare all', hint: 'All the views side by side for this question.' },
+  { view: 'overview', label: 'All questions', hint: 'Zoom out: confidence and robustness for all 24 questions. The Japan question (Tokyo) is circled.' },
 ];
 
 export const STUDY_VIEWS: StudyOption[] = [
@@ -118,9 +122,9 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet): 
     },
     {
       id: 'explore', section: 'B · First impressions', title: 'Take a look around', mode: 'explore',
-      description: 'Go through the views in order. Each one shows the same question in a different way.',
-      // One fixed question keeps the first look simple; Overview still plots every question.
-      itemIds: ['q01'], initialView: 'overview', hideExplorer: false, questions: [],
+      description: 'Go through the views in order: first one question from several angles, then all the questions at once.',
+      // One fixed question keeps the first look simple; the tour ends on all questions (VIEW_TOUR).
+      itemIds: ['q01'], hideExplorer: false, questions: [],
     },
     {
       id: 'first-impressions', section: 'B · First impressions', title: 'What stood out?',

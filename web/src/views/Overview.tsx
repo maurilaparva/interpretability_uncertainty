@@ -12,6 +12,8 @@ interface Props {
   revealKey: boolean;
   allowReveal?: boolean;
   onOpen: (id: string) => void;
+  /** Stripped-down plot for first-time viewers: axes and dots, the selected question labelled, nothing else. */
+  simple?: boolean;
 }
 
 const QLABEL: Record<Quadrant, string> = {
@@ -21,7 +23,22 @@ const QLABEL: Record<Quadrant, string> = {
   'unsure-fragile': 'Unsure & fragile',
 };
 
-export function Overview({ items, stats, selectedId, revealKey, onOpen, allowReveal = true }: Props) {
+export function Overview({ items, stats, selectedId, revealKey, onOpen, allowReveal = true, simple = false }: Props) {
+  if (simple) {
+    return (
+      <>
+        <div>
+          <p style={{ fontSize: 20, fontWeight: 600, letterSpacing: '-0.01em' }}>All {items.length} questions at once</p>
+          <p className="caption" style={{ marginTop: 4 }}>
+            Each dot is one question: how sure the model's output is (left to right) and how hard its answer is to flip (bottom to top).
+          </p>
+        </div>
+        <div className="panel" style={{ flex: 1, minHeight: 0 }}>
+          <Scatter items={items} stats={stats} selectedId={selectedId} revealKey={false} onOpen={onOpen} simple />
+        </div>
+      </>
+    );
+  }
   const cf = items.filter((it) => quadrantOf(it, stats) === 'confident-fragile');
   const cfWrong = cf.filter((it) => !it.correct).length;
   const n = items.length;
@@ -81,7 +98,7 @@ function Glyph({ correct }: { correct: boolean }) {
   );
 }
 
-function Scatter({ items, stats, selectedId, revealKey, onOpen }: Props) {
+function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }: Props) {
   const [ref, { width, height }] = useSize<HTMLDivElement>();
   const [hover, setHover] = useState<Item | null>(null);
   const m = { top: 16, right: 24, bottom: 48, left: 66 };
@@ -114,7 +131,7 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen }: Props) {
         <svg width={width} height={height} role="img" aria-label="Scatter plot of output confidence versus robustness margin">
           <g transform={`translate(${m.left},${m.top})`}>
             {/* highlight the key quadrant */}
-            <rect x={mxp} y={myp} width={Math.max(0, iw - mxp)} height={Math.max(0, ih - myp)} fill="var(--alt-soft)" opacity={0.55} />
+            {!simple && <rect x={mxp} y={myp} width={Math.max(0, iw - mxp)} height={Math.max(0, ih - myp)} fill="var(--alt-soft)" opacity={0.55} />}
             {/* censored band (only when some answer never flipped) */}
             {stats.anyCensored && (
               <>
@@ -143,10 +160,10 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen }: Props) {
               Robustness: push needed to flip it (√ scale) →
             </text>
 
-            <line className="median-line" x1={mxp} x2={mxp} y1={y(yMax)} y2={ih} />
-            <line className="median-line" x1={0} x2={iw} y1={myp} y2={myp} />
+            {!simple && <line className="median-line" x1={mxp} x2={mxp} y1={y(yMax)} y2={ih} />}
+            {!simple && <line className="median-line" x1={0} x2={iw} y1={myp} y2={myp} />}
 
-            {quadText.map(({ q, x: tx, y: ty, anchor }) => (
+            {!simple && quadText.map(({ q, x: tx, y: ty, anchor }) => (
               <text
                 key={q}
                 x={tx}
@@ -171,11 +188,11 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen }: Props) {
                 <g
                   key={it.id}
                   transform={`translate(${cx},${cy})`}
-                  style={{ cursor: 'pointer', transition: 'transform var(--t)' }}
+                  style={{ cursor: simple ? 'default' : 'pointer', transition: 'transform var(--t)' }}
                   onMouseEnter={() => setHover(it)}
                   onMouseLeave={() => setHover(null)}
                   onClick={() => onOpen(it.id)}
-                  role="button"
+                  role={simple ? undefined : 'button'}
                   aria-label={`${it.question} Answer ${it.answer_text}. Confidence ${pct(it.p_answer)}, robustness ${fmtMargin(it, stats)}`}
                 >
                   <circle r={14} fill="transparent" />
@@ -195,7 +212,7 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen }: Props) {
             })}
             {/* selective direct labels: the key quadrant */}
             {items
-              .filter((it) => quadrantOf(it, stats) === 'confident-fragile')
+              .filter((it) => (simple ? it.id === selectedId : quadrantOf(it, stats) === 'confident-fragile'))
               .map((it) => {
                 const { cx, cy } = pos(it);
                 return (
@@ -215,7 +232,7 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen }: Props) {
             Confidence {pct(hover.p_answer)} · Robustness {fmtMargin(hover, stats)}
             {!hover.censored && <> (layer {hover.margin_layer})</>}
           </div>
-          <div className="t-muted">{QLABEL[quadrantOf(hover, stats)]} · click to open flip curve</div>
+          {!simple && <div className="t-muted">{QLABEL[quadrantOf(hover, stats)]} · click to open flip curve</div>}
         </Tip>
       )}
     </div>

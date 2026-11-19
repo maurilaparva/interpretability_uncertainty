@@ -4,12 +4,13 @@ import { AnswerHeader } from '../components/AnswerHeader';
 import { EvidenceView } from '../components/EvidenceView';
 import { GuidanceContext } from '../components/GuidanceContext';
 import { QuickGuide } from '../components/QuickGuide';
+import { Overview } from '../views/Overview';
 import { computeStats, type Loaded } from '../lib/data';
 import type { Item, Stats } from '../lib/types';
 import { VIEWS, type ViewKey } from '../lib/views';
 import { advanceSession, canGoBack, missingRequired, stepDuration } from './flow';
 import { canShowStudyGuide, getExplorerGuideExposure, GUIDE_VERSION, shouldAutoShowGuide } from './guidance';
-import { buildStudySteps, studyDatasetKey, VIEW_TOUR, type StudyStep } from './questionnaire';
+import { buildStudySteps, studyDatasetKey, VIEW_TOUR, type StudyStep, type TourStop } from './questionnaire';
 import { APP_VERSION, clearSession, createSession, submissionId, downloadSession, loadSession, saveSession, sheetsEnabled, submitSession, type StudyEvent, type StudySession } from './storage';
 import { SurveyField } from './SurveyFields';
 import './study.css';
@@ -71,9 +72,9 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
   }, [active, session?.completedAt, persistPause]);
 
   // Explore step: the participant walks the views in VIEW_TOUR order.
-  const [tourView, setTourView] = useState<ViewKey>('overview');
-  const [tourSeen, setTourSeen] = useState<ViewKey[]>(['overview']);
-  const showTourView = (view: ViewKey) => {
+  const [tourView, setTourView] = useState<TourStop>(VIEW_TOUR[0].view);
+  const [tourSeen, setTourSeen] = useState<TourStop[]>([VIEW_TOUR[0].view]);
+  const showTourView = (view: TourStop) => {
     setTourView(view);
     setTourSeen((seen) => (seen.includes(view) ? seen : [...seen, view]));
   };
@@ -286,7 +287,7 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
               {step.mode === 'explore' && nextTourView(tourView) ? (
                 // Separate key: reusing the submit button's DOM node would submit the form on the last "Next" click.
                 <button key="tour-next" className="study-primary" type="button" onClick={() => showTourView(nextTourView(tourView)!)}>
-                  Next: {viewLabel(nextTourView(tourView)!)}<span aria-hidden="true">→</span>
+                  Next: {tourLabel(nextTourView(tourView)!)}<span aria-hidden="true">→</span>
                 </button>
               ) : <button key="submit" className="study-primary" type="submit">{index === steps.length - 1 ? 'Finish study' : step.id === 'predict-correctness' ? 'Lock predictions & reveal' : step.mode === 'explore' ? 'Share first impressions' : 'Continue'}<span aria-hidden="true">→</span></button>}
             </div>
@@ -316,16 +317,16 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
   );
 }
 
-function viewLabel(view: ViewKey): string {
-  return VIEWS.find((tab) => tab.key === view)!.label;
+function tourLabel(view: TourStop): string {
+  return VIEW_TOUR.find((stop) => stop.view === view)!.label;
 }
 
-function nextTourView(view: ViewKey): ViewKey | undefined {
+function nextTourView(view: TourStop): TourStop | undefined {
   const i = VIEW_TOUR.findIndex((stop) => stop.view === view);
   return VIEW_TOUR[i + 1]?.view;
 }
 
-function ViewTour({ view, seen, onView }: { view: ViewKey; seen: ViewKey[]; onView: (view: ViewKey) => void }) {
+function ViewTour({ view, seen, onView }: { view: TourStop; seen: TourStop[]; onView: (view: TourStop) => void }) {
   return (
     <ol className="study-tour" aria-label="Views to look at, in order">
       {VIEW_TOUR.map((stop, i) => {
@@ -334,7 +335,7 @@ function ViewTour({ view, seen, onView }: { view: ViewKey; seen: ViewKey[]; onVi
           <li key={stop.view} className={state}>
             <button type="button" onClick={() => onView(stop.view)} aria-current={state === 'current' ? 'step' : undefined}>
               <span className="study-tour-mark" aria-hidden="true">{state === 'seen' ? '✓' : i + 1}</span>
-              <span><strong>{viewLabel(stop.view)}</strong>{state === 'current' && <span className="study-tour-hint">{stop.hint}</span>}</span>
+              <span><strong>{stop.label}</strong>{state === 'current' && <span className="study-tour-hint">{stop.hint}</span>}</span>
             </button>
           </li>
         );
@@ -362,19 +363,20 @@ function ExploreClock() {
   return <div className="study-explore-clock"><span className="study-clock-number">{Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}</span><span>{elapsed < 180 ? 'Take about 3 minutes. Continue when you’re ready.' : 'Ready when you are.'}</span></div>;
 }
 
-interface Tour { view: ViewKey; seen: ViewKey[]; onView: (view: ViewKey) => void }
+interface Tour { view: TourStop; seen: TourStop[]; onView: (view: TourStop) => void }
 
 function StudyWorkspace({ step, loaded, stats, log, onGuide, tour }: { step: StudyStep; loaded: Loaded; stats: Stats; log: LogEvent; onGuide: () => void; tour?: Tour }) {
   const allItems = loaded.data.items;
   const availableItems = step.itemIds ? step.itemIds.map((id) => allItems.find((item) => item.id === id)!) : allItems;
   const [itemId, setItemId] = useState(availableItems[0].id);
   const [ownView, setOwnView] = useState<ViewKey>(step.initialView ?? 'compare');
-  const view = tour?.view ?? ownView;
-  const setView = tour?.onView ?? setOwnView;
+  const view: TourStop = tour?.view ?? ownView;
+  const setView = (next: TourStop) => (tour ? tour.onView(next) : setOwnView(next as ViewKey));
   const [aboutOpen, setAboutOpen] = useState(false);
   const aboutRef = useRef<HTMLButtonElement>(null);
   const item = availableItems.find((candidate) => candidate.id === itemId) ?? availableItems[0];
-  const tabs = step.id.startsWith('rate-') ? VIEWS.filter((tab) => tab.key === step.initialView) : VIEWS.filter((tab) => !step.itemIds || step.mode === 'explore' || tab.key !== 'overview');
+  const tabs: { key: TourStop; label: string }[] = tour ? VIEW_TOUR.map((stop) => ({ key: stop.view, label: stop.label }))
+    : step.id.startsWith('rate-') ? VIEWS.filter((tab) => tab.key === step.initialView) : VIEWS.filter((tab) => !step.itemIds || step.mode === 'explore' || tab.key !== 'overview');
 
   useEffect(() => { log({ type: 'view_opened', stepId: step.id, itemId: item.id, view }); }, [item.id, view, step.id, log]);
 
@@ -413,14 +415,33 @@ function StudyWorkspace({ step, loaded, stats, log, onGuide, tour }: { step: Stu
       }}>
         <div className={`study-evidence-content evidence-${view}`}>
           <GuidanceContext.Provider value={canShowStudyGuide(step)}>
-          <EvidenceView view={view} item={item} items={allItems} stats={stats}
+          {view === 'question' ? <QuestionIntro item={item} />
+            : tour && view === 'overview' ? <Overview simple items={allItems} stats={stats} selectedId={item.id} revealKey={false} allowReveal={false} onOpen={() => {}} />
+            : <EvidenceView view={view} item={item} items={allItems} stats={stats}
             header={<AnswerHeader item={item} compact revealKey={false} allowReveal={false} onReveal={() => {}} />}
-            revealKey={false} allowReveal={false} onOpenItem={(id, nextView) => { if (availableItems.some((candidate) => candidate.id === id)) { setItemId(id); setView(nextView); } }} />
+            revealKey={false} allowReveal={false} onOpenItem={(id, nextView) => { if (availableItems.some((candidate) => candidate.id === id)) { setItemId(id); setView(nextView); } }} />}
           </GuidanceContext.Provider>
         </div>
       </div>
       {aboutOpen && <AboutDrawer loaded={loaded} stats={stats} onClose={closeAbout} />}
     </section>
+  );
+}
+
+/** First stop of the explore tour: the question and the model's answer, before any view. */
+function QuestionIntro({ item }: { item: Item }) {
+  const answer = item.answer_text || item.answer_token.trim();
+  return (
+    <div className="study-question-intro">
+      <span className="study-workspace-label">The question</span>
+      <p className="study-intro-question">{item.question}</p>
+      <span className="study-workspace-label">The model answered</span>
+      <p className="study-intro-answer">{answer}</p>
+      <p className="study-intro-note">
+        The next views look at this one answer from different angles: how likely the model thinks “{answer}” is,
+        and how hard it is to change that answer from inside the model.
+      </p>
+    </div>
   );
 }
 
