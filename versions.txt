@@ -4,3 +4,4 @@
 # The deploy workflow rebuilds every line on each push to main.
 v0 v0.1.0
 v1 v0.3.1
+v2 v0.4.0
