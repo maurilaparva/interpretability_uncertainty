@@ -39,15 +39,16 @@ export interface StudyStep {
 }
 
 /** A stop on the explore step's tour: one of the views, or the opening "meet the question" page. */
-export type TourStop = StudyView | 'question';
+export type TourStop = StudyView | 'question' | 'layers';
 
 /**
- * The explore step's tour. Each stop only uses ideas introduced before it: confidence (R0), then the push (R3, R2),
+ * The explore step's tour. Each stop only uses ideas introduced before it: confidence (R0), then layers and the push (R3, R2),
  * then the other questions, then the scores that compare against them (R1, R4).
  */
 export const VIEW_TOUR: { view: TourStop; label: string; hint: string }[] = [
   { view: 'question', label: 'The question', hint: 'What the model was asked, and what it answered.' },
   { view: 'r0', label: 'R0 Baseline', hint: 'How likely the model rated its answer: the confidence number AI tools usually show.' },
+  { view: 'layers', label: 'Inside the model', hint: 'The model works through the question in layers. A push nudges one of them.' },
   { view: 'r3', label: 'R3 Push it', hint: 'Push the model toward another answer with the slider, and watch when its answer flips.' },
   { view: 'r2', label: 'R2 Flip curve', hint: 'The same push at every strength and every layer: where the answer flips.' },
   { view: 'overview', label: 'All questions', hint: 'All 24 questions: how confident the model is, and how big a push flips each answer. The Japan question (Tokyo) is circled.' },

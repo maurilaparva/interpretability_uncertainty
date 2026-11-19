@@ -416,6 +416,7 @@ function StudyWorkspace({ step, loaded, stats, log, onGuide, tour }: { step: Stu
         <div className={`study-evidence-content evidence-${view}`}>
           <GuidanceContext.Provider value={canShowStudyGuide(step)}>
           {view === 'question' ? <QuestionIntro item={item} />
+            : view === 'layers' ? <LayersIntro item={item} nLayers={loaded.data.meta.n_layers} />
             : tour && view === 'overview' ? <Overview simple items={allItems} stats={stats} selectedId={item.id} revealKey={false} allowReveal={false} onOpen={() => {}} />
             : <EvidenceView view={view} item={item} items={allItems} stats={stats}
             header={<AnswerHeader item={item} compact revealKey={false} allowReveal={false} onReveal={() => {}} />}
@@ -440,6 +441,36 @@ function QuestionIntro({ item }: { item: Item }) {
       <p className="study-intro-note">
         The next views look at this one answer from different angles: how likely the model thinks “{answer}” is,
         and how hard it is to change that answer from inside the model.
+      </p>
+    </div>
+  );
+}
+
+/** Explore tour stop before R3: what a layer is and what a push does, before the participant tries one. */
+function LayersIntro({ item, nLayers }: { item: Item; nLayers: number }) {
+  const answer = item.answer_text || item.answer_token.trim();
+  const third = Math.ceil(nLayers / 3);
+  const groups = [['Early', 0, third], ['Middle', third, 2 * third], ['Late', 2 * third, nLayers]] as const;
+  return (
+    <div className="study-question-intro">
+      <span className="study-workspace-label">Inside the model</span>
+      <div className="study-layers" aria-hidden="true">
+        <span className="study-layers-end">Question</span>
+        {groups.map(([name, from, to]) => (
+          <div key={name} className="study-layers-group">
+            <div className="study-layers-cells">{Array.from({ length: to - from }, (_, i) => <i key={i} />)}</div>
+            <span>{name} layers</span>
+          </div>
+        ))}
+        <span className="study-layers-end answer">{answer}</span>
+      </div>
+      <p className="study-intro-note">
+        The model does not jump straight to an answer. It passes the question through {nLayers} <strong>layers</strong>,
+        one after another. Each layer updates an internal signal, and the last one turns that signal into the answer.
+      </p>
+      <p className="study-intro-note">
+        A <strong>push</strong> nudges that signal at one layer toward a different answer. Then we watch whether the
+        model still says “{answer}”. In the next view you can try it yourself.
       </p>
     </div>
   );

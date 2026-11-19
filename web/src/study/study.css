@@ -75,7 +75,7 @@
 .study-question-select { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .study-question-select > span { color: #697166; font-size: 11px; }
 .study-question-select select { min-width: 0; max-width: 500px; border: 1px solid #e0e6db; border-radius: 8px; font: inherit; font-size: 12px; padding: 8px 30px 8px 10px; background-color: #fafcf8; color: var(--ink); text-overflow: ellipsis; }
-.study-view-tabs { display: flex; gap: 3px; overflow-x: auto; flex: 0 0 auto; padding: 12px 18px; }
+.study-view-tabs { display: flex; flex-wrap: wrap; gap: 3px; flex: 0 0 auto; padding: 12px 18px; }
 .study-view-tabs button { background: transparent; border: 1px solid transparent; border-radius: 7px; padding: 7px 11px; color: #737c6c; white-space: nowrap; cursor: pointer; font-size: 12px; }
 .study-view-tabs button:hover { background: #f0f3ec; }
 .study-view-tabs .selected { color: #234c36; border-color: #cbdac6; background: #edf3e9; font-weight: 550; }
@@ -188,3 +188,9 @@
 .study-intro-question { font-size: 26px; font-weight: 600; letter-spacing: -.02em; line-height: 1.25; margin-bottom: 18px; }
 .study-intro-answer { font-size: 44px; font-weight: 650; letter-spacing: -.02em; line-height: 1.1; color: var(--answer); margin-bottom: 22px; }
 .study-intro-note { font-size: 15px; line-height: 1.6; color: #5d6659; }
+.study-layers { display: flex; align-items: flex-start; gap: 10px; margin: 14px 0 22px; flex-wrap: wrap; }
+.study-layers-end { align-self: center; margin-top: -18px; font-size: 13px; font-weight: 600; color: var(--ink-2); padding: 8px 12px; border: 1px solid #dfe5da; border-radius: 8px; background: #fff; }
+.study-layers-end.answer { color: var(--answer); border-color: #bfdbfe; background: var(--answer-soft); }
+.study-layers-group { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11px; color: #6c7864; }
+.study-layers-cells { display: flex; gap: 3px; padding: 6px; border: 1px solid #d6e2d8; border-radius: 8px; background: #f3f7f2; }
+.study-layers-cells i { display: block; width: 9px; height: 26px; border-radius: 3px; background: #9cc2ab; }
