@@ -28,7 +28,7 @@ export function EvidenceView({ view, item, items, stats, header, revealKey, onOp
       return <Overview items={items} stats={stats} selectedId={item.id} revealKey={revealKey} allowReveal={allowReveal} clickOpensFlipCurve={overviewOpensFlipCurve}
         onOpen={(id) => onOpenItem(id, overviewOpensFlipCurve ? 'r2' : 'overview')} />;
     case 'compare':
-      return <CompareAll header={header} item={item} items={items} stats={stats} />;
+      return <CompareAll header={header} item={item} items={items} stats={stats} onOpenView={(next) => onOpenItem(item.id, next)} />;
     case 'r0':
       return <>{header}<div className="panel"><R0Baseline item={item} /></div></>;
     case 'r1':

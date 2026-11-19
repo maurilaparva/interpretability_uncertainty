@@ -42,10 +42,10 @@ export function ConfidenceBar({ p, height = 22 }: { p: number; height?: number }
   );
 }
 
-export function Top5({ item, n = 5 }: { item: Item; n?: number }) {
+export function Top5({ item, n = 5, large = true }: { item: Item; n?: number; large?: boolean }) {
   const max = Math.max(...item.top5.map((t) => t.p), 0.01);
   return (
-    <div className="top5" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div className={large ? 'top5' : undefined} style={{ display: 'flex', flexDirection: 'column', gap: large ? 12 : 6 }}>
       {item.top5.slice(0, n).map((t, i) => {
         const role = tokenRole(item, t.token);
         return (
@@ -65,7 +65,24 @@ export function Top5({ item, n = 5 }: { item: Item; n?: number }) {
   );
 }
 
-/** Slim strip for the Compare-all screen. */
+/** R0 panel for Compare all: the confidence number, its bar, and the runner-up words. */
+export function R0Compact({ item }: { item: Item }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 30, fontWeight: 650, lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>{pct(item.p_answer)}</span>
+        <span style={{ fontSize: 13, color: 'var(--muted)' }}>how likely the model rated “{tok(item.answer_token)}”</span>
+      </div>
+      <ConfidenceBar p={item.p_answer} height={16} />
+      <div>
+        <div className="caption" style={{ marginBottom: 6 }}>Top next words</div>
+        <Top5 item={item} n={3} large={false} />
+      </div>
+    </div>
+  );
+}
+
+/** Slim strip (kept for narrow layouts). */
 export function R0Strip({ item }: { item: Item }) {
   const others = item.top5.filter((t) => tokenRole(item, t.token) !== 'answer').slice(0, 3);
   return (

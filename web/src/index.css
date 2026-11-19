@@ -276,3 +276,16 @@ select {
 .minimap .caption { display: block; margin: 0 0 3px; }
 .minimap-brush .selection { fill: var(--ink); fill-opacity: .07; stroke: var(--ink); stroke-opacity: .55; }
 .minimap-brush .handle { fill: var(--ink); fill-opacity: .2; }
+
+/* Compare all: six-column grid. Top row R0 · R1 · R4 (two columns each); bottom row R2 · R3 (three each). */
+.compare-grid { flex: 1; min-height: 0; display: grid; gap: 10px; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-template-rows: minmax(0, 0.9fr) minmax(0, 1fr); }
+.compare-grid > .cmp-r0, .compare-grid > .cmp-r1, .compare-grid > .cmp-r4 { grid-column: span 2; }
+.compare-grid > .cmp-r2, .compare-grid > .cmp-r3 { grid-column: span 3; }
+.panel-open { display: inline-flex; align-items: baseline; gap: 8px; padding: 0; border: 0; background: none; font: inherit; color: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer; }
+.panel-open > span:last-child { color: var(--muted); font-size: 11px; }
+.panel-open:hover .name { text-decoration: underline; text-underline-offset: 3px; }
+.panel-open:focus-visible { outline: 2px solid var(--answer); outline-offset: 2px; border-radius: 3px; }
+.panel-clickable { cursor: pointer; transition: transform 160ms ease-out, box-shadow 160ms ease-out, border-color 160ms; }
+.panel-clickable:hover { transform: scale(1.012); box-shadow: 0 6px 18px rgba(28, 25, 23, .10); border-color: #d6d3d1; position: relative; z-index: 1; }
+.panel-clickable input, .panel-clickable button { cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .panel-clickable, .panel-clickable:hover { transition: none; transform: none; } }
