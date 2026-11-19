@@ -160,7 +160,9 @@ export async function submitSession(session: StudySession): Promise<boolean> {
       method: 'POST',
       // text/plain keeps this a "simple" request: Apps Script cannot answer a CORS preflight.
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(session),
+      // app_version also goes in as an answer: the deployed sheet script turns every new answer key into a
+      // column, so the Responses sheet gets the version without redeploying the script.
+      body: JSON.stringify({ ...session, answers: { ...session.answers, app_version: session.appVersion ?? APP_VERSION } }),
     });
     if (!response.ok) return false;
     const result: unknown = await response.json();
