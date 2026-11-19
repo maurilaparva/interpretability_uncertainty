@@ -10,7 +10,7 @@ import { VIEWS, type ViewKey } from '../lib/views';
 import { advanceSession, canGoBack, missingRequired, stepDuration } from './flow';
 import { canShowStudyGuide, getExplorerGuideExposure, GUIDE_VERSION, shouldAutoShowGuide } from './guidance';
 import { buildStudySteps, studyDatasetKey, type StudyStep } from './questionnaire';
-import { APP_VERSION, clearSession, createSession, downloadSession, loadSession, saveSession, sheetsEnabled, submitSession, type StudyEvent, type StudySession } from './storage';
+import { APP_VERSION, clearSession, createSession, submissionId, downloadSession, loadSession, saveSession, sheetsEnabled, submitSession, type StudyEvent, type StudySession } from './storage';
 import { SurveyField } from './SurveyFields';
 import './study.css';
 
@@ -199,9 +199,18 @@ export function Study({ loaded, onExit, autoStart = false }: { loaded: Loaded; o
       {!active ? (
         <main className="study-welcome-wrap">
           <div className="study-welcome">
-            <div className="study-eyebrow">About 20 minutes</div>
-            <h1>{session ? 'Welcome back.' : 'Explore the model.'}</h1>
-            <p className="study-intro">Try the views, make predictions, and share your feedback.</p>
+            <div className="study-eyebrow">Model confidence study · about 20 minutes</div>
+            <h1>{session ? 'Welcome back.' : 'How sure is an AI model of its answer?'}</h1>
+            <p className="study-intro">
+              A language model can give an answer that a small change inside the model would flip. We built views that
+              show how fragile each answer is. In this study you will try them and tell us which ones help you judge
+              when to trust an answer.
+            </p>
+            <ul className="study-facts">
+              <li><strong>About 20 minutes.</strong> Participation is voluntary and your responses are anonymous.</li>
+              <li><strong>You can pause and come back</strong> in this same browser: progress is saved on this device. We recommend finishing in one sitting.</li>
+              <li><strong>At the end you get a submission ID.</strong> Keep it in case the research team asks about your responses.</li>
+            </ul>
             <div className="study-journey" aria-label="Study overview">
               {[['01', 'Explore', 'Get a feel for the interface.'], ['02', 'Try a few tasks', 'Read, steer, and make predictions.'], ['03', 'Share your thoughts', 'Tell us what worked for you.']].map(([number, title, text]) => (
                 <div key={number}><span>{number}</span><strong>{title}</strong><p>{text}</p></div>
@@ -228,6 +237,7 @@ export function Study({ loaded, onExit, autoStart = false }: { loaded: Loaded; o
             <div className="study-done-mark" aria-hidden="true">✓</div>
             <div className="study-eyebrow">Session complete</div>
             <h1>Thanks for your feedback.</h1>
+            <SubmissionId session={session} />
             {!sheetsEnabled ? (
               <p className="study-intro">Download your responses and share the file with the research team.</p>
             ) : session.submittedAt ? (
@@ -373,4 +383,18 @@ function LeaveDialog({ onCancel, onKeep, onDiscard, onDownload }: { onCancel: ()
       else if (!event.shiftKey && document.activeElement === buttons.at(-1)) { event.preventDefault(); buttons[0]?.focus(); }
     }
   }}><h2 id="leave-title">Leave the study?</h2><p>You can keep your progress and return later, or delete this session from the browser.</p><div className="study-actions"><button className="study-primary" onClick={onCancel}>Keep going</button><button className="btn" onClick={onKeep}>Save & leave</button><button className="btn" onClick={onDownload}>Download progress</button><button className="btn-link" onClick={onDiscard}>Delete session & leave</button></div></div>;
+}
+
+function SubmissionId({ session }: { session: StudySession }) {
+  const id = submissionId(session);
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className="study-submission-id">
+      <span>Your submission ID</span>
+      <strong>{id}</strong>
+      <button className="btn" onClick={() => {
+        navigator.clipboard?.writeText(id).then(() => setCopied(true), () => setCopied(false));
+      }}>{copied ? 'Copied' : 'Copy'}</button>
+    </div>
+  );
 }

@@ -128,6 +128,11 @@ function csvCell(value: string): string {
   return `"${safe.replaceAll('"', '""')}"`;
 }
 
+/** Short ID shown to the participant at the end: the start of participant_id, so it can be searched in the sheet. */
+export function submissionId(session: StudySession): string {
+  return session.id.replace(/^participant-/, '').slice(0, 8);
+}
+
 export function sessionToCsv(session: StudySession): string {
   const rows: string[][] = [['participant_id', 'task_set', 'started_at', 'completed_at', 'question_id', 'response', 'guidance_version', 'app_version']];
   const guidanceVersion = guideVersionFor(session.events);
