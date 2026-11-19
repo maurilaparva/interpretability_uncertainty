@@ -461,9 +461,9 @@ function StudyWorkspace({ step, loaded, stats, log, onGuide, tour }: { step: Stu
             : view === 'layers' ? <LayersIntro item={item} nLayers={loaded.data.meta.n_layers} />
             : view === 'push' ? <PushIntro item={item} stats={stats} />
             : view === 'scores' ? <ScoresIntro item={item} stats={stats} />
-            : <EvidenceView view={view} item={item} items={allItems} stats={stats}
+            : <>{tour && view === 'overview' && <p className="study-tour-lead">So far you looked at <strong>one question</strong>. Now let’s look at <strong>all {allItems.length} questions</strong> together. Click a dot to pick one.</p>}<EvidenceView view={view} item={item} items={allItems} stats={stats}
             header={<AnswerHeader item={item} compact revealKey={false} allowReveal={false} onReveal={() => {}} />}
-            revealKey={false} allowReveal={false} overviewOpensFlipCurve={false} onOpenItem={(id, nextView) => { if (availableItems.some((candidate) => candidate.id === id)) { setItemId(id); setView(nextView); } }} />}
+            revealKey={false} allowReveal={false} overviewOpensFlipCurve={false} overviewHideCorrelation={tour != null} onOpenItem={(id, nextView) => { if (availableItems.some((candidate) => candidate.id === id)) { setItemId(id); setView(nextView); } }} /></>}
           </GuidanceContext.Provider>
         </div>
       </div>

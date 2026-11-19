@@ -20,12 +20,13 @@ interface Props {
   allowReveal?: boolean;
   /** Overview point click: open the flip curve (explorer) or just select the question (study). */
   overviewOpensFlipCurve?: boolean;
+  overviewHideCorrelation?: boolean;
 }
 
-export function EvidenceView({ view, item, items, stats, header, revealKey, onOpenItem, allowReveal = true, overviewOpensFlipCurve = true }: Props) {
+export function EvidenceView({ view, item, items, stats, header, revealKey, onOpenItem, allowReveal = true, overviewOpensFlipCurve = true, overviewHideCorrelation = false }: Props) {
   switch (view) {
     case 'overview':
-      return <Overview items={items} stats={stats} selectedId={item.id} revealKey={revealKey} allowReveal={allowReveal} clickOpensFlipCurve={overviewOpensFlipCurve}
+      return <Overview items={items} stats={stats} selectedId={item.id} revealKey={revealKey} allowReveal={allowReveal} clickOpensFlipCurve={overviewOpensFlipCurve} hideCorrelation={overviewHideCorrelation}
         onOpen={(id) => onOpenItem(id, overviewOpensFlipCurve ? 'r2' : 'overview')} />;
     case 'compare':
       return <CompareAll header={header} item={item} items={items} stats={stats} onOpenView={(next) => onOpenItem(item.id, next)} />;

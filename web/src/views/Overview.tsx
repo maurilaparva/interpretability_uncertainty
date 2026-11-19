@@ -14,6 +14,8 @@ interface Props {
   onOpen: (id: string) => void;
   /** Explorer: clicking a point opens its flip curve. Study: it only selects the question, so no view is favoured. */
   clickOpensFlipCurve?: boolean;
+  /** Study tour: leave out the rank-correlation sentence, too technical for a first look. */
+  hideCorrelation?: boolean;
 }
 
 // The quadrants split at the medians, so they say "easier / harder to flip than most". Fragile / Moderate / Robust
@@ -25,7 +27,7 @@ const QLABEL: Record<Quadrant, string> = {
   'unsure-fragile': 'Unsure · easier to flip',
 };
 
-export function Overview({ items, stats, selectedId, revealKey, onOpen, allowReveal = true, clickOpensFlipCurve = true }: Props) {
+export function Overview({ items, stats, selectedId, revealKey, onOpen, allowReveal = true, clickOpensFlipCurve = true, hideCorrelation = false }: Props) {
   const cf = items.filter((it) => quadrantOf(it, stats) === 'confident-fragile');
   const cfWrong = cf.filter((it) => !it.correct).length;
   const n = items.length;
@@ -45,14 +47,14 @@ export function Overview({ items, stats, selectedId, revealKey, onOpen, allowRev
               <>No answer here is both confident and easier to flip than most: the two signals agree on this set.</>
             )}
           </p>
-          <p className="explain" style={{ marginTop: 4 }}>
+          {!hideCorrelation && <p className="explain" style={{ marginTop: 4 }}>
             {revealKey && cf.length > 0 && (
               <>{cfWrong === 0 ? `None of those ${cf.length} is wrong` : `${cfWrong} of those ${cf.length} ${cfWrong === 1 ? 'is' : 'are'} wrong`}. </>
             )}
             Rank correlation between confidence and robustness: ρ = {rho.toFixed(2)}
             {Math.abs(rho) < 0.5 ? ' (weak, so the margin adds information).' : ' (strong, so the signals largely overlap).'}{' '}
             {clickOpensFlipCurve ? 'Click a point to open its flip curve.' : 'Click a point to select that question.'}
-          </p>
+          </p>}
         </div>
         <div className="legend">
           {revealKey ? (
