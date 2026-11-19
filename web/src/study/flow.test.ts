@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import test, { type TestContext } from 'node:test';
 import { advanceSession, canGoBack, isAnswered, missingRequired, stepDuration } from './flow.ts';
-import { canShowStudyGuide, getExplorerGuideExposure, GUIDE_VERSION, guideVersionFor, recordExplorerGuideExposure, shouldAutoShowGuide } from './guidance.ts';
+import { canShowStudyGuide, getExplorerGuideExposure, GUIDE_VERSION, guideVersionFor, recordExplorerGuideExposure } from './guidance.ts';
 import { APP_VERSION, clearSession, createSession, downloadSession, loadSession, saveSession, sessionToCsv, viewOrderText } from './storage.ts';
 import { DEFAULT_VIEW_ORDER, VIEW_ORDERS, viewOrderFor } from './viewOrder.ts';
 import type { StudyQuestion, StudyStep } from './questionnaire';
@@ -157,24 +157,9 @@ test('guidance stays unavailable during free exploration, first impressions, and
     step('reveal-answers', 'reveal'),
   ]) {
     assert.equal(canShowStudyGuide(current), false);
-    assert.equal(shouldAutoShowGuide(current, []), false);
   }
   assert.equal(canShowStudyGuide(step('read-answer', 'task')), true);
   assert.equal(canShowStudyGuide(step('steer-answer', 'task')), true);
-  assert.equal(shouldAutoShowGuide(step('steer-answer', 'task'), []), false);
-});
-
-test('the guide automatically appears at the first reading task until its current version is closed', () => {
-  const current = step('read-answer', 'task');
-  assert.equal(shouldAutoShowGuide(current, []), true);
-  const opened = session({ events: [
-    { type: 'guide_opened', stepId: current.id, at: NOW, details: { version: GUIDE_VERSION } },
-  ] });
-  assert.equal(shouldAutoShowGuide(current, opened.events), true, 'an interrupted guide may resume');
-  const closed = [...opened.events, { type: 'guide_closed', stepId: current.id, at: LATER, details: { version: GUIDE_VERSION } }];
-  assert.equal(shouldAutoShowGuide(current, closed), false);
-  assert.equal(canShowStudyGuide(current), true, 'closing the guide must not disable manual reopening');
-  assert.equal(shouldAutoShowGuide(current, [{ type: 'guide_closed', at: NOW, details: { version: 'old-guide' } }]), true);
 });
 
 test('guide exposure uses the latest opened version and legacy sessions remain unchanged', (t) => {

@@ -30,12 +30,6 @@ export function canShowStudyGuide(step: Pick<StudyStep, 'id' | 'mode'>): boolean
   return step.mode === 'task';
 }
 
-export function shouldAutoShowGuide(step: Pick<StudyStep, 'id' | 'mode'>, events: readonly StudyEvent[]): boolean {
-  return canShowStudyGuide(step)
-    && step.id === 'read-answer'
-    && !events.some((event) => event.type === 'guide_closed' && event.details?.version === GUIDE_VERSION);
-}
-
 export function guideVersionFor(events: readonly StudyEvent[]): string {
   const opened = events.findLast((event) => event.type === 'guide_opened' && typeof event.details?.version === 'string');
   return typeof opened?.details?.version === 'string' ? opened.details.version : 'none';

@@ -44,7 +44,7 @@ export interface StudyStep {
 }
 
 /** A stop on the explore step's tour: one of the views, or the opening "meet the question" page. */
-export type TourStop = StudyView | 'question' | 'layers';
+export type TourStop = StudyView | 'question' | 'layers' | 'push' | 'scores';
 
 /** The explore tour has three parts: concepts (same for everyone), the rotated views, then all views together. */
 export type TourPart = 'learn' | 'explore' | 'compare';
@@ -54,6 +54,8 @@ const TOUR_TEXT: Record<TourStop, { label: string; hint: string }> = {
   question: { label: 'The question', hint: 'What the model was asked, and what it answered.' },
   r0: { label: 'R0 Baseline', hint: 'How likely the model rated its answer: the confidence number AI tools usually show.' },
   layers: { label: 'Inside the model', hint: 'The model works through the question in layers. A push nudges one of them.' },
+  push: { label: 'Try a push', hint: 'Choose a layer and a push strength, and see whether the answer changes.' },
+  scores: { label: 'Two scores', hint: 'Output confidence and robustness: what each one measures for the Japan question.' },
   overview: { label: 'All questions', hint: 'All 24 questions: how confident the model is, and how big a push flips each answer. The Japan question (Tokyo) is circled.' },
   r1: { label: 'R1 Score', hint: 'One robustness score for Japan: the smallest push that flips it, compared with the other questions.' },
   r2: { label: 'R2 Flip curve', hint: 'Pushes of every strength at every layer, and where the answer flips.' },
@@ -68,7 +70,8 @@ const TOUR_TEXT: Record<TourStop, { label: string; hint: string }> = {
  */
 export function tourFor(order: readonly RotatedView[]): TourStopInfo[] {
   const stops: [TourStop, TourPart][] = [
-    ['question', 'learn'], ['r0', 'learn'], ['layers', 'learn'], ['overview', 'learn'],
+    ['question', 'learn'], ['r0', 'learn'], ['layers', 'learn'], ['push', 'learn'], ['scores', 'learn'],
+    ['overview', 'learn'],
     ...order.map((view): [TourStop, TourPart] => [view, 'explore']),
     ['compare', 'compare'],
   ];
@@ -185,7 +188,7 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet, v
     {
       // Concepts first (fixed order), then R1–R4 in the participant's rotated order, then Compare all (tourFor).
       id: 'learn-views', section: 'C · Guided tasks', title: 'Learn the views', mode: 'tour',
-      description: 'Learn the ideas first, then go through each view, in order. About 4 minutes.',
+      description: 'Learn the ideas first, then go through each view, in order. About 6 minutes.',
       itemIds: ['q01'], hideExplorer: false, questions: [],
     },
     {

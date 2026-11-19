@@ -9,11 +9,12 @@ import { computeStats, type Loaded } from '../lib/data';
 import type { Item, Stats } from '../lib/types';
 import { VIEWS, type ViewKey } from '../lib/views';
 import { advanceSession, canGoBack, missingRequired, stepDuration } from './flow';
-import { canShowStudyGuide, getExplorerGuideExposure, GUIDE_VERSION, shouldAutoShowGuide } from './guidance';
+import { canShowStudyGuide, getExplorerGuideExposure, GUIDE_VERSION } from './guidance';
 import { buildStudySteps, studyDatasetKey, tourFor, type StudyStep, type TourPart, type TourStop, type TourStopInfo } from './questionnaire';
 import { viewOrderFor } from './viewOrder';
 import { APP_VERSION, clearSession, createSession, submissionId, downloadSession, loadSession, saveSession, sheetsEnabled, submitSession, type StudyEvent, type StudySession } from './storage';
 import { SurveyField } from './SurveyFields';
+import { LayersIntro, PushIntro, QuestionIntro, ScoresIntro } from './TourIntros';
 import './study.css';
 
 type LogEvent = (event: Omit<StudyEvent, 'at'>) => void;
@@ -27,7 +28,6 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
   const [saved, setSaved] = useState(true);
   const [resetting, setResetting] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
-  const autoGuideSession = useRef<string | null>(null);
   const guideOpenedAt = useRef<number | null>(null);
   const [invalid, setInvalid] = useState<string[]>([]);
   const viewOrder = viewOrderFor(session?.viewOrder);
@@ -106,12 +106,6 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
     log({ type: 'guide_opened', stepId: step.id, details: { version: GUIDE_VERSION } });
   }, [log, step.id]);
 
-  useEffect(() => {
-    if (active && session && !session.completedAt && autoGuideSession.current !== session.id && shouldAutoShowGuide(step, session.events)) {
-      autoGuideSession.current = session.id;
-      openGuide();
-    }
-  }, [active, session, step, openGuide]);
 
   const closeGuide = (completed: boolean) => {
     const durationMs = guideOpenedAt.current == null ? 0 : Date.now() - guideOpenedAt.current;
@@ -464,6 +458,8 @@ function StudyWorkspace({ step, loaded, stats, log, onGuide, tour }: { step: Stu
           <GuidanceContext.Provider value={canShowStudyGuide(step)}>
           {view === 'question' ? <QuestionIntro item={item} />
             : view === 'layers' ? <LayersIntro item={item} nLayers={loaded.data.meta.n_layers} />
+            : view === 'push' ? <PushIntro item={item} stats={stats} />
+            : view === 'scores' ? <ScoresIntro item={item} stats={stats} />
             : tour && view === 'overview' ? <Overview simple items={allItems} stats={stats} selectedId={item.id} revealKey={false} allowReveal={false} onOpen={() => {}} />
             : <EvidenceView view={view} item={item} items={allItems} stats={stats}
             header={<AnswerHeader item={item} compact revealKey={false} allowReveal={false} onReveal={() => {}} />}
@@ -473,54 +469,6 @@ function StudyWorkspace({ step, loaded, stats, log, onGuide, tour }: { step: Stu
       </div>
       {aboutOpen && <AboutDrawer loaded={loaded} stats={stats} onClose={closeAbout} />}
     </section>
-  );
-}
-
-/** First stop of the explore tour: the question and the model's answer, before any view. */
-function QuestionIntro({ item }: { item: Item }) {
-  const answer = item.answer_text || item.answer_token.trim();
-  return (
-    <div className="study-question-intro">
-      <span className="study-workspace-label">The question</span>
-      <p className="study-intro-question">{item.question}</p>
-      <span className="study-workspace-label">The model answered</span>
-      <p className="study-intro-answer">{answer}</p>
-      <p className="study-intro-note">
-        The next views look at this one answer from different angles: <strong>how likely</strong> the model thinks
-        “{answer}” is, and <strong>how hard it is to change</strong> that answer from inside the model.
-      </p>
-    </div>
-  );
-}
-
-/** Explore tour stop before R3: what a layer is and what a push does, before the participant tries one. */
-function LayersIntro({ item, nLayers }: { item: Item; nLayers: number }) {
-  const answer = item.answer_text || item.answer_token.trim();
-  const third = Math.ceil(nLayers / 3);
-  const groups = [['Early', 0, third], ['Middle', third, 2 * third], ['Late', 2 * third, nLayers]] as const;
-  return (
-    <div className="study-question-intro wide">
-      <span className="study-workspace-label">Inside the model</span>
-      <div className="study-layers" aria-hidden="true">
-        <span className="study-layers-end">Question</span>
-        {groups.map(([name, from, to]) => (
-          <div key={name} className="study-layers-group">
-            <div className="study-layers-cells">{Array.from({ length: to - from }, (_, i) => <i key={i} />)}</div>
-            <span>{name} layers</span>
-          </div>
-        ))}
-        <span className="study-layers-end answer">{answer}</span>
-      </div>
-      <p className="study-intro-note">
-        The model does not jump straight to an answer. It passes the question through {nLayers} <strong>layers</strong>,{' '}
-        <em>one after another</em>. Each layer updates an <strong>internal signal</strong>, and the last one turns that
-        signal into the answer.
-      </p>
-      <p className="study-intro-note">
-        A <strong>push</strong> nudges that signal at <em>one layer</em> toward a <strong>different answer</strong>.
-        Then we watch whether the model still says “{answer}”. Later in the tour you can try it yourself.
-      </p>
-    </div>
   );
 }
 

@@ -204,6 +204,10 @@
   .study-tour button { padding-top: 3px; padding-bottom: 3px; }
   .study-tour li:not(:last-child):not(.part-end):not(.study-tour-part)::after { top: 27px; bottom: -5px; }
   .study-tour-hint { font-size: 13px; }
+  /* 11 tour stops must fit on a 768px-high laptop screen. */
+  .study-tour { gap: 0; }
+  .study-tour button { padding-top: 1px; padding-bottom: 1px; }
+  .study-tour li:not(:last-child):not(.part-end):not(.study-tour-part)::after { top: 25px; bottom: -1px; }
 }
 .study-tour .study-tour-part { margin: 6px 0 0 10px; font-size: 10px; font-weight: 650; letter-spacing: .1em; text-transform: uppercase; color: #7c8b77; }
 .study-tour .study-tour-part:first-child { margin-top: 0; }
@@ -226,3 +230,32 @@
 .study-instructions strong, .study-survey-heading > p strong { color: var(--ink); font-weight: 650; }
 .study-workspace-waiting { display: grid; place-items: center; padding: 40px; background: repeating-linear-gradient(135deg, #fafbf9 0 14px, #f4f6f2 14px 28px); }
 .study-workspace-waiting p { max-width: 26em; text-align: center; font-size: 16px; color: #5d6659; background: #fff; border: 1px solid #e1e6e0; border-radius: 12px; padding: 18px 22px; }
+/* Tour stops that replace the quick guide: the push demo and the two scores. */
+.study-push-intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 1.05fr); gap: 36px; align-items: start; }
+.study-push-intro > div { display: flex; flex-direction: column; gap: 14px; }
+.study-push-intro .study-intro-note { font-size: 18px; }
+.study-intro-fine { font-size: 14px; color: #77806f; line-height: 1.5; }
+.study-push-intro .guide-small-label, .study-push-intro .guide-layer-ends, .study-push-intro .guide-range-ends, .study-push-intro .guide-result-state { font-size: 13px; }
+.study-push-intro .guide-layer-track button > span { font-size: 11px; }
+.study-push-intro .guide-range-heading { font-size: 15px; }
+.study-push-intro .guide-answer-pair strong, .study-push-intro .guide-result strong { font-size: 28px; }
+.study-push-intro .guide-replay { font-size: 14px; }
+.study-push-intro .guide-reset, .study-push-intro .guide-data-note { font-size: 13px; }
+.study-scores { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 18px 0 24px; }
+.study-scores > div { border: 1px solid #e1e8df; border-radius: 12px; padding: 18px 22px; background: #fff; }
+.study-scores-name { display: block; font-size: 16px; font-weight: 650; color: var(--ink-2); }
+.study-scores strong { display: block; font-size: 44px; font-weight: 650; line-height: 1.15; margin: 6px 0 10px; font-variant-numeric: tabular-nums; }
+.study-scores > div:last-child > strong { color: var(--band-robust); }
+.study-scores p { font-size: 17px; line-height: 1.55; color: #5d6659; }
+.study-scores p strong { display: inline; font-size: inherit; margin: 0; color: var(--ink-2); font-weight: 650; }
+@media (max-width: 900px) { .study-push-intro, .study-scores { grid-template-columns: minmax(0, 1fr); } }
+@media (max-height: 820px) {
+  .study-question-intro { padding-top: 14px; padding-bottom: 8px; }
+  .study-push-intro .guide-demo { padding: 14px 18px; }
+  .study-push-intro .guide-answer-pair { padding: 8px 0 12px; }
+  .study-push-intro .guide-answer-pair strong, .study-push-intro .guide-result strong { font-size: 24px; }
+  .study-push-intro .guide-result { margin-top: 10px; padding: 9px 14px; }
+  .study-push-intro .guide-range { margin: 8px 0 4px; }
+  .study-push-intro .guide-demo-actions { padding-top: 8px; }
+  .study-push-intro .guide-data-note { margin-top: 6px; }
+}
