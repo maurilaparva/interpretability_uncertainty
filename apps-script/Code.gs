@@ -12,7 +12,7 @@
 
 const RESP = 'Responses';
 const EVENTS = 'Events';
-const BASE_HEADERS = ['participant_id', 'task_set', 'started_at', 'completed_at', 'received_at'];
+const BASE_HEADERS = ['participant_id', 'task_set', 'app_version', 'started_at', 'completed_at', 'received_at'];
 const EVENT_HEADERS = ['participant_id', 'at', 'type', 'step_id', 'item_id', 'view', 'details'];
 
 function doGet() {
@@ -72,12 +72,14 @@ function findRow(sh, id) {
 // One row per participant, one column per question (new questions add columns).
 function writeResponses(sh, s) {
   const headers = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0].map(String);
-  Object.keys(s.answers).forEach(function (k) { if (headers.indexOf(k) < 0) headers.push(k); });
+  // Sheets created before a base column existed (e.g. app_version) get it appended.
+  BASE_HEADERS.concat(Object.keys(s.answers)).forEach(function (k) { if (headers.indexOf(k) < 0) headers.push(k); });
   sh.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
 
   const vals = {
     participant_id: s.id,
     task_set: s.taskSet || '',
+    app_version: s.appVersion || '',
     started_at: s.startedAt || '',
     completed_at: s.completedAt || '',
     received_at: new Date().toISOString(),

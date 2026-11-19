@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import test, { type TestContext } from 'node:test';
 import { advanceSession, canGoBack, isAnswered, missingRequired, stepDuration } from './flow.ts';
 import { canShowStudyGuide, getExplorerGuideExposure, GUIDE_VERSION, guideVersionFor, recordExplorerGuideExposure, shouldAutoShowGuide } from './guidance.ts';
-import { clearSession, createSession, downloadSession, loadSession, saveSession, sessionToCsv } from './storage.ts';
+import { APP_VERSION, clearSession, createSession, downloadSession, loadSession, saveSession, sessionToCsv } from './storage.ts';
 import type { StudyQuestion, StudyStep } from './questionnaire';
 import type { StudySession } from './storage';
 
@@ -182,7 +182,7 @@ test('guide exposure uses the latest opened version and legacy sessions remain u
   assert.equal(saveSession(legacy), true);
   assert.deepEqual(loadSession('test-data'), legacy);
   assert.equal(guideVersionFor(legacy.events), 'none');
-  assert.ok(sessionToCsv(legacy).includes('"A2","PhD","none"\r\n'));
+  assert.ok(sessionToCsv(legacy).includes('"A2","PhD","none",""\r\n'));
 
   const exposed = session({ answers: { A2: 'PhD', A3: 4 }, events: [
     { type: 'guide_opened', at: NOW, details: { version: 'old-guide' } },
@@ -193,7 +193,7 @@ test('guide exposure uses the latest opened version and legacy sessions remain u
   assert.equal(guideVersionFor(exposed.events), GUIDE_VERSION);
   const rows = sessionToCsv(exposed).trimEnd().split('\r\n');
   assert.equal(rows.length, 3);
-  assert.ok(rows.slice(1).every((row) => row.endsWith(`"${GUIDE_VERSION}"`)));
+  assert.ok(rows.slice(1).every((row) => row.endsWith(`"${GUIDE_VERSION}",""`)));
   assert.equal(saveSession(exposed), true);
   assert.deepEqual(loadSession('test-data'), exposed);
 });
@@ -278,7 +278,7 @@ test('CSV preserves quoted/multiline responses and neutralizes spreadsheet formu
   const csv = sessionToCsv(session({
     answers: { B1: 'Hello, "world"\nA second line', B3: ['r0', 'r3'], A3: 4, H4: '=HYPERLINK("bad")', H5: '\t=2+2', H6: '  @SUM(1,2)' },
   }));
-  assert.ok(csv.startsWith('"participant_id","task_set","started_at","completed_at","question_id","response","guidance_version"\r\n'));
+  assert.ok(csv.startsWith('"participant_id","task_set","started_at","completed_at","question_id","response","guidance_version","app_version"\r\n'));
   assert.ok(csv.includes('"Hello, ""world""\nA second line"'));
   assert.ok(csv.includes('"[""r0"",""r3""]"'));
   assert.ok(csv.includes('"A3","4"'));
@@ -307,6 +307,16 @@ test('JSON download contains answers, assignment, timings, and interaction event
   assert.deepEqual(JSON.parse(await exported.text()), original);
   assert.equal(link.download, 'uncircuit-test-participant.json');
   assert.equal(clicked && removed && revoked, true);
+});
+
+test('new sessions record the site release they started on', (t) => {
+  mockStorage(t);
+  const started = createSession('test-data');
+  assert.equal(started.appVersion, APP_VERSION);
+  started.answers = { A2: 'PhD' };
+  assert.ok(sessionToCsv(started).includes(`"A2","PhD","none","${APP_VERSION}"\r\n`));
+  assert.equal(saveSession(started), true);
+  assert.deepEqual(loadSession('test-data'), started);
 });
 
 test('new sessions have anonymous identifiers and an A/B assignment', () => {

@@ -10,7 +10,7 @@ import { VIEWS, type ViewKey } from '../lib/views';
 import { advanceSession, canGoBack, missingRequired, stepDuration } from './flow';
 import { canShowStudyGuide, getExplorerGuideExposure, GUIDE_VERSION, shouldAutoShowGuide } from './guidance';
 import { buildStudySteps, studyDatasetKey, type StudyStep } from './questionnaire';
-import { clearSession, createSession, downloadSession, loadSession, saveSession, sheetsEnabled, submitSession, type StudyEvent, type StudySession } from './storage';
+import { APP_VERSION, clearSession, createSession, downloadSession, loadSession, saveSession, sheetsEnabled, submitSession, type StudyEvent, type StudySession } from './storage';
 import { SurveyField } from './SurveyFields';
 import './study.css';
 
@@ -111,7 +111,7 @@ export function Study({ loaded, onExit, autoStart = false }: { loaded: Loaded; o
     const priorGuide = getExplorerGuideExposure();
     next.events = [
       ...(priorGuide ? [priorGuide] : []),
-      { type: 'study_started', at: next.startedAt },
+      { type: 'study_started', at: next.startedAt, details: { appVersion: APP_VERSION } },
       { type: 'step_started', stepId: steps[0].id, at: next.startedAt },
     ];
     setSession(next);
@@ -209,7 +209,7 @@ export function Study({ loaded, onExit, autoStart = false }: { loaded: Loaded; o
             </div>
             {session && !resetting ? (
               <div className="study-actions">
-                <button className="study-primary" onClick={() => { setActive(true); if (!completed) log({ type: 'session_resumed', stepId: step.id }); }}>{completed ? 'View completed responses' : `Continue · step ${index + 1} of ${steps.length}`}<span aria-hidden="true">→</span></button>
+                <button className="study-primary" onClick={() => { setActive(true); if (!completed) log({ type: 'session_resumed', stepId: step.id, details: { appVersion: APP_VERSION } }); }}>{completed ? 'View completed responses' : `Continue · step ${index + 1} of ${steps.length}`}<span aria-hidden="true">→</span></button>
                 <button className="btn-link" onClick={() => setResetting(true)}>Start a new session</button>
               </div>
             ) : session && resetting ? (

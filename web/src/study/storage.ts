@@ -12,6 +12,8 @@ export interface StudyEvent {
 export interface StudySession {
   version: 1;
   id: string;
+  /** Release of the site the participant started on (git tag, e.g. v0.2.0). Absent in sessions saved before v0.2.0. */
+  appVersion?: string;
   taskSet: 'A' | 'B';
   datasetKey: string;
   startedAt: string;
@@ -25,6 +27,9 @@ export interface StudySession {
 }
 
 const STORAGE_KEY = 'uncircuit.study.v1';
+
+/** Set at build time from `git describe` (see vite.config.ts); 'dev' under plain Node. */
+export const APP_VERSION = (import.meta.env?.VITE_APP_VERSION as string | undefined)?.trim() || 'dev';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -48,6 +53,7 @@ function isSession(value: unknown): value is StudySession {
   if (!isRecord(value)) return false;
   return value.version === 1
     && typeof value.id === 'string' && value.id.length > 0
+    && (value.appVersion === undefined || typeof value.appVersion === 'string')
     && (value.taskSet === 'A' || value.taskSet === 'B')
     && typeof value.datasetKey === 'string'
     && isDate(value.startedAt) && isDate(value.updatedAt)
@@ -71,6 +77,7 @@ export function createSession(datasetKey: string): StudySession {
   return {
     version: 1,
     id,
+    appVersion: APP_VERSION,
     taskSet: random % 2 === 0 ? 'A' : 'B',
     datasetKey,
     startedAt: now,
@@ -118,7 +125,7 @@ function csvCell(value: string): string {
 }
 
 export function sessionToCsv(session: StudySession): string {
-  const rows: string[][] = [['participant_id', 'task_set', 'started_at', 'completed_at', 'question_id', 'response', 'guidance_version']];
+  const rows: string[][] = [['participant_id', 'task_set', 'started_at', 'completed_at', 'question_id', 'response', 'guidance_version', 'app_version']];
   const guidanceVersion = guideVersionFor(session.events);
   for (const [questionId, answer] of Object.entries(session.answers)) {
     rows.push([
@@ -129,6 +136,7 @@ export function sessionToCsv(session: StudySession): string {
       questionId,
       Array.isArray(answer) ? JSON.stringify(answer) : String(answer),
       guidanceVersion,
+      session.appVersion ?? '',
     ]);
   }
   return `${rows.map((row) => row.map(csvCell).join(',')).join('\r\n')}\r\n`;
