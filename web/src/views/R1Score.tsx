@@ -10,7 +10,7 @@ const BAND_FILL: Record<Band, string> = {
   Moderate: 'var(--band-moderate)',
   Robust: 'var(--band-robust)',
 };
-const BAND_INK: Record<Band, string> = { Fragile: '#134e4a', Moderate: '#134e4a', Robust: '#ffffff' };
+const BAND_INK: Record<Band, string> = { Fragile: '#134e4a', Moderate: '#1c1917', Robust: '#ffffff' };
 
 interface Props {
   item: Item;

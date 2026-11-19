@@ -51,8 +51,8 @@ export function Overview({ items, stats, selectedId, revealKey, onOpen, allowRev
           <p style={{ fontSize: 20, fontWeight: 600, letterSpacing: '-0.01em', textWrap: 'balance' }}>
             {cf.length > 0 ? (
               <>
-                {cf.length} of {n} answers look <span style={{ color: 'var(--answer)' }}>confident</span> but are{' '}
-                <span style={{ color: 'var(--alt)' }}>mechanistically fragile</span>.
+                {/* plain ink: blue and orange mean "the answer word" and "the word it is pushed toward" elsewhere */}
+                {cf.length} of {n} answers look <strong>confident</strong> but are <strong>mechanistically fragile</strong>.
               </>
             ) : (
               <>No answer here is both confident and fragile: the two signals agree on this set.</>
@@ -144,7 +144,7 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }
         <svg width={width} height={height} role="img" aria-label="Scatter plot of output confidence versus robustness margin">
           <g transform={`translate(${m.left},${m.top})`}>
             {/* highlight the key quadrant */}
-            {!simple && <rect x={Math.max(0, Math.min(iw, mxp))} y={myp} width={Math.max(0, iw - Math.max(0, mxp))} height={Math.max(0, ih - myp)} fill="var(--alt-soft)" opacity={0.55} />}
+            {!simple && <rect x={Math.max(0, Math.min(iw, mxp))} y={myp} width={Math.max(0, iw - Math.max(0, mxp))} height={Math.max(0, ih - myp)} fill="var(--band-fragile-soft)" />}
             {/* drag across empty space to zoom the confidence axis; points sit above this, so clicks still open them */}
             {!simple && <rect x={0} y={0} width={iw} height={ih} fill="transparent" style={{ cursor: 'crosshair', touchAction: 'none' }}
               onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); const at = dragTo(event); setDrag({ from: at, to: at }); }}
@@ -157,7 +157,7 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }
                 }
                 setDrag(null);
               }} />}
-            {drag && <rect x={Math.min(drag.from, drag.to)} y={0} width={Math.abs(drag.to - drag.from)} height={ih} fill="var(--answer)" opacity={0.08} stroke="var(--answer)" strokeOpacity={0.4} pointerEvents="none" />}
+            {drag && <rect x={Math.min(drag.from, drag.to)} y={0} width={Math.abs(drag.to - drag.from)} height={ih} fill="var(--ink)" opacity={0.06} stroke="var(--ink)" strokeOpacity={0.35} pointerEvents="none" />}
             {/* censored band (only when some answer never flipped) */}
             {stats.anyCensored && (
               <>
@@ -201,7 +201,7 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }
                 className="halo"
                 fontSize={q === 'confident-fragile' ? 13 : 12}
                 fontWeight={q === 'confident-fragile' ? 700 : 500}
-                fill={q === 'confident-fragile' ? 'var(--alt)' : 'var(--muted)'}
+                fill={q === 'confident-fragile' ? 'var(--ink)' : 'var(--muted)'}
               >
                 {QLABEL[q]}
               </text>
@@ -225,7 +225,7 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }
                   aria-label={`${it.question} Answer ${it.answer_text}. Confidence ${pct(it.p_answer)}, robustness ${fmtMargin(it, stats)}`}
                 >
                   <circle r={14} fill="transparent" />
-                  {sel && <circle r={11} fill="none" stroke="var(--answer)" strokeWidth={2} />}
+                  {sel && <circle r={11} fill="none" stroke="var(--ink)" strokeWidth={2} />}
                   {!revealKey ? (
                     <circle r={r} fill="#57534e" stroke="#fff" strokeWidth={2} />
                   ) : it.correct ? (
@@ -336,7 +336,7 @@ function MiniMap({ items, stats, selectedId, full, window, onWindow, left, right
             <rect x={0} y={0} width={iw} height={h} fill="var(--accent-bg)" rx={4} />
             {items.map((it) => (
               <circle key={it.id} cx={x(it.p_answer)} cy={y(mval(it, stats))} r={it.id === selectedId ? 3.5 : 2.5}
-                fill={it.id === selectedId ? 'var(--answer)' : '#78716c'} />
+                fill={it.id === selectedId ? 'var(--ink)' : '#a8a29e'} />
             ))}
             {[0, 0.25, 0.5, 0.75, 1].filter((t) => t >= full[0]).map((t) => (
               <text key={t} className="tick-label" x={x(t)} y={h + 12} textAnchor="middle" fontSize={10}>{pct(t)}</text>

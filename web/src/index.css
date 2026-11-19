@@ -5,10 +5,13 @@
   --alt: #ea580c;
   --alt-soft: #ffedd5;
   --other: #a8a29e;
-  /* Fragile -> robust: one hue (teal), light -> dark */
-  --band-fragile: #99f6e4;
-  --band-moderate: #2dd4bf;
-  --band-robust: #0f766e;
+  /* Robustness (an ordered quantity): one hue, teal, light = fragile -> dark = robust. Steps re-spaced so
+     neighbours differ by ΔE ≥ 19 (was 13); the bands always carry their text label, so low contrast is relieved.
+     Blue / orange / grey are reserved for words (the answer, the word it is pushed toward, other words). */
+  --band-fragile: #7ee0cf;
+  --band-moderate: #21a594;
+  --band-robust: #115e59;
+  --band-fragile-soft: #e3f6f2;
   /* Correctness (always paired with a glyph) */
   --correct: #334155;
   --incorrect: #be185d;
@@ -271,5 +274,5 @@ select {
 .scatter-zoom .btn { font-size: 12px; padding: 3px 10px; }
 .minimap { flex: 0 0 auto; margin-top: 6px; }
 .minimap .caption { display: block; margin: 0 0 3px; }
-.minimap-brush .selection { fill: var(--answer); fill-opacity: .12; stroke: var(--answer); stroke-opacity: .6; }
-.minimap-brush .handle { fill: var(--answer); fill-opacity: .25; }
+.minimap-brush .selection { fill: var(--ink); fill-opacity: .07; stroke: var(--ink); stroke-opacity: .55; }
+.minimap-brush .handle { fill: var(--ink); fill-opacity: .2; }
