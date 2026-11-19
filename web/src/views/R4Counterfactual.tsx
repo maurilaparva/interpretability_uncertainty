@@ -42,9 +42,9 @@ export function R4Counterfactual({ item, stats, compact }: { item: Item; stats: 
       </p>
       {!compact && (
         <p className="explain" style={{ maxWidth: '48em' }}>
-          “Nudge” = adding a direction to the model's internal state at one layer, pointing from “{answer}”
-          toward “{toward}”, sized relative to the state itself. Size word: small / moderate / large = the lower, middle
-          or upper third of robustness scores in this set.
+          <strong>“Nudge”</strong> = adding a direction to the model's internal state at <em>one layer</em>, pointing
+          from “{answer}” toward “{toward}”, sized relative to the state itself. <strong>Size word:</strong> small /
+          moderate / large = the lower, middle or upper third of robustness scores in this set.
         </p>
       )}
     </div>

@@ -50,10 +50,10 @@ export function R1Score({ item, items, stats, compact }: Props) {
       </p>
       {!compact && (
         <p className="explain">
-          Robustness = the smallest internal push (relative to the size of the model's internal state) that changes the
-          answer. Bands are the lower, middle and upper thirds of the {items.length} questions in this set. Faint ticks
+          <strong>Robustness</strong> = the <strong>smallest internal push</strong> (relative to the size of the model's
+          internal state) that changes the answer. Bands are the lower, middle and upper thirds of the {items.length} questions in this set. Faint ticks
           show the other questions.
-          {guided && ' High robustness does not mean the answer is correct.'}
+          {guided && <> High robustness does <em>not</em> mean the answer is correct.</>}
         </p>
       )}
     </div>

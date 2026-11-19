@@ -8,18 +8,19 @@ const ROLE_COLOR = { answer: 'var(--answer)', alt: 'var(--alt)', other: 'var(--o
 export function R0Baseline({ item }: { item: Item }) {
   const guided = useGuidance();
   return (
-    <div className="baseline-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(260px, 1fr) minmax(280px, 1fr)', gap: 36 }}>
+    <div className="baseline-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(260px, 1fr) minmax(280px, 1fr)', gap: 48 }}>
       <div>
         <div className="panel-title"><span className="name">Output confidence</span></div>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
-          <span style={{ fontSize: 40, fontWeight: 650, fontVariantNumeric: 'tabular-nums' }}>{pct(item.p_answer)}</span>
-          <span className="caption">probability the model gave to “{tok(item.answer_token)}”</span>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 60, fontWeight: 650, lineHeight: 1.05, fontVariantNumeric: 'tabular-nums' }}>{pct(item.p_answer)}</span>
+          <span style={{ fontSize: 15, color: 'var(--muted)' }}>how likely the model rated “{tok(item.answer_token)}”</span>
         </div>
-        <ConfidenceBar p={item.p_answer} />
-        <p className="explain" style={{ marginTop: 12, maxWidth: '40em' }}>
-          Before answering, the model rates how likely each possible next word is. It picked “{tok(item.answer_token)}”,
-          which it rated {pct(item.p_answer)} likely. This is the confidence number AI tools usually show. It does not
-          tell you if the answer is right, or how easily the answer could change.
+        <ConfidenceBar p={item.p_answer} height={34} />
+        <p className="explain" style={{ marginTop: 18, maxWidth: '40em', fontSize: 16 }}>
+          Before answering, the model rates <strong>how likely</strong> each possible next word is. It picked
+          “{tok(item.answer_token)}”, which it rated <strong>{pct(item.p_answer)} likely</strong>. This is the
+          {' '}<strong>confidence number</strong> AI tools usually show. It does <em>not</em> tell you if the answer is
+          right, or how easily the answer could change.
         </p>
       </div>
       <div>
@@ -41,7 +42,7 @@ export function ConfidenceBar({ p, height = 22 }: { p: number; height?: number }
 export function Top5({ item, n = 5 }: { item: Item; n?: number }) {
   const max = Math.max(...item.top5.map((t) => t.p), 0.01);
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <div className="top5" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       {item.top5.slice(0, n).map((t, i) => {
         const role = tokenRole(item, t.token);
         return (

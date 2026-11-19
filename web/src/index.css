@@ -155,6 +155,7 @@ h1, h2, h3, p { margin: 0; }
 .caption { color: var(--muted); font-size: 12px; }
 /* What a view means (a sentence or two under it): larger than a caption so participants actually read it. */
 .explain { color: var(--ink-2); font-size: 14px; line-height: 1.55; }
+.explain strong, .study-intro-note strong { color: var(--ink); font-weight: 600; }
 .lede { font-size: 15px; color: var(--ink-2); max-width: 44em; }
 .lede strong { color: var(--ink); }
 
@@ -197,6 +198,9 @@ h1, h2, h3, p { margin: 0; }
 .bar-row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bar-row .val { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
 .bar-row .hbar { height: 14px; }
+/* Full R0 view: the only content on its page, so the top-5 list is drawn large. */
+.top5 .bar-row { grid-template-columns: 150px 1fr 56px; gap: 14px; font-size: 16px; }
+.top5 .bar-row .hbar { height: 26px; }
 
 .tok { font-weight: 600; }
 .tok.answer { color: var(--answer); }

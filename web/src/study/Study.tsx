@@ -439,8 +439,8 @@ function QuestionIntro({ item }: { item: Item }) {
       <span className="study-workspace-label">The model answered</span>
       <p className="study-intro-answer">{answer}</p>
       <p className="study-intro-note">
-        The next views look at this one answer from different angles: how likely the model thinks “{answer}” is,
-        and how hard it is to change that answer from inside the model.
+        The next views look at this one answer from different angles: <strong>how likely</strong> the model thinks
+        “{answer}” is, and <strong>how hard it is to change</strong> that answer from inside the model.
       </p>
     </div>
   );
@@ -452,7 +452,7 @@ function LayersIntro({ item, nLayers }: { item: Item; nLayers: number }) {
   const third = Math.ceil(nLayers / 3);
   const groups = [['Early', 0, third], ['Middle', third, 2 * third], ['Late', 2 * third, nLayers]] as const;
   return (
-    <div className="study-question-intro">
+    <div className="study-question-intro wide">
       <span className="study-workspace-label">Inside the model</span>
       <div className="study-layers" aria-hidden="true">
         <span className="study-layers-end">Question</span>
@@ -465,12 +465,13 @@ function LayersIntro({ item, nLayers }: { item: Item; nLayers: number }) {
         <span className="study-layers-end answer">{answer}</span>
       </div>
       <p className="study-intro-note">
-        The model does not jump straight to an answer. It passes the question through {nLayers} <strong>layers</strong>,
-        one after another. Each layer updates an internal signal, and the last one turns that signal into the answer.
+        The model does not jump straight to an answer. It passes the question through {nLayers} <strong>layers</strong>,{' '}
+        <em>one after another</em>. Each layer updates an <strong>internal signal</strong>, and the last one turns that
+        signal into the answer.
       </p>
       <p className="study-intro-note">
-        A <strong>push</strong> nudges that signal at one layer toward a different answer. Then we watch whether the
-        model still says “{answer}”. In the next view you can try it yourself.
+        A <strong>push</strong> nudges that signal at <em>one layer</em> toward a <strong>different answer</strong>.
+        Then we watch whether the model still says “{answer}”. In the next view you can try it yourself.
       </p>
     </div>
   );
