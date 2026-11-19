@@ -108,21 +108,20 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false, 
   // Opens on the middle half of the questions (by confidence), so the extremes are off-screen and found by exploring;
   // the mini-map below always shows all of them. The simple plot (study tour) always shows everything.
   const [zoom, setZoom] = useState<[number, number] | null>(() => (simple ? null : middleWindow(items)));
-  const [drag, setDrag] = useState<{ from: number; to: number } | null>(null);
+  const [pan, setPan] = useState<{ startX: number; start: [number, number] } | null>(null);
   const m = { top: 16, right: 24, bottom: 68, left: 92 };
   const iw = Math.max(10, width - m.left - m.right);
   const ih = Math.max(10, height - m.top - m.bottom);
 
   const pExt = d3.extent(items, (it) => it.p_answer) as [number, number];
-  // Plain 0–100% axis. Half the answers sit between 87% and 100%, so dragging across the chart zooms into a
-  // confidence range (the zoomed axis is still evenly spaced) and "Show all" goes back.
+  // Plain 0–100% axis, shown zoomed in on a confidence range (still evenly spaced). Dragging the chart moves that
+  // range sideways, like the box in the mini-map below; the box's edges zoom, and "Show all" goes back to 0–100%.
   const full: [number, number] = [Math.min(0, pExt[0]), 1];
   const x = d3.scaleLinear().domain(zoom ?? full).range([0, iw]);
   const xTicks = x.ticks(zoom ? 8 : 5);
   const inView = (p: number) => p >= x.domain()[0] && p <= x.domain()[1];
   const hiddenLeft = items.filter((it) => it.p_answer < x.domain()[0]).length;
   const hiddenRight = items.filter((it) => it.p_answer > x.domain()[1]).length;
-  const dragTo = (event: React.PointerEvent<SVGRectElement>) => event.clientX - event.currentTarget.getBoundingClientRect().left;
   const yMax = stats.displayMax;
   const yTop = stats.anyCensored ? stats.maxAlpha : yMax;
   const y = pushScale(yMax, [ih, 0]);
@@ -149,19 +148,16 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false, 
           <g transform={`translate(${m.left},${m.top})`}>
             {/* highlight the key quadrant */}
             {!simple && <rect x={Math.max(0, Math.min(iw, mxp))} y={myp} width={Math.max(0, iw - Math.max(0, mxp))} height={Math.max(0, ih - myp)} fill="var(--band-fragile-soft)" />}
-            {/* drag across empty space to zoom the confidence axis; points sit above this, so clicks still open them */}
-            {!simple && <rect x={0} y={0} width={iw} height={ih} fill="transparent" style={{ cursor: 'crosshair', touchAction: 'none' }}
-              onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); const at = dragTo(event); setDrag({ from: at, to: at }); }}
-              onPointerMove={(event) => { if (drag) setDrag({ ...drag, to: Math.max(0, Math.min(iw, dragTo(event))) }); }}
-              onPointerUp={() => {
-                if (drag && Math.abs(drag.to - drag.from) > 8) {
-                  // A drag that ends within a few pixels of either edge snaps to it (so 100% stays on the axis).
-                  const snap = (px: number) => (px < 12 ? 0 : px > iw - 12 ? iw : px);
-                  setZoom([x.invert(snap(Math.min(drag.from, drag.to))), x.invert(snap(Math.max(drag.from, drag.to)))]);
-                }
-                setDrag(null);
-              }} />}
-            {drag && <rect x={Math.min(drag.from, drag.to)} y={0} width={Math.abs(drag.to - drag.from)} height={ih} fill="var(--ink)" opacity={0.06} stroke="var(--ink)" strokeOpacity={0.35} pointerEvents="none" />}
+            {/* drag empty space to move the zoomed range; points sit above this, so clicks still reach them */}
+            {!simple && zoom && <rect x={0} y={0} width={iw} height={ih} fill="transparent" style={{ cursor: pan ? 'grabbing' : 'grab', touchAction: 'none' }}
+              onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); setPan({ startX: event.clientX, start: zoom }); }}
+              onPointerMove={(event) => {
+                if (!pan) return;
+                const span = pan.start[1] - pan.start[0];
+                const from = Math.max(full[0], Math.min(full[1] - span, pan.start[0] - ((event.clientX - pan.startX) / iw) * span));
+                setZoom([from, from + span]);
+              }}
+              onPointerUp={() => setPan(null)} />}
             {/* censored band (only when some answer never flipped) */}
             {stats.anyCensored && (
               <>
@@ -221,7 +217,7 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false, 
                 <g
                   key={it.id}
                   transform={`translate(${cx},${cy})`}
-                  style={{ cursor: simple ? 'default' : 'pointer', transition: 'transform var(--t)' }}
+                  style={{ cursor: simple ? 'default' : 'pointer', transition: pan ? 'none' : 'transform var(--t)' }}
                   onMouseEnter={() => setHover(it)}
                   onMouseLeave={() => setHover(null)}
                   onClick={() => onOpen(it.id)}
@@ -263,8 +259,8 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false, 
       {width > 0 && !simple && (
         <div className="scatter-zoom" style={{ right: m.right }}>
           {zoom
-            ? <button className="btn" onClick={() => setZoom(null)}>Show all (0–100%)</button>
-            : <span className="caption">Drag across the chart to zoom in</span>}
+            ? <><span className="caption">Drag the chart to move it</span> <button className="btn" onClick={() => setZoom(null)}>Show all (0–100%)</button></>
+            : <span className="caption">Resize the box below to zoom in</span>}
         </div>
       )}
       {hover && (
@@ -323,7 +319,7 @@ function MiniMap({ items, stats, selectedId, full, window, onWindow, left, right
     return () => { brush.on('brush end', null); };
   }, [width, iw, lo, onWindow]);
 
-  // Follow changes made elsewhere (drag-zoom on the main plot, "Show all"); skip the ones the brush made itself.
+  // Follow changes made elsewhere (dragging the main plot, "Show all"); skip the ones the brush made itself.
   useEffect(() => {
     const api = brushApi.current;
     if (!api || !brushRef.current) return;
