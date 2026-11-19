@@ -33,7 +33,10 @@ export interface StudyStep {
   section: string;
   description?: string;
   questions: StudyQuestion[];
-  mode?: 'form' | 'explore' | 'task' | 'reveal';
+  /** explore = free exploration; tour = the guided "learn the views" walk-through. */
+  mode?: 'form' | 'explore' | 'tour' | 'task' | 'reveal';
+  /** Parts of the study with rough minutes, shown on the opening "how this study works" step. */
+  outline?: { title: string; minutes: number; text: string }[];
   itemIds?: string[];
   initialView?: StudyView;
   hideExplorer?: boolean;
@@ -128,6 +131,20 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet, v
 
   const steps: StudyStep[] = [
     {
+      // What participants will do and for how long. Describes the activities only, never what we expect to find,
+      // and explains no concepts, so the free exploration that follows stays unprompted.
+      id: 'outline', section: 'Before you start', title: 'How this study works',
+      description: 'Five parts, about 20–30 minutes in total. Your progress is saved, so you can pause between parts.',
+      mode: 'form', hideExplorer: true, questions: [],
+      outline: [
+        { title: 'About you', minutes: 2, text: 'A few questions about your background.' },
+        { title: 'Explore on your own', minutes: 4, text: 'Look around the interface freely, then tell us your first impressions.' },
+        { title: 'Learn the views and try some tasks', minutes: 10, text: 'A short guided tour of each view, then a few tasks that use them.' },
+        { title: 'Rate the views', minutes: 5, text: 'Look at each view again and rate it.' },
+        { title: 'Final questions', minutes: 6, text: 'What you understood, how far you would trust it, and any feedback.' },
+      ],
+    },
+    {
       id: 'background', section: 'A · Background', title: 'A little about your experience',
       mode: 'form', hideExplorer: true,
       questions: [
@@ -139,10 +156,11 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet, v
       ],
     },
     {
+      // Free, unprompted exploration (QUESTIONS.md, section B): the first impressions are only meaningful before any
+      // explanation, so the guided tour comes later, at the start of C.
       id: 'explore', section: 'B · First impressions', title: 'Take a look around', mode: 'explore',
-      description: 'Learn the ideas first, then explore each view, in order. About 3 minutes.',
-      // One fixed question keeps the first look simple; the tour ends on all questions (VIEW_TOUR).
-      itemIds: ['q01'], hideExplorer: false, questions: [],
+      description: 'Explore for about 3 minutes, however you like. Choose questions, switch views, and move the sliders. Then you will answer a few questions without coming back.',
+      initialView: 'overview', hideExplorer: false, questions: [],
     },
     {
       id: 'first-impressions', section: 'B · First impressions', title: 'What stood out?',
@@ -156,6 +174,12 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet, v
         scale('B5', 'It was clear where to start.'),
         text('B6', 'What was the first thing that confused you, if anything?', false),
       ],
+    },
+    {
+      // Concepts first (fixed order), then R1–R4 in the participant's rotated order, then Compare all (tourFor).
+      id: 'learn-views', section: 'C · Guided tasks', title: 'Learn the views', mode: 'tour',
+      description: 'Learn the ideas first, then go through each view, in order. About 4 minutes.',
+      itemIds: ['q01'], hideExplorer: false, questions: [],
     },
     {
       id: 'read-answer', section: 'C · Guided tasks', title: 'Read one answer', mode: 'task',

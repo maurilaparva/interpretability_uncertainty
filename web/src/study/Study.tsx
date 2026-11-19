@@ -276,7 +276,17 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
               <div className="study-step-label"><span>{step.section}</span><span>{step.mode === 'explore' && <><ExploreClock /> · </>}{index + 1} / {steps.length}</span></div>
               <h1 ref={headingRef} tabIndex={-1}>{step.title}</h1>
               {step.description && <p>{step.description}</p>}
-              {step.mode === 'explore' && <ViewTour stops={tour} view={tourView} seen={tourSeen} onView={showTourView} />}
+              {step.outline && (
+                <ol className="study-outline">
+                  {step.outline.map((part, i) => (
+                    <li key={part.title}>
+                      <span className="study-outline-number" aria-hidden="true">{i + 1}</span>
+                      <span><strong>{part.title}</strong> <span className="study-outline-time">· about {part.minutes} min</span><span className="study-outline-text">{part.text}</span></span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+              {step.mode === 'tour' && <ViewTour stops={tour} view={tourView} seen={tourSeen} onView={showTourView} />}
             </div>
             <div className="study-fields">
               {step.questions.map((question) => (
@@ -286,12 +296,12 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
             {invalid.length > 0 && <p className="study-validation" role="alert">Please answer the highlighted questions.</p>}
             <div className="study-navigation">
               {canGoBack(steps, index) && <button className="btn" type="button" onClick={back}>Back</button>}
-              {step.mode === 'explore' && nextTourView(tour, tourView) ? (
+              {step.mode === 'tour' && nextTourView(tour, tourView) ? (
                 // Separate key: reusing the submit button's DOM node would submit the form on the last "Next" click.
                 <button key="tour-next" className="study-primary" type="button" onClick={() => showTourView(nextTourView(tour, tourView)!.view)}>
                   Next: {nextTourView(tour, tourView)!.label}<span aria-hidden="true">→</span>
                 </button>
-              ) : <button key="submit" className="study-primary" type="submit">{index === steps.length - 1 ? 'Finish study' : step.id === 'predict-correctness' ? 'Lock predictions & reveal' : step.mode === 'explore' ? 'Share first impressions' : 'Continue'}<span aria-hidden="true">→</span></button>}
+              ) : <button key="submit" className="study-primary" type="submit">{index === steps.length - 1 ? 'Finish study' : step.id === 'predict-correctness' ? 'Lock predictions & reveal' : step.mode === 'explore' ? 'Share first impressions' : step.mode === 'tour' ? 'Start the tasks' : 'Continue'}<span aria-hidden="true">→</span></button>}
             </div>
             <div className="study-survey-footer"><button type="button" className="btn-link" onClick={() => downloadSession(session, 'json')}>Download progress</button><button type="button" className="btn-link" onClick={() => setResetting(true)}>Leave study</button></div>
             {!saved && <p className="study-validation" role="alert">This browser could not save your progress. Download a copy before closing this page.</p>}
@@ -300,7 +310,7 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
           {showEvidence && (step.mode === 'reveal'
             ? <PredictionReview items={(step.itemIds ?? []).map((id) => data.items.find((item) => item.id === id)!)} answers={session.answers} />
             : <StudyWorkspace key={step.id} step={step} loaded={loaded} stats={stats} log={log} onGuide={openGuide}
-                tour={step.mode === 'explore' ? { stops: tour, view: tourView, seen: tourSeen, onView: showTourView } : undefined} />)}
+                tour={step.mode === 'tour' ? { stops: tour, view: tourView, seen: tourSeen, onView: showTourView } : undefined} />)}
         </main>
       )}
 
@@ -351,7 +361,7 @@ function ViewTour({ stops, view, seen, onView }: { stops: TourStopInfo[]; view: 
           <span className="study-tour-mark" aria-hidden="true">
             <svg width="10" height="11" viewBox="0 0 10 11"><path d="M1.5 10.5V1M1.5 1.5h6l-1.5 2 1.5 2h-6" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" /></svg>
           </span>
-          <span><strong>Share first impressions</strong></span>
+          <span><strong>Start the tasks</strong></span>
         </button>
       </li>
     </ol>

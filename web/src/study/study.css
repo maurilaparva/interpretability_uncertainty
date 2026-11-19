@@ -208,3 +208,9 @@
 .study-tour .study-tour-part:first-child { margin-top: 0; }
 .study-clock { font-variant-numeric: tabular-nums; color: #3f6b57; }
 .study-tour li.part-end + .study-tour-part, .study-tour li.part-end + li:not(.study-tour-part) { margin-top: 6px; }
+.study-outline { list-style: none; margin: 22px 0 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.study-outline li { display: flex; gap: 14px; align-items: flex-start; font-size: 15px; line-height: 1.5; }
+.study-outline strong { font-weight: 600; }
+.study-outline-number { flex: 0 0 auto; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #edf5ef; color: #244c35; font-size: 13px; font-weight: 600; }
+.study-outline-time { color: #6c7864; font-size: 13px; }
+.study-outline-text { display: block; color: #5d6659; font-size: 14px; }
