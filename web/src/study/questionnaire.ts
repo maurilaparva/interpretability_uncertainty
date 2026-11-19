@@ -134,11 +134,11 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet, v
       // What participants will do and for how long. Describes the activities only, never what we expect to find,
       // and explains no concepts, so the free exploration that follows stays unprompted.
       id: 'outline', section: 'Before you start', title: 'How this study works',
-      description: 'Five parts, about 20–30 minutes in total. Your progress is saved, so you can pause between parts.',
+      description: 'Five parts, about 30 minutes in total. Your progress is saved, so you can pause between parts.',
       mode: 'form', hideExplorer: true, questions: [],
       outline: [
         { title: 'About you', minutes: 2, text: 'A few questions about your background.' },
-        { title: 'Explore on your own', minutes: 4, text: 'Look around the interface freely, then tell us your first impressions.' },
+        { title: 'Explore on your own', minutes: 7, text: 'Look around the interface freely, with no instructions, then tell us your first impressions.' },
         { title: 'Learn the views and try some tasks', minutes: 10, text: 'A short guided tour of each view, then a few tasks that use them.' },
         { title: 'Rate the views', minutes: 5, text: 'Look at each view again and rate it.' },
         { title: 'Final questions', minutes: 6, text: 'What you understood, how far you would trust it, and any feedback.' },
@@ -159,7 +159,7 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet, v
       // Free, unprompted exploration (QUESTIONS.md, section B): the first impressions are only meaningful before any
       // explanation, so the guided tour comes later, at the start of C.
       id: 'explore', section: 'B · First impressions', title: 'Take a look around', mode: 'explore',
-      description: 'Explore for about 3 minutes, however you like. Choose questions, switch views, and move the sliders. Then you will answer a few questions without coming back.',
+      description: 'This part is yours to explore, for about 5 minutes. There is no right way to do it and nothing is being tested yet: choose questions, switch views, move the sliders. A guided tour of every view comes later. When you are done, you will answer a few questions about your first impressions without coming back.',
       initialView: 'overview', hideExplorer: false, questions: [],
     },
     {
