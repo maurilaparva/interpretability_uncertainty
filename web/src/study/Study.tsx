@@ -491,9 +491,19 @@ function StudyWorkspace({ step, loaded, stats, log, onGuide, tour }: { step: Stu
 }
 
 function PredictionReview({ items, answers }: { items: Item[]; answers: StudySession['answers'] }) {
-  return <section className="study-review" aria-label="Prediction results"><div className="study-eyebrow">Answer key</div><h2>Here’s how the model did.</h2><div className="study-review-cards">{items.map((item) => (
-    <article key={item.id}><div className="study-review-top"><h3>{item.question}</h3><span className={`verdict ${item.correct ? 'ok' : 'bad'}`}>{item.correct ? '✓ Correct' : '✕ Incorrect'}</span></div><dl><div><dt>Model’s answer</dt><dd>{item.answer_text}</dd></div><div><dt>Correct answer</dt><dd>{item.gold}</dd></div><div><dt>Your prediction</dt><dd>{answers[`C13_${item.id}`]}</dd></div></dl></article>
-  ))}</div></section>;
+  return <section className="study-review" aria-label="Prediction results"><div className="study-eyebrow">Answer key</div><h2>Here’s how the model did.</h2><div className="study-review-cards">{items.map((item) => {
+    const prediction = answers[`C13_${item.id}`];
+    const call = predictionCall(prediction, item.correct);
+    return (
+      <article key={item.id}><div className="study-review-top"><h3>{item.question}</h3><span className={`verdict ${item.correct ? 'ok' : 'bad'}`}>{item.correct ? 'The model was right' : 'The model was wrong'}</span></div><dl><div><dt>Model’s answer</dt><dd>{item.answer_text}</dd></div><div><dt>Correct answer</dt><dd>{item.gold}</dd></div><div><dt>Your prediction</dt><dd>{prediction}{call && <span className={`study-review-call ${call}`}>{call === 'match' ? '✓ You called it' : '✕ Not this time'}</span>}</dd></div></dl></article>
+    );
+  })}</div></section>;
+}
+
+/** Whether a "probably/definitely right/wrong" prediction matched the model's correctness; none for "Not sure". */
+function predictionCall(prediction: unknown, correct: boolean): 'match' | 'miss' | null {
+  if (typeof prediction !== 'string' || !/right|wrong/i.test(prediction)) return null;
+  return /right/i.test(prediction) === correct ? 'match' : 'miss';
 }
 
 function LeaveDialog({ onCancel, onKeep, onDiscard, onDownload }: { onCancel: () => void; onKeep: () => void; onDiscard: () => void; onDownload: () => void }) {
