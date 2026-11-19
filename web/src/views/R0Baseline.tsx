@@ -17,10 +17,9 @@ export function R0Baseline({ item }: { item: Item }) {
         </div>
         <ConfidenceBar p={item.p_answer} />
         <p className="explain" style={{ marginTop: 12, maxWidth: '40em' }}>
-          To answer, the model gives every possible next word a probability, and together they add up to 100%. It
-          answers with the most likely one: “{tok(item.answer_token)}”, at {pct(item.p_answer)}. That number is the
-          output confidence, the kind of score AI products typically show. It is not the chance that the answer is
-          correct, and it says nothing about how stable the answer is inside the model.
+          Before answering, the model rates how likely each possible next word is. It picked “{tok(item.answer_token)}”,
+          which it rated {pct(item.p_answer)} likely. This is the confidence number AI tools usually show. It does not
+          tell you if the answer is right, or how easily the answer could change.
         </p>
       </div>
       <div>
