@@ -339,6 +339,15 @@ function ViewTour({ view, seen, onView }: { view: ViewKey; seen: ViewKey[]; onVi
           </li>
         );
       })}
+      {/* Finish line: submits the step once the last view is open (same as the main button). */}
+      <li className={`finish${view === VIEW_TOUR.at(-1)!.view ? ' ready' : ''}`}>
+        <button type="submit" disabled={view !== VIEW_TOUR.at(-1)!.view}>
+          <span className="study-tour-mark" aria-hidden="true">
+            <svg width="10" height="11" viewBox="0 0 10 11"><path d="M1.5 10.5V1M1.5 1.5h6l-1.5 2 1.5 2h-6" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" /></svg>
+          </span>
+          <span><strong>Share first impressions</strong><span className="study-tour-hint">A few short questions about what you noticed.</span></span>
+        </button>
+      </li>
     </ol>
   );
 }

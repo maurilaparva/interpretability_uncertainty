@@ -172,3 +172,15 @@
 .study-tour-hint { display: block; margin-top: 3px; font-size: 12px; line-height: 1.5; color: #4f5d4a; }
 .study-tab-step { display: inline-grid; place-items: center; width: 17px; height: 17px; margin-right: 6px; border-radius: 50%; background: #eef1eb; font-size: 10px; font-variant-numeric: tabular-nums; }
 .study-view-tabs .selected .study-tab-step { background: #234c36; color: #fff; }
+/* Dotted line joining the tour's steps, drawn from each mark down to the next one. */
+.study-tour li { position: relative; }
+.study-tour li:not(:last-child)::after { content: ''; position: absolute; left: 20px; top: 32px; bottom: -11px; border-left: 2px dotted #c3d2c0; z-index: 0; }
+.study-tour li.seen::after { border-left-style: solid; border-left-color: #a9c9b3; }
+.study-tour button { position: relative; z-index: 1; }
+.study-tour .study-tour-mark { position: relative; z-index: 1; }
+.study-tour .finish { margin-top: 6px; }
+.study-tour .finish button:disabled { cursor: default; opacity: .6; }
+.study-tour .finish button:disabled:hover { background: none; }
+.study-tour .finish .study-tour-hint { color: #7c877b; }
+.study-tour .finish.ready button { border-color: #164e42; color: #164e42; }
+.study-tour .finish.ready .study-tour-mark { background: #164e42; color: #fff; }
