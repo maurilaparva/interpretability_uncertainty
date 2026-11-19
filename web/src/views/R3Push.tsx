@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import { useEffect, useState } from 'react';
 import { fmtPush, pct, rowOfLayer, tokenRole, wordFor } from '../lib/data';
 import type { Item, Stats } from '../lib/types';
+import { PlayIcon } from '../components/PlayIcon';
 import { useGuidance } from '../components/GuidanceContext';
 
 interface Props {
@@ -125,7 +126,7 @@ export function R3Push({ item, stats, compact }: Props) {
         )}
       </label>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-        <button className="btn primary" onClick={play}>{playing ? '■ Stop' : '▶ Auto-play'}</button>
+        <button className="btn primary play-button" onClick={play}><PlayIcon playing={playing} />{playing ? 'Stop' : 'Auto-play'}</button>
         <button className="btn" onClick={() => { setPlaying(false); setAi(0); setRow(rowOfLayer(stats, item.margin_layer)); }}>
           Reset
         </button>

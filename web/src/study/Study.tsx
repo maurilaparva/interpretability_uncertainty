@@ -452,7 +452,7 @@ function StudyWorkspace({ step, loaded, stats, log, onGuide, tour }: { step: Stu
         }
       }} onClickCapture={(event) => {
         const button = (event.target as HTMLElement).closest('button');
-        if (button && /Auto-play|Stop|Reset/.test(button.textContent ?? '')) log({ type: 'control_clicked', stepId: step.id, itemId: item.id, view, details: { control: button.textContent?.trim() ?? '' } });
+        if (button && /Auto-play|See it change|Show result|Stop|Reset/.test(button.textContent ?? '')) log({ type: 'control_clicked', stepId: step.id, itemId: item.id, view, details: { control: button.textContent?.trim() ?? '' } });
       }}>
         <div className={`study-evidence-content evidence-${view}`}>
           <GuidanceContext.Provider value={canShowStudyGuide(step)}>

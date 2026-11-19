@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { bandOf, fmtMargin, fmtPush, pct, rowOfLayer, tokenRole, wordFor } from '../lib/data';
+import { PlayIcon } from './PlayIcon';
 import type { Item, Stats } from '../lib/types';
 import './quick-guide.css';
 
@@ -146,7 +147,7 @@ export function QuickGuide({ items, stats, onClose, onStep, finishLabel = 'Got i
               <div><span className="guide-small-label">At this push</span><strong key={top}>{wordFor(item, top)}</strong></div>
               <span className="guide-result-state">{changed ? 'Answer changed' : 'Same answer'}</span>
             </div>
-            <div className="guide-demo-actions"><button type="button" className="guide-replay" onClick={replay}>{playing ? 'Pause' : reducedMotion ? 'Show result' : 'See it change'}<span aria-hidden="true">{playing ? 'Ⅱ' : '↗'}</span></button><button type="button" className="guide-reset" onClick={() => { setPlaying(false); setAi(0); }}>Reset</button></div>
+            <div className="guide-demo-actions"><button type="button" className="guide-replay" onClick={replay}><PlayIcon playing={playing} />{playing ? 'Stop' : reducedMotion ? 'Show result' : 'See it change'}</button><button type="button" className="guide-reset" onClick={() => { setPlaying(false); setAi(0); }}>Reset</button></div>
             <p id={instructionId} className="guide-data-note">Sliders replay measured results at tested strengths.</p>
           </section>
         </div>

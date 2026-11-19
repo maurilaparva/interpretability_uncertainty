@@ -289,3 +289,5 @@ select {
 .panel-clickable:hover { transform: scale(1.012); box-shadow: 0 6px 18px rgba(28, 25, 23, .10); border-color: #d6d3d1; position: relative; z-index: 1; }
 .panel-clickable input, .panel-clickable button { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { .panel-clickable, .panel-clickable:hover { transition: none; transform: none; } }
+.play-button { display: inline-flex; align-items: center; gap: 7px; }
+.play-icon { flex: 0 0 auto; }

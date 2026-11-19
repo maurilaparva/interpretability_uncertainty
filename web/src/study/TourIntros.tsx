@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from 'react';
 import { bandOf, fmtMargin, fmtPush, pct, rowOfLayer, tokenRole, wordFor } from '../lib/data';
+import { PlayIcon } from '../components/PlayIcon';
 import type { Item, Stats } from '../lib/types';
 import '../components/quick-guide.css';
 
@@ -95,7 +96,7 @@ export function PushIntro({ item, stats }: { item: Item; stats: Stats }) {
       <div>
         <span className="study-workspace-label">Try a push</span>
         <p className="study-intro-note">
-          A <strong>push</strong> nudges the model’s internal signal toward a <strong>different answer</strong>, here
+          A <strong>push</strong> nudges the <strong>model’s internal signal</strong> toward a <strong>different answer</strong>, here
           “{alternative}”. The question stays the same.
         </p>
         <p className="study-intro-note">
@@ -127,7 +128,7 @@ export function PushIntro({ item, stats }: { item: Item; stats: Stats }) {
           <div><span className="guide-small-label">At this push</span><strong key={top}>{wordFor(item, top)}</strong></div>
           <span className="guide-result-state">{changed ? 'Answer changed' : 'Same answer'}</span>
         </div>
-        <div className="guide-demo-actions"><button type="button" className="guide-replay" onClick={replay}>{playing ? 'Pause' : reducedMotion ? 'Show result' : 'See it change'}<span aria-hidden="true">{playing ? 'Ⅱ' : '↗'}</span></button><button type="button" className="guide-reset" onClick={() => { setPlaying(false); setAi(0); }}>Reset</button></div>
+        <div className="guide-demo-actions"><button type="button" className="guide-replay" onClick={replay}><PlayIcon playing={playing} />{playing ? 'Stop' : reducedMotion ? 'Show result' : 'See it change'}</button><button type="button" className="guide-reset" onClick={() => { setPlaying(false); setAi(0); }}>Reset</button></div>
         <p className="guide-data-note">The slider replays measured results at the tested strengths.</p>
       </section>
     </div>
