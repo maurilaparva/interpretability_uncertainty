@@ -365,7 +365,7 @@ function StudyWorkspace({ step, loaded, stats, log, onGuide, tour }: { step: Stu
   const [aboutOpen, setAboutOpen] = useState(false);
   const aboutRef = useRef<HTMLButtonElement>(null);
   const item = availableItems.find((candidate) => candidate.id === itemId) ?? availableItems[0];
-  const tabs = step.id.startsWith('rate-') ? VIEWS.filter((tab) => tab.key === step.initialView) : VIEWS.filter((tab) => !step.itemIds || tab.key !== 'overview');
+  const tabs = step.id.startsWith('rate-') ? VIEWS.filter((tab) => tab.key === step.initialView) : VIEWS.filter((tab) => !step.itemIds || step.mode === 'explore' || tab.key !== 'overview');
 
   useEffect(() => { log({ type: 'view_opened', stepId: step.id, itemId: item.id, view }); }, [item.id, view, step.id, log]);
 

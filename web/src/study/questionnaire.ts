@@ -118,8 +118,9 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet): 
     },
     {
       id: 'explore', section: 'B · First impressions', title: 'Take a look around', mode: 'explore',
-      description: 'Go through the views in order. Each one shows the same question a different way; you can switch questions with the menu above the views.',
-      initialView: 'overview', hideExplorer: false, questions: [],
+      description: 'Go through the views in order. Each one shows the same question in a different way.',
+      // One fixed question keeps the first look simple; Overview still plots every question.
+      itemIds: ['q01'], initialView: 'overview', hideExplorer: false, questions: [],
     },
     {
       id: 'first-impressions', section: 'B · First impressions', title: 'What stood out?',
