@@ -57,7 +57,7 @@
 .guide-result.changed strong { color: var(--alt); }
 .guide-result-state { font-size: 10px; color: #577490; text-align: right; }
 .guide-result.changed .guide-result-state { color: #a36c34; }
-.guide-demo-actions { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; gap: 15px; }
+.guide-demo-actions { display: flex; align-items: center; justify-content: flex-start; padding-top: 14px; gap: 14px; }
 .guide-replay { display: flex; gap: 8px; align-items: center; cursor: pointer; border: 0; border-radius: 7px; padding: 7px 9px; background: #e9f0e6; color: #41653b; font-size: 11px; }
 .guide-reset { border: 0; padding: 5px 0; background: none; color: #77876d; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; font-size: 10px; }
 .guide-data-note { color: #85907f; font-size: 10px; line-height: 1.5; margin-top: 12px; }
