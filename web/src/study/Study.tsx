@@ -75,6 +75,8 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
   }, [active, session?.completedAt, persistPause]);
 
   // Explore step: the participant walks the tour (concepts, then their rotated view order, then Compare all).
+  // Free exploration: the views stay hidden until the participant has read the instructions and starts.
+  const [exploreStartedStep, setExploreStartedStep] = useState<string | null>(null);
   const [tourView, setTourView] = useState<TourStop>('question');
   const [tourSeen, setTourSeen] = useState<TourStop[]>(['question']);
   const showTourView = (view: TourStop) => {
@@ -199,6 +201,7 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
   const progress = completed ? 100 : Math.round(index / steps.length * 100);
   const showStudy = active && session && !completed;
   const showEvidence = showStudy && !step.hideExplorer;
+  const waitingToExplore = step?.mode === 'explore' && exploreStartedStep !== step.id;
 
   return (
     <div className="study-app">
@@ -273,9 +276,9 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
         <main className={`study-main${showEvidence ? ' with-evidence' : ''}`}>
           <form className={`study-survey${showEvidence ? ' beside-evidence' : ''}`} ref={formRef} onSubmit={next} noValidate>
             <div className="study-survey-heading">
-              <div className="study-step-label"><span>{step.section}</span><span>{step.mode === 'explore' && <><ExploreClock /> · </>}{index + 1} / {steps.length}</span></div>
+              <div className="study-step-label"><span>{step.section}</span><span>{step.mode === 'explore' && !waitingToExplore && <><ExploreClock /> · </>}{index + 1} / {steps.length}</span></div>
               <h1 ref={headingRef} tabIndex={-1}>{step.title}</h1>
-              {step.description && <p>{withBold(step.description)}</p>}
+              {step.description && <Description text={step.description} />}
               {step.outline && (
                 <ol className="study-outline">
                   {step.outline.map((part, i) => (
@@ -296,7 +299,12 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
             {invalid.length > 0 && <p className="study-validation" role="alert">Please answer the highlighted questions.</p>}
             <div className="study-navigation">
               {canGoBack(steps, index) && <button className="btn" type="button" onClick={back}>Back</button>}
-              {step.mode === 'tour' && nextTourView(tour, tourView) ? (
+              {waitingToExplore ? (
+                <button key="explore-start" className="study-primary" type="button" onClick={() => {
+                  setExploreStartedStep(step.id);
+                  log({ type: 'exploration_started', stepId: step.id });
+                }}>Start exploring<span aria-hidden="true">→</span></button>
+              ) : step.mode === 'tour' && nextTourView(tour, tourView) ? (
                 // Separate key: reusing the submit button's DOM node would submit the form on the last "Next" click.
                 <button key="tour-next" className="study-primary" type="button" onClick={() => showTourView(nextTourView(tour, tourView)!.view)}>
                   Next: {nextTourView(tour, tourView)!.label}<span aria-hidden="true">→</span>
@@ -307,7 +315,11 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
             {!saved && <p className="study-validation" role="alert">This browser could not save your progress. Download a copy before closing this page.</p>}
           </form>
           {/* After the form, so the task reads first: the form sits left of the views (see .with-evidence). */}
-          {showEvidence && (step.mode === 'reveal'
+          {showEvidence && waitingToExplore ? (
+            <section className="study-workspace study-workspace-waiting" aria-label="Interactive evidence">
+              <p>The interface appears here when you press <strong>Start exploring</strong>.</p>
+            </section>
+          ) : showEvidence && (step.mode === 'reveal'
             ? <PredictionReview items={(step.itemIds ?? []).map((id) => data.items.find((item) => item.id === id)!)} answers={session.answers} />
             : <StudyWorkspace key={step.id} step={step} loaded={loaded} stats={stats} log={log} onGuide={openGuide}
                 tour={step.mode === 'tour' ? { stops: tour, view: tourView, seen: tourSeen, onView: showTourView } : undefined} />)}
@@ -332,6 +344,20 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
 /** Renders **word** as bold; everything else stays plain text. */
 function withBold(text: string) {
   return text.split(/\*\*(.+?)\*\*/g).map((part, i) => (i % 2 ? <strong key={i}>{part}</strong> : part));
+}
+
+/** Step instructions: one paragraph per line, and consecutive "- " lines as a list. */
+function Description({ text }: { text: string }) {
+  const blocks: (string | string[])[] = [];
+  for (const line of text.split('\n')) {
+    if (line.startsWith('- ')) {
+      const last = blocks.at(-1);
+      if (Array.isArray(last)) last.push(line.slice(2)); else blocks.push([line.slice(2)]);
+    } else if (line.trim()) blocks.push(line);
+  }
+  return <>{blocks.map((block, i) => (Array.isArray(block)
+    ? <ul key={i} className="study-instructions">{block.map((item) => <li key={item}>{withBold(item)}</li>)}</ul>
+    : <p key={i}>{withBold(block)}</p>))}</>;
 }
 
 function nextTourView(stops: TourStopInfo[], view: TourStop): TourStopInfo | undefined {

@@ -219,3 +219,9 @@
 .point-at-controls .study-question-select select { border-color: #8bb49b; background-color: #f2f8f3; box-shadow: 0 0 0 3px #dcebe0; }
 .point-at-controls .study-question-select > span { color: #244c35; font-weight: 600; }
 .point-at-controls .study-view-tabs { margin: 8px 18px 0; padding: 8px; border: 1px dashed #9fc3ad; border-radius: 10px; background: #f6faf6; }
+.study-instructions { margin: 10px 0 2px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.study-instructions li { position: relative; padding: 8px 12px 8px 30px; border: 1px solid #dfe8dc; border-radius: 8px; background: #f6faf5; font-size: 15px; color: var(--ink-2); }
+.study-instructions li::before { content: ''; position: absolute; left: 13px; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; border-radius: 50%; background: #3f7a5c; }
+.study-instructions strong, .study-survey-heading > p strong { color: var(--ink); font-weight: 650; }
+.study-workspace-waiting { display: grid; place-items: center; padding: 40px; background: repeating-linear-gradient(135deg, #fafbf9 0 14px, #f4f6f2 14px 28px); }
+.study-workspace-waiting p { max-width: 26em; text-align: center; font-size: 16px; color: #5d6659; background: #fff; border: 1px solid #e1e6e0; border-radius: 12px; padding: 18px 22px; }
