@@ -51,7 +51,7 @@ export default function App() {
 
   if (error) return <div className="center-msg">Could not load any data: {error}</div>;
   if (!loaded) return <div className="center-msg">Loading…</div>;
-  if (studyMode && supportsStudyDataset(loaded.data)) return <Study loaded={loaded} autoStart={autoStartStudy} onExit={() => setMode(false)} />;
+  if (studyMode && supportsStudyDataset(loaded.data)) return <Study loaded={loaded} autoStart={autoStartStudy} />;
   return <Shell loaded={loaded} onStartStudy={(autoStart) => setMode(true, autoStart)} />;
 }
 

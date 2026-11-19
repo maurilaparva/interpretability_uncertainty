@@ -16,7 +16,7 @@ import './study.css';
 
 type LogEvent = (event: Omit<StudyEvent, 'at'>) => void;
 
-export function Study({ loaded, onExit, autoStart = false }: { loaded: Loaded; onExit: () => void; autoStart?: boolean }) {
+export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart?: boolean }) {
   const { data } = loaded;
   const datasetKey = studyDatasetKey(data);
   const stats = useMemo(() => computeStats(data), [data]);
@@ -74,7 +74,9 @@ export function Study({ loaded, onExit, autoStart = false }: { loaded: Loaded; o
     const nextSession = persistPause();
     if (!nextSession) { setSaved(false); setResetting(false); return; }
     setSession(nextSession);
-    onExit();
+    // Participants never leave for the explorer: pausing returns to the welcome page ("Welcome back").
+    setResetting(false);
+    setActive(false);
   };
 
   const log = useCallback<LogEvent>((event) => {
@@ -191,7 +193,7 @@ export function Study({ loaded, onExit, autoStart = false }: { loaded: Loaded; o
       <header className="study-topbar">
         <div className="study-brand"><span className="study-mark" aria-hidden="true">u</span><div><strong>Model confidence study</strong><span>UNCIRCUIT</span></div></div>
         {active && session && <span className={`study-save${saved ? '' : ' unsaved'}`} role="status">{saved ? 'Saved on this device' : 'Not saved — download a copy'}</span>}
-        <button className="btn" onClick={showStudy ? pauseAndExit : onExit}>{showStudy ? 'Pause & exit' : 'Back to explorer'}</button>
+        {showStudy && <button className="btn" onClick={pauseAndExit}>Pause & exit</button>}
       </header>
 
       {showStudy && <div className="study-progress" role="progressbar" aria-label="Study progress" aria-valuenow={index} aria-valuemin={0} aria-valuemax={steps.length}><span style={{ width: `${progress}%` }} /></div>}
@@ -289,7 +291,7 @@ export function Study({ loaded, onExit, autoStart = false }: { loaded: Loaded; o
       {active && resetting && session && (
         <div className="study-modal-backdrop">
           <LeaveDialog onCancel={() => setResetting(false)} onKeep={pauseAndExit} onDiscard={() => {
-            if (clearSession()) onExit();
+            if (clearSession()) { setSession(null); setResetting(false); setActive(false); }
             else setSaved(false);
           }} onDownload={() => downloadSession(session, 'json')} />
         </div>
