@@ -1,3 +1,4 @@
+import { siteRoot } from '../lib/site.ts';
 import { guideVersionFor } from './guidance.ts';
 
 export interface StudyEvent {
@@ -26,7 +27,10 @@ export interface StudySession {
   events: StudyEvent[];
 }
 
-const STORAGE_KEY = 'uncircuit.study.v1';
+// Every published version (latest at the root, older ones at v0/, v1/, …) shares one origin, so the key
+// includes the site's address: trying two versions in one browser never resumes the other one's study.
+// v0.1.0 used the bare key, so it keeps that one to itself.
+const STORAGE_KEY = `uncircuit.study.v1:${globalThis.location ? siteRoot() : '/'}`;
 
 /** Set at build time from `git describe` (see vite.config.ts); 'dev' under plain Node. */
 export const APP_VERSION = (import.meta.env?.VITE_APP_VERSION as string | undefined)?.trim() || 'dev';

@@ -34,6 +34,16 @@ jobs:
       - run: npm test
       # VITE_SHEETS_URL comes from the committed web/.env file.
       - run: npm run build
+      # Older releases stay online at <site>/<address>/, one per line of versions.txt ("<address> <git tag>").
+      - name: Build older versions
+        run: |
+          grep -vE '^\s*(#|$)' ../versions.txt | while read -r address tag; do
+            echo "::group::$address = $tag"
+            git worktree add "$RUNNER_TEMP/site-$address" "$tag"
+            (cd "$RUNNER_TEMP/site-$address/web" && npm ci && npm run build)
+            cp -R "$RUNNER_TEMP/site-$address/web/dist" "dist/$address"
+            echo "::endgroup::"
+          done
       - uses: actions/upload-pages-artifact@v3
         with:
           path: web/dist

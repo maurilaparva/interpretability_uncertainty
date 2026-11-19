@@ -1,0 +1,5 @@
+# Older releases kept online next to the latest one, for comparing versions.
+# Each line: <address> <git tag>. The release builds at <site>/<address>/ (study at <site>/<address>/study/,
+# or …/<address>/?mode=study for v0.1.0, which predates the study/ address).
+# The deploy workflow rebuilds every line on each push to main.
+v0 v0.1.0

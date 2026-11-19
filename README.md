@@ -74,6 +74,8 @@ F7 tests fragility under the tested intervention rather than claiming that fragi
 [.github/workflows/deploy.yml](.github/workflows/deploy.yml) tests, builds, and publishes `web/dist` on every push to
 `main`. One-time setup: in the repository, open **Settings → Pages** and set **Source** to **GitHub Actions**.
 The site is then at `https://<user>.github.io/<repo>/`, and the study at `…/study/` (the link to give participants).
+Older releases stay online for comparison at `…/<address>/` (e.g. `…/v0/`), one per line of
+[versions.txt](versions.txt); each address keeps its own saved study progress.
 
 ## Recompute the data
 
