@@ -197,7 +197,7 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet, v
       // R1–R4 in the participant's rotated order (viewOrder.ts), then Compare all. Kept as its own step so its
       // timing and view events are separate from the fixed concepts: this is the part that compares displays (RQ2).
       id: 'explore-views', section: 'C · Guided tasks', title: 'Explore the views', mode: 'tour', tour: 'views',
-      description: 'Now look at each view, in order. Each one shows the evidence in a different way. You can switch to any question. About 3 minutes.',
+      description: 'Now look at each view, in the order shown. Each one shows the evidence in a different way. You can switch to any question. About 3 minutes.\nEach participant sees the views in a **different order**, so R1–R4 may not come in number order. The numbers are just **names**, not a ranking.',
       hideExplorer: false, questions: [],
     },
     {
