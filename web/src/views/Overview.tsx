@@ -18,11 +18,13 @@ interface Props {
   simple?: boolean;
 }
 
+// The quadrants split at the medians, so they say "easier / harder to flip than most". Fragile / Moderate / Robust
+// are reserved for R1's thirds; reusing them here labelled some answers "fragile" that R1 calls Moderate.
 const QLABEL: Record<Quadrant, string> = {
-  'confident-robust': 'Confident & robust',
-  'confident-fragile': 'Confident but fragile',
-  'unsure-stable': 'Unsure but stable',
-  'unsure-fragile': 'Unsure & fragile',
+  'confident-robust': 'Confident · harder to flip',
+  'confident-fragile': 'Confident but easier to flip',
+  'unsure-stable': 'Unsure · harder to flip',
+  'unsure-fragile': 'Unsure · easier to flip',
 };
 
 export function Overview({ items, stats, selectedId, revealKey, onOpen, allowReveal = true, simple = false, clickOpensFlipCurve = true }: Props) {
@@ -54,10 +56,10 @@ export function Overview({ items, stats, selectedId, revealKey, onOpen, allowRev
             {cf.length > 0 ? (
               <>
                 {/* plain ink: blue and orange mean "the answer word" and "the word it is pushed toward" elsewhere */}
-                {cf.length} of {n} answers look <strong>confident</strong> but are <strong>mechanistically fragile</strong>.
+                {cf.length} of {n} answers look <strong>confident</strong> but are <strong>easier to flip than most</strong>.
               </>
             ) : (
-              <>No answer here is both confident and fragile: the two signals agree on this set.</>
+              <>No answer here is both confident and easier to flip than most: the two signals agree on this set.</>
             )}
           </p>
           <p className="explain" style={{ marginTop: 4 }}>
