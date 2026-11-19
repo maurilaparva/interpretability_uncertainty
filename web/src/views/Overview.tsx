@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { fmtMargin, mval, pct, pushScale, pushTicks, quadrantOf, spearman, tok, type Quadrant } from '../lib/data';
 import { useSize } from '../lib/hooks';
 import type { Item, Stats } from '../lib/types';
@@ -98,27 +98,27 @@ function Glyph({ correct }: { correct: boolean }) {
   );
 }
 
-/** Log-odds, clamped so 0% and 100% stay on the chart. */
-function logit(p: number): number {
-  const q = Math.min(Math.max(p, 0.001), 0.999);
-  return Math.log(q / (1 - q));
-}
-
 function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }: Props) {
   const [ref, { width, height }] = useSize<HTMLDivElement>();
   const [hover, setHover] = useState<Item | null>(null);
-  const m = { top: 16, right: 24, bottom: 48, left: 66 };
+  // Opens on the middle half of the questions (by confidence), so the extremes are off-screen and found by exploring;
+  // the mini-map below always shows all of them. The simple plot (study tour) always shows everything.
+  const [zoom, setZoom] = useState<[number, number] | null>(() => (simple ? null : middleWindow(items)));
+  const [drag, setDrag] = useState<{ from: number; to: number } | null>(null);
+  const m = { top: 16, right: 24, bottom: 54, left: 74 };
   const iw = Math.max(10, width - m.left - m.right);
   const ih = Math.max(10, height - m.top - m.bottom);
 
   const pExt = d3.extent(items, (it) => it.p_answer) as [number, number];
-  // Half the answers sit between 87% and 100%, so x is a logit scale: each step toward certainty
-  // (90% → 99% → 99.9%) gets the same room, instead of everything piling up at the right edge.
-  const xl = d3.scaleLinear()
-    .domain([Math.min(logit(0.1), logit(pExt[0])), Math.max(logit(0.99), logit(pExt[1])) + 0.4])
-    .range([0, iw]);
-  const x = (p: number) => xl(logit(p));
-  const xTicks = [0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99, 0.999].filter((t) => logit(t) >= xl.domain()[0] && logit(t) <= xl.domain()[1]);
+  // Plain 0–100% axis. Half the answers sit between 87% and 100%, so dragging across the chart zooms into a
+  // confidence range (the zoomed axis is still evenly spaced) and "Show all" goes back.
+  const full: [number, number] = [Math.min(0, pExt[0]), 1];
+  const x = d3.scaleLinear().domain(zoom ?? full).range([0, iw]);
+  const xTicks = x.ticks(zoom ? 8 : 5);
+  const inView = (p: number) => p >= x.domain()[0] && p <= x.domain()[1];
+  const hiddenLeft = items.filter((it) => it.p_answer < x.domain()[0]).length;
+  const hiddenRight = items.filter((it) => it.p_answer > x.domain()[1]).length;
+  const dragTo = (event: React.PointerEvent<SVGRectElement>) => event.clientX - event.currentTarget.getBoundingClientRect().left;
   const yMax = stats.displayMax;
   const yTop = stats.anyCensored ? stats.maxAlpha : yMax;
   const y = pushScale(yMax, [ih, 0]);
@@ -138,12 +138,26 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }
   const yTicks = pushTicks(yTop);
 
   return (
+    <>
     <div ref={ref} className="chart-fill" style={{ minHeight: 280 }}>
       {width > 0 && height > 0 && (
         <svg width={width} height={height} role="img" aria-label="Scatter plot of output confidence versus robustness margin">
           <g transform={`translate(${m.left},${m.top})`}>
             {/* highlight the key quadrant */}
-            {!simple && <rect x={mxp} y={myp} width={Math.max(0, iw - mxp)} height={Math.max(0, ih - myp)} fill="var(--alt-soft)" opacity={0.55} />}
+            {!simple && <rect x={Math.max(0, Math.min(iw, mxp))} y={myp} width={Math.max(0, iw - Math.max(0, mxp))} height={Math.max(0, ih - myp)} fill="var(--alt-soft)" opacity={0.55} />}
+            {/* drag across empty space to zoom the confidence axis; points sit above this, so clicks still open them */}
+            {!simple && <rect x={0} y={0} width={iw} height={ih} fill="transparent" style={{ cursor: 'crosshair', touchAction: 'none' }}
+              onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); const at = dragTo(event); setDrag({ from: at, to: at }); }}
+              onPointerMove={(event) => { if (drag) setDrag({ ...drag, to: Math.max(0, Math.min(iw, dragTo(event))) }); }}
+              onPointerUp={() => {
+                if (drag && Math.abs(drag.to - drag.from) > 8) {
+                  // A drag that ends within a few pixels of either edge snaps to it (so 100% stays on the axis).
+                  const snap = (px: number) => (px < 12 ? 0 : px > iw - 12 ? iw : px);
+                  setZoom([x.invert(snap(Math.min(drag.from, drag.to))), x.invert(snap(Math.max(drag.from, drag.to)))]);
+                }
+                setDrag(null);
+              }} />}
+            {drag && <rect x={Math.min(drag.from, drag.to)} y={0} width={Math.abs(drag.to - drag.from)} height={ih} fill="var(--answer)" opacity={0.08} stroke="var(--answer)" strokeOpacity={0.4} pointerEvents="none" />}
             {/* censored band (only when some answer never flipped) */}
             {stats.anyCensored && (
               <>
@@ -162,17 +176,17 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }
               </g>
             ))}
             {xTicks.map((t) => (
-              <text key={t} className="tick-label" x={x(t)} y={ih + 16} textAnchor="middle">{t >= 0.999 ? '99.9%' : pct(t)}</text>
+              <text key={t} className="tick-label" x={x(t)} y={ih + 16} textAnchor="middle">{pct(t)}</text>
             ))}
             <line x1={0} x2={iw} y1={ih} y2={ih} stroke="#d6d3d1" />
-            <text className="axis-title" x={iw / 2} y={ih + 38} textAnchor="middle">
-              Output confidence: probability of the model's answer (stretched near 100%) →
+            <text className="axis-title" x={iw / 2} y={ih + 42} textAnchor="middle" style={{ fontSize: 15, fontWeight: 600 }}>
+              Output confidence: probability of the model's answer{zoom ? ' (zoomed in)' : ''} →
             </text>
-            <text className="axis-title" transform={`translate(${-m.left + 14},${ih / 2}) rotate(-90)`} textAnchor="middle">
+            <text className="axis-title" transform={`translate(${-m.left + 16},${ih / 2}) rotate(-90)`} textAnchor="middle" style={{ fontSize: 15, fontWeight: 600 }}>
               Robustness: push needed to flip it (√ scale) →
             </text>
 
-            {!simple && <line className="median-line" x1={mxp} x2={mxp} y1={y(yMax)} y2={ih} />}
+            {!simple && inView(stats.medP) && <line className="median-line" x1={mxp} x2={mxp} y1={y(yMax)} y2={ih} />}
             {!simple && <line className="median-line" x1={0} x2={iw} y1={myp} y2={myp} />}
 
             {!simple && quadText.map(({ q, x: tx, y: ty, anchor }) => (
@@ -191,7 +205,7 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }
             ))}
 
             {/* points */}
-            {items.map((it) => {
+            {items.filter((it) => inView(it.p_answer)).map((it) => {
               const { cx, cy } = pos(it);
               const sel = it.id === selectedId;
               const hov = hover?.id === it.id;
@@ -224,7 +238,7 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }
             })}
             {/* selective direct labels: the key quadrant */}
             {items
-              .filter((it) => (simple ? it.id === selectedId : quadrantOf(it, stats) === 'confident-fragile'))
+              .filter((it) => inView(it.p_answer) && (simple ? it.id === selectedId : quadrantOf(it, stats) === 'confident-fragile'))
               .map((it) => {
                 const { cx, cy } = pos(it);
                 return (
@@ -233,8 +247,18 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }
                   </text>
                 );
               })}
+            {/* questions outside the zoomed range */}
+            {hiddenLeft > 0 && <text className="annot-muted halo" x={6} y={ih / 2} pointerEvents="none">◀ {hiddenLeft} more</text>}
+            {hiddenRight > 0 && <text className="annot-muted halo" x={iw - 6} y={ih / 2} textAnchor="end" pointerEvents="none">{hiddenRight} more ▶</text>}
           </g>
         </svg>
+      )}
+      {width > 0 && !simple && (
+        <div className="scatter-zoom" style={{ right: m.right }}>
+          {zoom
+            ? <button className="btn" onClick={() => setZoom(null)}>Show all (0–100%)</button>
+            : <span className="caption">Drag across the chart to zoom in</span>}
+        </div>
       )}
       {hover && (
         <Tip x={pos(hover).cx + m.left} y={pos(hover).cy + m.top - 8} width={width}>
@@ -246,6 +270,77 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }
           </div>
           {!simple && <div className="t-muted">{QLABEL[quadrantOf(hover, stats)]} · click to open flip curve</div>}
         </Tip>
+      )}
+    </div>
+    {!simple && <MiniMap items={items} stats={stats} selectedId={selectedId} full={full} window={zoom} onWindow={setZoom} left={m.left} right={m.right} />}
+    </>
+  );
+}
+
+/** Confidence range covering the middle half of the questions, with a little margin. */
+function middleWindow(items: Item[]): [number, number] {
+  const ps = items.map((it) => it.p_answer).sort(d3.ascending);
+  return [Math.max(0, (d3.quantileSorted(ps, 0.25) ?? 0) - 0.03), Math.min(1, (d3.quantileSorted(ps, 0.75) ?? 1) + 0.03)];
+}
+
+/**
+ * Overview + detail: every question on the full 0–100% range, with a box marking what the main plot shows.
+ * Drag the box to move it, drag its edges to resize, click outside it to show everything.
+ */
+function MiniMap({ items, stats, selectedId, full, window, onWindow, left, right }: {
+  items: Item[]; stats: Stats; selectedId: string; full: [number, number]; window: [number, number] | null;
+  onWindow: (window: [number, number] | null) => void; left: number; right: number;
+}) {
+  const [ref, { width }] = useSize<HTMLDivElement>();
+  const brushRef = useRef<SVGGElement>(null);
+  const brushApi = useRef<{ brush: d3.BrushBehavior<unknown>; x: d3.ScaleLinear<number, number> } | null>(null);
+  const fromBrush = useRef(false);
+  const h = 46;
+  const iw = Math.max(10, width - left - right);
+  const x = d3.scaleLinear().domain(full).range([0, iw]);
+  const y = pushScale(stats.displayMax, [h - 4, 4]);
+
+  // Built once per size: rebuilding it on every render (e.g. while the box is being dragged) would cut the drag short.
+  const lo = full[0];
+  useEffect(() => {
+    if (!brushRef.current || width === 0) return;
+    const xs = d3.scaleLinear().domain([lo, 1]).range([0, iw]);
+    const brush = d3.brushX().extent([[0, 0], [iw, h]]).on('brush end', (event: d3.D3BrushEvent<unknown>) => {
+      if (!event.sourceEvent) return; // moved by code, not by the participant
+      const s = event.selection as [number, number] | null;
+      fromBrush.current = true;
+      onWindow(s && s[1] - s[0] > 3 ? [xs.invert(s[0]), xs.invert(s[1])] : null);
+    });
+    d3.select(brushRef.current).call(brush);
+    brushApi.current = { brush, x: xs };
+    return () => { brush.on('brush end', null); };
+  }, [width, iw, lo, onWindow]);
+
+  // Follow changes made elsewhere (drag-zoom on the main plot, "Show all"); skip the ones the brush made itself.
+  useEffect(() => {
+    const api = brushApi.current;
+    if (!api || !brushRef.current) return;
+    if (fromBrush.current) { fromBrush.current = false; return; }
+    d3.select(brushRef.current).call(api.brush.move, window ? [api.x(window[0]), api.x(window[1])] : null);
+  }, [window, width]);
+
+  return (
+    <div ref={ref} className="minimap">
+      <span className="caption" style={{ marginLeft: left }}>All questions · drag the box to move it, or its edges to resize</span>
+      {width > 0 && (
+        <svg width={width} height={h + 16} aria-hidden="true">
+          <g transform={`translate(${left},0)`}>
+            <rect x={0} y={0} width={iw} height={h} fill="var(--accent-bg)" rx={4} />
+            {items.map((it) => (
+              <circle key={it.id} cx={x(it.p_answer)} cy={y(mval(it, stats))} r={it.id === selectedId ? 3.5 : 2.5}
+                fill={it.id === selectedId ? 'var(--answer)' : '#78716c'} />
+            ))}
+            {[0, 0.25, 0.5, 0.75, 1].filter((t) => t >= full[0]).map((t) => (
+              <text key={t} className="tick-label" x={x(t)} y={h + 12} textAnchor="middle" fontSize={10}>{pct(t)}</text>
+            ))}
+            <g ref={brushRef} className="minimap-brush" />
+          </g>
+        </svg>
       )}
     </div>
   );
