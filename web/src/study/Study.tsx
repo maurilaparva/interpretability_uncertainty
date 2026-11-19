@@ -9,7 +9,7 @@ import type { Item, Stats } from '../lib/types';
 import { VIEWS, type ViewKey } from '../lib/views';
 import { advanceSession, canGoBack, missingRequired, stepDuration } from './flow';
 import { canShowStudyGuide, getExplorerGuideExposure, GUIDE_VERSION, shouldAutoShowGuide } from './guidance';
-import { buildStudySteps, studyDatasetKey, type StudyStep } from './questionnaire';
+import { buildStudySteps, studyDatasetKey, VIEW_TOUR, type StudyStep } from './questionnaire';
 import { APP_VERSION, clearSession, createSession, submissionId, downloadSession, loadSession, saveSession, sheetsEnabled, submitSession, type StudyEvent, type StudySession } from './storage';
 import { SurveyField } from './SurveyFields';
 import './study.css';
@@ -69,6 +69,14 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
     window.addEventListener('pagehide', onPageHide);
     return () => window.removeEventListener('pagehide', onPageHide);
   }, [active, session?.completedAt, persistPause]);
+
+  // Explore step: the participant walks the views in VIEW_TOUR order.
+  const [tourView, setTourView] = useState<ViewKey>('overview');
+  const [tourSeen, setTourSeen] = useState<ViewKey[]>(['overview']);
+  const showTourView = (view: ViewKey) => {
+    setTourView(view);
+    setTourSeen((seen) => (seen.includes(view) ? seen : [...seen, view]));
+  };
 
   const pauseAndExit = () => {
     const nextSession = persistPause();
@@ -259,14 +267,12 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
         </main>
       ) : session && (
         <main className={`study-main${showEvidence ? ' with-evidence' : ''}`}>
-          {showEvidence && (step.mode === 'reveal'
-            ? <PredictionReview items={(step.itemIds ?? []).map((id) => data.items.find((item) => item.id === id)!)} answers={session.answers} />
-            : <StudyWorkspace key={step.id} step={step} loaded={loaded} stats={stats} log={log} onGuide={openGuide} />)}
           <form className={`study-survey${showEvidence ? ' beside-evidence' : ''}`} ref={formRef} onSubmit={next} noValidate>
             <div className="study-survey-heading">
               <div className="study-step-label"><span>{step.section}</span><span>{index + 1} / {steps.length}</span></div>
               <h1 ref={headingRef} tabIndex={-1}>{step.title}</h1>
               {step.description && <p>{step.description}</p>}
+              {step.mode === 'explore' && <ViewTour view={tourView} seen={tourSeen} onView={showTourView} />}
               {step.mode === 'explore' && <ExploreClock />}
             </div>
             <div className="study-fields">
@@ -277,11 +283,21 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
             {invalid.length > 0 && <p className="study-validation" role="alert">Please answer the highlighted questions.</p>}
             <div className="study-navigation">
               {canGoBack(steps, index) && <button className="btn" type="button" onClick={back}>Back</button>}
-              <button className="study-primary" type="submit">{index === steps.length - 1 ? 'Finish study' : step.id === 'predict-correctness' ? 'Lock predictions & reveal' : step.mode === 'explore' ? 'Share first impressions' : 'Continue'}<span aria-hidden="true">→</span></button>
+              {step.mode === 'explore' && nextTourView(tourView) ? (
+                // Separate key: reusing the submit button's DOM node would submit the form on the last "Next" click.
+                <button key="tour-next" className="study-primary" type="button" onClick={() => showTourView(nextTourView(tourView)!)}>
+                  Next: {viewLabel(nextTourView(tourView)!)}<span aria-hidden="true">→</span>
+                </button>
+              ) : <button key="submit" className="study-primary" type="submit">{index === steps.length - 1 ? 'Finish study' : step.id === 'predict-correctness' ? 'Lock predictions & reveal' : step.mode === 'explore' ? 'Share first impressions' : 'Continue'}<span aria-hidden="true">→</span></button>}
             </div>
             <div className="study-survey-footer"><button type="button" className="btn-link" onClick={() => downloadSession(session, 'json')}>Download progress</button><button type="button" className="btn-link" onClick={() => setResetting(true)}>Leave study</button></div>
             {!saved && <p className="study-validation" role="alert">This browser could not save your progress. Download a copy before closing this page.</p>}
           </form>
+          {/* After the form, so the task reads first: the form sits left of the views (see .with-evidence). */}
+          {showEvidence && (step.mode === 'reveal'
+            ? <PredictionReview items={(step.itemIds ?? []).map((id) => data.items.find((item) => item.id === id)!)} answers={session.answers} />
+            : <StudyWorkspace key={step.id} step={step} loaded={loaded} stats={stats} log={log} onGuide={openGuide}
+                tour={step.mode === 'explore' ? { view: tourView, seen: tourSeen, onView: showTourView } : undefined} />)}
         </main>
       )}
 
@@ -300,6 +316,33 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
   );
 }
 
+function viewLabel(view: ViewKey): string {
+  return VIEWS.find((tab) => tab.key === view)!.label;
+}
+
+function nextTourView(view: ViewKey): ViewKey | undefined {
+  const i = VIEW_TOUR.findIndex((stop) => stop.view === view);
+  return VIEW_TOUR[i + 1]?.view;
+}
+
+function ViewTour({ view, seen, onView }: { view: ViewKey; seen: ViewKey[]; onView: (view: ViewKey) => void }) {
+  return (
+    <ol className="study-tour" aria-label="Views to look at, in order">
+      {VIEW_TOUR.map((stop, i) => {
+        const state = stop.view === view ? 'current' : seen.includes(stop.view) ? 'seen' : 'todo';
+        return (
+          <li key={stop.view} className={state}>
+            <button type="button" onClick={() => onView(stop.view)} aria-current={state === 'current' ? 'step' : undefined}>
+              <span className="study-tour-mark" aria-hidden="true">{state === 'seen' ? '✓' : i + 1}</span>
+              <span><strong>{viewLabel(stop.view)}</strong>{state === 'current' && <span className="study-tour-hint">{stop.hint}</span>}</span>
+            </button>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 function ExploreClock() {
   const [elapsed, setElapsed] = useState(0);
   useEffect(() => {
@@ -310,11 +353,15 @@ function ExploreClock() {
   return <div className="study-explore-clock"><span className="study-clock-number">{Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}</span><span>{elapsed < 180 ? 'Take about 3 minutes. Continue when you’re ready.' : 'Ready when you are.'}</span></div>;
 }
 
-function StudyWorkspace({ step, loaded, stats, log, onGuide }: { step: StudyStep; loaded: Loaded; stats: Stats; log: LogEvent; onGuide: () => void }) {
+interface Tour { view: ViewKey; seen: ViewKey[]; onView: (view: ViewKey) => void }
+
+function StudyWorkspace({ step, loaded, stats, log, onGuide, tour }: { step: StudyStep; loaded: Loaded; stats: Stats; log: LogEvent; onGuide: () => void; tour?: Tour }) {
   const allItems = loaded.data.items;
   const availableItems = step.itemIds ? step.itemIds.map((id) => allItems.find((item) => item.id === id)!) : allItems;
   const [itemId, setItemId] = useState(availableItems[0].id);
-  const [view, setView] = useState<ViewKey>(step.initialView ?? 'compare');
+  const [ownView, setOwnView] = useState<ViewKey>(step.initialView ?? 'compare');
+  const view = tour?.view ?? ownView;
+  const setView = tour?.onView ?? setOwnView;
   const [aboutOpen, setAboutOpen] = useState(false);
   const aboutRef = useRef<HTMLButtonElement>(null);
   const item = availableItems.find((candidate) => candidate.id === itemId) ?? availableItems[0];
@@ -342,7 +389,7 @@ function StudyWorkspace({ step, loaded, stats, log, onGuide }: { step: StudyStep
         </div>
       </div>
       {step.id === 'predict-correctness' && <div className="study-question-chips" aria-label="Questions to judge">{availableItems.map((candidate, i) => <button key={candidate.id} aria-pressed={candidate.id === item.id} className={candidate.id === item.id ? 'selected' : ''} onClick={() => setItemId(candidate.id)}><span>{i + 1}</span>{candidate.question}</button>)}</div>}
-      <nav className="study-view-tabs" aria-label="Evidence views">{tabs.map((tab) => <button key={tab.key} aria-pressed={view === tab.key} className={view === tab.key ? 'selected' : ''} onClick={() => setView(tab.key)}>{tab.label}</button>)}</nav>
+      <nav className="study-view-tabs" aria-label="Evidence views">{tabs.map((tab, i) => <button key={tab.key} aria-pressed={view === tab.key} className={view === tab.key ? 'selected' : ''} onClick={() => setView(tab.key)}>{tour && <span className="study-tab-step" aria-hidden="true">{tour.seen.includes(tab.key) && view !== tab.key ? '✓' : i + 1}</span>}{tab.label}</button>)}</nav>
       <div className="study-evidence" onChangeCapture={(event) => {
         const input = event.target;
         if (input instanceof HTMLInputElement && input.type === 'range') {

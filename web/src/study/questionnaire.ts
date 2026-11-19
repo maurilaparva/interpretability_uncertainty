@@ -38,6 +38,17 @@ export interface StudyStep {
   hideExplorer?: boolean;
 }
 
+/** The explore step walks through every view in this order, with one line on what each shows. */
+export const VIEW_TOUR: { view: StudyView | 'overview'; hint: string }[] = [
+  { view: 'overview', hint: 'All questions at once: how confident the model is versus how easy each answer is to flip.' },
+  { view: 'r0', hint: 'How likely the model’s answer is, judged from its output alone.' },
+  { view: 'r1', hint: 'One robustness score: how large a push it takes to flip the answer.' },
+  { view: 'r2', hint: 'How the answer’s probability drops as the push gets stronger, layer by layer.' },
+  { view: 'r3', hint: 'Push the model yourself with the sliders and watch the answer change.' },
+  { view: 'r4', hint: 'The flip described in one sentence.' },
+  { view: 'compare', hint: 'All the views side by side for one question.' },
+];
+
 export const STUDY_VIEWS: StudyOption[] = [
   { value: 'r0', label: 'R0 · Baseline confidence' },
   { value: 'r1', label: 'R1 · Margin score' },
@@ -107,8 +118,8 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet): 
     },
     {
       id: 'explore', section: 'B · First impressions', title: 'Take a look around', mode: 'explore',
-      description: 'Explore for about 3 minutes. Choose questions, switch views, and move the sliders.',
-      initialView: 'compare', hideExplorer: false, questions: [],
+      description: 'Go through the views in order. Each one shows the same question a different way; you can switch questions with the menu above the views.',
+      initialView: 'overview', hideExplorer: false, questions: [],
     },
     {
       id: 'first-impressions', section: 'B · First impressions', title: 'What stood out?',
