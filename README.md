@@ -77,6 +77,19 @@ The site is then at `https://<user>.github.io/<repo>/`, and the study at `…/st
 Older releases stay online for comparison at `…/<address>/` (e.g. `…/v0/`), one per line of
 [versions.txt](versions.txt); each address keeps its own saved study progress.
 
+## Versions
+
+Live at `https://mivillavicencio.com/interpretability_uncertainty/` (latest) and `…/<address>/` (older, see
+[versions.txt](versions.txt)). Every response records its version (`app_version`); a blank value means v0.
+
+| Version | Address | What changed |
+|---|---|---|
+| v0.1.0 | `/v0/` | Original demo and study (`?mode=study`). |
+| v0.2.0 | | Same rendering in Chrome, Safari and Firefox (sliders, selects, R2 heatmap, quick guide). |
+| v0.3.0 | | Study at its own address (`study/`); version stamped on every response; older versions kept online. |
+| v0.3.1 | `/v1/` | `app_version` reaches the Responses sheet without redeploying the sheet script. |
+| unreleased (`next`) | | Welcome page with goal, duration, pause note and a submission ID at the end; outline of the five parts; participants never sent to the explorer. Free exploration (B) restored: 5 min, views hidden until "Start exploring", controls highlighted, Overview clicks select instead of jumping to R2. Guided "Learn the views" tour opens C: concepts first, then R1–R4 in a counterbalanced order per participant (also used for the ratings; `view_order` recorded). Overview: linear axis with zoom and a mini-map. One color per variable. Larger, plainer explanations. |
+
 ## Recompute the data
 
 See [pipeline/README.md](pipeline/README.md). About 5 minutes on a laptop CPU for Qwen2.5-0.5B-Instruct.
