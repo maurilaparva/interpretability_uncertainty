@@ -8,25 +8,28 @@ const ROLE_COLOR = { answer: 'var(--answer)', alt: 'var(--alt)', other: 'var(--o
 export function R0Baseline({ item }: { item: Item }) {
   const guided = useGuidance();
   return (
-    <div className="baseline-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(260px, 1fr) minmax(280px, 1fr)', gap: 48 }}>
-      <div>
-        <div className="panel-title"><span className="name">Output confidence</span></div>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 60, fontWeight: 650, lineHeight: 1.05, fontVariantNumeric: 'tabular-nums' }}>{pct(item.p_answer)}</span>
-          <span style={{ fontSize: 15, color: 'var(--muted)' }}>how likely the model rated “{tok(item.answer_token)}”</span>
+    <div>
+      <div className="baseline-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(260px, 1fr) minmax(280px, 1fr)', gap: 48 }}>
+        <div>
+          <div className="panel-title"><span className="name">Output confidence</span></div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 44, fontWeight: 650, lineHeight: 1.05, fontVariantNumeric: 'tabular-nums' }}>{pct(item.p_answer)}</span>
+            <span style={{ fontSize: 15, color: 'var(--muted)' }}>how likely the model rated “{tok(item.answer_token)}”</span>
+          </div>
+          <ConfidenceBar p={item.p_answer} height={34} />
         </div>
-        <ConfidenceBar p={item.p_answer} height={34} />
-        <p className="explain" style={{ marginTop: 18, maxWidth: '40em', fontSize: 16 }}>
-          Before answering, the model rates <strong>how likely</strong> each possible next word is. It picked
-          “{tok(item.answer_token)}”, which it rated <strong>{pct(item.p_answer)} likely</strong>. This is the
-          {' '}<strong>confidence number</strong> AI tools usually show. It does <em>not</em> tell you if the answer is
-          right, or how easily the answer could change.
-        </p>
+        <div>
+          <div className="panel-title"><span className="name">Top 5 next {guided ? 'tokens' : 'words'}</span></div>
+          <Top5 item={item} />
+        </div>
       </div>
-      <div>
-        <div className="panel-title"><span className="name">Top 5 next {guided ? 'tokens' : 'words'}</span></div>
-        <Top5 item={item} />
-      </div>
+      {/* Full width under both charts: the text needs the room more than the charts do. */}
+      <p className="explain" style={{ marginTop: 26, maxWidth: '46em', fontSize: 18 }}>
+        Before answering, the model rates <strong>how likely</strong> each possible next word is. It picked
+        “{tok(item.answer_token)}”, which it rated <strong>{pct(item.p_answer)} likely</strong>. This is the
+        {' '}<strong>confidence number</strong> AI tools usually show. It does <em>not</em> tell you if the answer is
+        right, or how easily the answer could change.
+      </p>
     </div>
   );
 }

@@ -346,7 +346,7 @@ function ViewTour({ view, seen, onView }: { view: TourStop; seen: TourStop[]; on
           <span className="study-tour-mark" aria-hidden="true">
             <svg width="10" height="11" viewBox="0 0 10 11"><path d="M1.5 10.5V1M1.5 1.5h6l-1.5 2 1.5 2h-6" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" /></svg>
           </span>
-          <span><strong>Share first impressions</strong><span className="study-tour-hint">A few short questions about what you noticed.</span></span>
+          <span><strong>Share first impressions</strong></span>
         </button>
       </li>
     </ol>
@@ -360,7 +360,7 @@ function ExploreClock() {
     const timer = window.setInterval(() => setElapsed(Math.floor((Date.now() - started) / 1000)), 1000);
     return () => window.clearInterval(timer);
   }, []);
-  return <div className="study-explore-clock"><span className="study-clock-number">{Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}</span><span>{elapsed < 180 ? 'Take about 3 minutes. Continue when you’re ready.' : 'Ready when you are.'}</span></div>;
+  return <div className="study-explore-clock"><span className="study-clock-number">{Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}</span><span>{elapsed < 180 ? 'Take about 3 minutes.' : 'Ready when you are.'}</span></div>;
 }
 
 interface Tour { view: TourStop; seen: TourStop[]; onView: (view: TourStop) => void }
