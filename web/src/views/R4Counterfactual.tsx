@@ -41,7 +41,7 @@ export function R4Counterfactual({ item, stats, compact }: { item: Item; stats: 
         {censored ? 'Among the most robust answers tested.' : comparePhrase(item, stats, 'short')}
       </p>
       {!compact && (
-        <p className="caption" style={{ maxWidth: '70ch' }}>
+        <p className="explain" style={{ maxWidth: '48em' }}>
           “Nudge” = adding a direction to the model's internal state at one layer, pointing from “{answer}”
           toward “{toward}”, sized relative to the state itself. Size word: small / moderate / large = the lower, middle
           or upper third of robustness scores in this set.

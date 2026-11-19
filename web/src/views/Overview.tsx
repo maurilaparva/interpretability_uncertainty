@@ -29,7 +29,7 @@ export function Overview({ items, stats, selectedId, revealKey, onOpen, allowRev
       <>
         <div>
           <p style={{ fontSize: 20, fontWeight: 600, letterSpacing: '-0.01em' }}>All {items.length} questions at once</p>
-          <p className="caption" style={{ marginTop: 4 }}>
+          <p className="explain" style={{ marginTop: 4 }}>
             Each dot is one question: how sure the model's output is (left to right) and how hard its answer is to flip (bottom to top).
           </p>
         </div>
@@ -58,7 +58,7 @@ export function Overview({ items, stats, selectedId, revealKey, onOpen, allowRev
               <>No answer here is both confident and fragile: the two signals agree on this set.</>
             )}
           </p>
-          <p className="caption" style={{ marginTop: 4 }}>
+          <p className="explain" style={{ marginTop: 4 }}>
             {revealKey && cf.length > 0 && (
               <>{cfWrong === 0 ? `None of those ${cf.length} is wrong` : `${cfWrong} of those ${cf.length} ${cfWrong === 1 ? 'is' : 'are'} wrong`}. </>
             )}

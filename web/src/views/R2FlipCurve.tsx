@@ -33,7 +33,7 @@ export function R2FlipCurve({ item, stats, compact }: Props) {
         <span><span className="sw sw-line" style={{ borderColor: 'var(--answer)' }} />P(“{ans}”), layer {item.margin_layer}{!compact && ' (most fragile)'}</span>
         <span><span className="sw sw-dash" style={{ borderColor: 'var(--alt)' }} />P(“{alt}”){!compact && ', same layer'}</span>
         <span><span className="sw sw-line" style={{ borderColor: '#d6d3d1' }} />{compact ? 'other layers' : `P(“${ans}”), other layers`}</span>
-        {!compact && <span className="caption">Dots mark where each layer flips. Hover a line for details.</span>}
+        {!compact && <span className="explain">Dots mark where each layer flips. Hover a line for details.</span>}
       </div>
       <LineChart item={item} stats={stats} compact={!!compact} hoverRow={hoverRow} setHoverRow={setHoverRow} mRow={mRow} flipTo={flipTo} />
       {!compact && (

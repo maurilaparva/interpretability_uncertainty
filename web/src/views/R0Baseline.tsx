@@ -16,7 +16,7 @@ export function R0Baseline({ item }: { item: Item }) {
           <span className="caption">probability the model gave to “{tok(item.answer_token)}”</span>
         </div>
         <ConfidenceBar p={item.p_answer} />
-        <p className="caption" style={{ marginTop: 12, maxWidth: '52ch' }}>
+        <p className="explain" style={{ marginTop: 12, maxWidth: '40em' }}>
           {guided
             ? 'Probability assigned to the chosen first token, not the probability that the answer is correct.'
             : "This is what products typically show today: how likely the model's chosen first word was, read from its output. It says nothing about how stable the internal computation is."}

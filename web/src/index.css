@@ -153,6 +153,8 @@ h1, h2, h3, p { margin: 0; }
 .panel-title .name { color: var(--ink); }
 .panel-body { flex: 1; min-height: 0; position: relative; display: flex; flex-direction: column; }
 .caption { color: var(--muted); font-size: 12px; }
+/* What a view means (a sentence or two under it): larger than a caption so participants actually read it. */
+.explain { color: var(--ink-2); font-size: 14px; line-height: 1.55; }
 .lede { font-size: 15px; color: var(--ink-2); max-width: 44em; }
 .lede strong { color: var(--ink); }
 
