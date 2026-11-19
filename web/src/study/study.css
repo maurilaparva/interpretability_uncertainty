@@ -259,3 +259,4 @@
   .study-push-intro .guide-demo-actions { padding-top: 8px; }
   .study-push-intro .guide-data-note { margin-top: 6px; }
 }
+@media (max-height: 820px) { .study-evidence-content.evidence-overview { min-height: 400px; } }

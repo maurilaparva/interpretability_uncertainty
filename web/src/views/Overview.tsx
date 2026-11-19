@@ -14,8 +14,6 @@ interface Props {
   onOpen: (id: string) => void;
   /** Explorer: clicking a point opens its flip curve. Study: it only selects the question, so no view is favoured. */
   clickOpensFlipCurve?: boolean;
-  /** Stripped-down plot for first-time viewers: axes and dots, the selected question labelled, nothing else. */
-  simple?: boolean;
 }
 
 // The quadrants split at the medians, so they say "easier / harder to flip than most". Fragile / Moderate / Robust
@@ -27,22 +25,7 @@ const QLABEL: Record<Quadrant, string> = {
   'unsure-fragile': 'Unsure · easier to flip',
 };
 
-export function Overview({ items, stats, selectedId, revealKey, onOpen, allowReveal = true, simple = false, clickOpensFlipCurve = true }: Props) {
-  if (simple) {
-    return (
-      <>
-        <div>
-          <p style={{ fontSize: 20, fontWeight: 600, letterSpacing: '-0.01em' }}>All {items.length} questions at once</p>
-          <p className="explain" style={{ marginTop: 4 }}>
-            Each dot is one question: how sure the model's output is (left to right) and how hard its answer is to flip (bottom to top).
-          </p>
-        </div>
-        <div className="panel" style={{ flex: 1, minHeight: 0 }}>
-          <Scatter items={items} stats={stats} selectedId={selectedId} revealKey={false} onOpen={onOpen} simple />
-        </div>
-      </>
-    );
-  }
+export function Overview({ items, stats, selectedId, revealKey, onOpen, allowReveal = true, clickOpensFlipCurve = true }: Props) {
   const cf = items.filter((it) => quadrantOf(it, stats) === 'confident-fragile');
   const cfWrong = cf.filter((it) => !it.correct).length;
   const n = items.length;
@@ -102,12 +85,12 @@ function Glyph({ correct }: { correct: boolean }) {
   );
 }
 
-function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false, clickOpensFlipCurve = true }: Props) {
+function Scatter({ items, stats, selectedId, revealKey, onOpen, clickOpensFlipCurve = true }: Props) {
   const [ref, { width, height }] = useSize<HTMLDivElement>();
   const [hover, setHover] = useState<Item | null>(null);
   // Opens on the middle half of the questions (by confidence), so the extremes are off-screen and found by exploring;
-  // the mini-map below always shows all of them. The simple plot (study tour) always shows everything.
-  const [zoom, setZoom] = useState<[number, number] | null>(() => (simple ? null : middleWindow(items)));
+  // the mini-map below always shows all of them.
+  const [zoom, setZoom] = useState<[number, number] | null>(() => middleWindow(items));
   const [pan, setPan] = useState<{ startX: number; start: [number, number] } | null>(null);
   const m = { top: 16, right: 24, bottom: 68, left: 92 };
   const iw = Math.max(10, width - m.left - m.right);
@@ -147,9 +130,9 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false, 
         <svg width={width} height={height} role="img" aria-label="Scatter plot of output confidence versus robustness margin">
           <g transform={`translate(${m.left},${m.top})`}>
             {/* highlight the key quadrant */}
-            {!simple && <rect x={Math.max(0, Math.min(iw, mxp))} y={myp} width={Math.max(0, iw - Math.max(0, mxp))} height={Math.max(0, ih - myp)} fill="var(--band-fragile-soft)" />}
+            <rect x={Math.max(0, Math.min(iw, mxp))} y={myp} width={Math.max(0, iw - Math.max(0, mxp))} height={Math.max(0, ih - myp)} fill="var(--band-fragile-soft)" />
             {/* drag empty space to move the zoomed range; points sit above this, so clicks still reach them */}
-            {!simple && zoom && <rect x={0} y={0} width={iw} height={ih} fill="transparent" style={{ cursor: pan ? 'grabbing' : 'grab', touchAction: 'none' }}
+            {zoom && <rect x={0} y={0} width={iw} height={ih} fill="transparent" style={{ cursor: pan ? 'grabbing' : 'grab', touchAction: 'none' }}
               onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); setPan({ startX: event.clientX, start: zoom }); }}
               onPointerMove={(event) => {
                 if (!pan) return;
@@ -189,10 +172,10 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false, 
               push needed to flip the answer (√ scale)
             </text>
 
-            {!simple && inView(stats.medP) && <line className="median-line" x1={mxp} x2={mxp} y1={y(yMax)} y2={ih} />}
-            {!simple && <line className="median-line" x1={0} x2={iw} y1={myp} y2={myp} />}
+            {inView(stats.medP) && <line className="median-line" x1={mxp} x2={mxp} y1={y(yMax)} y2={ih} />}
+            <line className="median-line" x1={0} x2={iw} y1={myp} y2={myp} />
 
-            {!simple && quadText.map(({ q, x: tx, y: ty, anchor }) => (
+            {quadText.map(({ q, x: tx, y: ty, anchor }) => (
               <text
                 key={q}
                 x={tx}
@@ -217,11 +200,11 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false, 
                 <g
                   key={it.id}
                   transform={`translate(${cx},${cy})`}
-                  style={{ cursor: simple ? 'default' : 'pointer', transition: pan ? 'none' : 'transform var(--t)' }}
+                  style={{ cursor: 'pointer', transition: pan ? 'none' : 'transform var(--t)' }}
                   onMouseEnter={() => setHover(it)}
                   onMouseLeave={() => setHover(null)}
                   onClick={() => onOpen(it.id)}
-                  role={simple ? undefined : 'button'}
+                  role="button"
                   aria-label={`${it.question} Answer ${it.answer_text}. Confidence ${pct(it.p_answer)}, robustness ${fmtMargin(it, stats)}`}
                 >
                   <circle r={14} fill="transparent" />
@@ -241,7 +224,7 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false, 
             })}
             {/* selective direct labels: the key quadrant */}
             {items
-              .filter((it) => inView(it.p_answer) && (simple ? it.id === selectedId : quadrantOf(it, stats) === 'confident-fragile'))
+              .filter((it) => inView(it.p_answer) && quadrantOf(it, stats) === 'confident-fragile')
               .map((it) => {
                 const { cx, cy } = pos(it);
                 return (
@@ -256,13 +239,6 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false, 
           </g>
         </svg>
       )}
-      {width > 0 && !simple && (
-        <div className="scatter-zoom" style={{ right: m.right }}>
-          {zoom
-            ? <><span className="caption">Drag the chart to move it</span> <button className="btn" onClick={() => setZoom(null)}>Show all (0–100%)</button></>
-            : <span className="caption">Resize the box below to zoom in</span>}
-        </div>
-      )}
       {hover && (
         <Tip x={pos(hover).cx + m.left} y={pos(hover).cy + m.top - 8} width={width}>
           <div className="t-head">{hover.question}</div>
@@ -271,11 +247,12 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false, 
             Confidence {pct(hover.p_answer)} · Robustness {fmtMargin(hover, stats)}
             {!hover.censored && <> (layer {hover.margin_layer})</>}
           </div>
-          {!simple && <div className="t-muted">{QLABEL[quadrantOf(hover, stats)]} · {clickOpensFlipCurve ? 'click to open flip curve' : 'click to select'}</div>}
+          <div className="t-muted">{QLABEL[quadrantOf(hover, stats)]} · {clickOpensFlipCurve ? 'click to open flip curve' : 'click to select'}</div>
         </Tip>
       )}
     </div>
-    {!simple && <MiniMap items={items} stats={stats} selectedId={selectedId} full={full} window={zoom} onWindow={setZoom} left={m.left} right={m.right} />}
+    <MiniMap items={items} stats={stats} selectedId={selectedId} full={full} window={zoom} onWindow={setZoom} left={m.left} right={m.right}
+      controls={zoom && <button className="btn" onClick={() => setZoom(null)}>Show all (0–100%)</button>} />
     </>
   );
 }
@@ -290,9 +267,9 @@ function middleWindow(items: Item[]): [number, number] {
  * Overview + detail: every question on the full 0–100% range, with a box marking what the main plot shows.
  * Drag the box to move it, drag its edges to resize, click outside it to show everything.
  */
-function MiniMap({ items, stats, selectedId, full, window, onWindow, left, right }: {
+function MiniMap({ items, stats, selectedId, full, window, onWindow, left, right, controls }: {
   items: Item[]; stats: Stats; selectedId: string; full: [number, number]; window: [number, number] | null;
-  onWindow: (window: [number, number] | null) => void; left: number; right: number;
+  onWindow: (window: [number, number] | null) => void; left: number; right: number; controls: React.ReactNode;
 }) {
   const [ref, { width }] = useSize<HTMLDivElement>();
   const brushRef = useRef<SVGGElement>(null);
@@ -329,7 +306,11 @@ function MiniMap({ items, stats, selectedId, full, window, onWindow, left, right
 
   return (
     <div ref={ref} className="minimap">
-      <span className="caption" style={{ marginLeft: left }}>All questions · drag the box to move it, or its edges to resize</span>
+      {/* All the zoom instructions sit together here, so none of them collides with the main plot's axis title. */}
+      <div className="minimap-head" style={{ marginLeft: left, marginRight: right }}>
+        <span className="caption">All questions · drag the box (or the chart above) to move; drag its edges to zoom</span>
+        <span className="minimap-controls">{controls}</span>
+      </div>
       {width > 0 && (
         <svg width={width} height={h + 16} aria-hidden="true">
           <g transform={`translate(${left},0)`}>

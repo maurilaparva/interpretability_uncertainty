@@ -270,10 +270,10 @@ select {
 }
 
 /* Overview scatter: zoom hint / reset, bottom right beside the axis title */
-.scatter-zoom { position: absolute; bottom: 2px; z-index: 2; }
-.scatter-zoom .btn { font-size: 12px; padding: 3px 10px; }
 .minimap { flex: 0 0 auto; margin-top: 6px; }
-.minimap .caption { display: block; margin: 0 0 3px; }
+.minimap-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 3px; }
+.minimap-controls { display: inline-flex; align-items: center; gap: 8px; }
+.minimap-controls .btn { font-size: 12px; padding: 3px 10px; }
 .minimap-brush .selection { fill: var(--ink); fill-opacity: .07; stroke: var(--ink); stroke-opacity: .55; }
 .minimap-brush .handle { fill: var(--ink); fill-opacity: .2; }
 

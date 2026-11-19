@@ -4,7 +4,6 @@ import { AnswerHeader } from '../components/AnswerHeader';
 import { EvidenceView } from '../components/EvidenceView';
 import { GuidanceContext } from '../components/GuidanceContext';
 import { QuickGuide } from '../components/QuickGuide';
-import { Overview } from '../views/Overview';
 import { computeStats, type Loaded } from '../lib/data';
 import type { Item, Stats } from '../lib/types';
 import { VIEWS, type ViewKey } from '../lib/views';
@@ -408,10 +407,12 @@ interface Tour { stops: TourStopInfo[]; view: TourStop; seen: TourStop[]; onView
 
 function StudyWorkspace({ step, loaded, stats, log, onGuide, tour }: { step: StudyStep; loaded: Loaded; stats: Stats; log: LogEvent; onGuide: () => void; tour?: Tour }) {
   const allItems = loaded.data.items;
-  const availableItems = step.itemIds ? step.itemIds.map((id) => allItems.find((item) => item.id === id)!) : allItems;
-  const [itemId, setItemId] = useState(availableItems[0].id);
   const [ownView, setOwnView] = useState<ViewKey>(step.initialView ?? 'compare');
   const view: TourStop = tour?.view ?? ownView;
+  // The tour teaches the ideas on one question; from All questions on, participants may pick any question.
+  const tourOpen = tour != null && tour.stops.findIndex((stop) => stop.view === view) >= tour.stops.findIndex((stop) => stop.view === 'overview');
+  const availableItems = step.itemIds && !tourOpen ? step.itemIds.map((id) => allItems.find((item) => item.id === id)!) : allItems;
+  const [itemId, setItemId] = useState(availableItems[0].id);
   const setView = (next: TourStop) => (tour ? tour.onView(next) : setOwnView(next as ViewKey));
   const [aboutOpen, setAboutOpen] = useState(false);
   const aboutRef = useRef<HTMLButtonElement>(null);
@@ -460,7 +461,6 @@ function StudyWorkspace({ step, loaded, stats, log, onGuide, tour }: { step: Stu
             : view === 'layers' ? <LayersIntro item={item} nLayers={loaded.data.meta.n_layers} />
             : view === 'push' ? <PushIntro item={item} stats={stats} />
             : view === 'scores' ? <ScoresIntro item={item} stats={stats} />
-            : tour && view === 'overview' ? <Overview simple items={allItems} stats={stats} selectedId={item.id} revealKey={false} allowReveal={false} onOpen={() => {}} />
             : <EvidenceView view={view} item={item} items={allItems} stats={stats}
             header={<AnswerHeader item={item} compact revealKey={false} allowReveal={false} onReveal={() => {}} />}
             revealKey={false} allowReveal={false} overviewOpensFlipCurve={false} onOpenItem={(id, nextView) => { if (availableItems.some((candidate) => candidate.id === id)) { setItemId(id); setView(nextView); } }} />}
