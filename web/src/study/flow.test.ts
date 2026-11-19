@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import test, { type TestContext } from 'node:test';
 import { advanceSession, canGoBack, isAnswered, missingRequired, stepDuration } from './flow.ts';
 import { canShowStudyGuide, getExplorerGuideExposure, GUIDE_VERSION, guideVersionFor, recordExplorerGuideExposure, shouldAutoShowGuide } from './guidance.ts';
-import { APP_VERSION, clearSession, createSession, downloadSession, loadSession, saveSession, sessionToCsv } from './storage.ts';
+import { APP_VERSION, clearSession, createSession, downloadSession, loadSession, saveSession, sessionToCsv, viewOrderText } from './storage.ts';
+import { DEFAULT_VIEW_ORDER, VIEW_ORDERS, viewOrderFor } from './viewOrder.ts';
 import type { StudyQuestion, StudyStep } from './questionnaire';
 import type { StudySession } from './storage';
 
@@ -182,7 +183,7 @@ test('guide exposure uses the latest opened version and legacy sessions remain u
   assert.equal(saveSession(legacy), true);
   assert.deepEqual(loadSession('test-data'), legacy);
   assert.equal(guideVersionFor(legacy.events), 'none');
-  assert.ok(sessionToCsv(legacy).includes('"A2","PhD","none",""\r\n'));
+  assert.ok(sessionToCsv(legacy).includes('"A2","PhD","none","","r1 r2 r3 r4"\r\n'));
 
   const exposed = session({ answers: { A2: 'PhD', A3: 4 }, events: [
     { type: 'guide_opened', at: NOW, details: { version: 'old-guide' } },
@@ -193,7 +194,7 @@ test('guide exposure uses the latest opened version and legacy sessions remain u
   assert.equal(guideVersionFor(exposed.events), GUIDE_VERSION);
   const rows = sessionToCsv(exposed).trimEnd().split('\r\n');
   assert.equal(rows.length, 3);
-  assert.ok(rows.slice(1).every((row) => row.endsWith(`"${GUIDE_VERSION}",""`)));
+  assert.ok(rows.slice(1).every((row) => row.endsWith(`"${GUIDE_VERSION}","","r1 r2 r3 r4"`)));
   assert.equal(saveSession(exposed), true);
   assert.deepEqual(loadSession('test-data'), exposed);
 });
@@ -278,7 +279,7 @@ test('CSV preserves quoted/multiline responses and neutralizes spreadsheet formu
   const csv = sessionToCsv(session({
     answers: { B1: 'Hello, "world"\nA second line', B3: ['r0', 'r3'], A3: 4, H4: '=HYPERLINK("bad")', H5: '\t=2+2', H6: '  @SUM(1,2)' },
   }));
-  assert.ok(csv.startsWith('"participant_id","task_set","started_at","completed_at","question_id","response","guidance_version","app_version"\r\n'));
+  assert.ok(csv.startsWith('"participant_id","task_set","started_at","completed_at","question_id","response","guidance_version","app_version","view_order"\r\n'));
   assert.ok(csv.includes('"Hello, ""world""\nA second line"'));
   assert.ok(csv.includes('"[""r0"",""r3""]"'));
   assert.ok(csv.includes('"A3","4"'));
@@ -314,9 +315,27 @@ test('new sessions record the site release they started on', (t) => {
   const started = createSession('test-data');
   assert.equal(started.appVersion, APP_VERSION);
   started.answers = { A2: 'PhD' };
-  assert.ok(sessionToCsv(started).includes(`"A2","PhD","none","${APP_VERSION}"\r\n`));
+  assert.ok(sessionToCsv(started).includes(`"A2","PhD","none","${APP_VERSION}","${viewOrderText(started)}"\r\n`));
   assert.equal(saveSession(started), true);
   assert.deepEqual(loadSession('test-data'), started);
+});
+
+test('view orders form a balanced Latin square over R1–R4', () => {
+  const views = [...DEFAULT_VIEW_ORDER].sort();
+  for (let position = 0; position < views.length; position++) {
+    assert.deepEqual(VIEW_ORDERS.map((order) => order[position]).sort(), views, `position ${position + 1}`);
+  }
+  const pairs = VIEW_ORDERS.flatMap((order) => order.slice(1).map((view, i) => `${order[i]}>${view}`));
+  assert.equal(new Set(pairs).size, views.length * (views.length - 1), 'every view comes right before every other view once');
+});
+
+test('new sessions get a rotated view order; older sessions keep the original order', (t) => {
+  mockStorage(t);
+  const started = createSession('test-data');
+  assert.ok(Number.isInteger(started.viewOrder) && started.viewOrder! >= 0 && started.viewOrder! < VIEW_ORDERS.length);
+  assert.deepEqual(viewOrderFor(started.viewOrder), VIEW_ORDERS[started.viewOrder!]);
+  assert.deepEqual(viewOrderFor(undefined), ['r1', 'r2', 'r3', 'r4']);
+  assert.equal(saveSession({ ...started, viewOrder: 9 }), false, 'an out-of-range order is not a valid session');
 });
 
 test('new sessions have anonymous identifiers and an A/B assignment', () => {

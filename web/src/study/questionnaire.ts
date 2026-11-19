@@ -1,5 +1,6 @@
 import { BAND_WORD, bandOf, fmtMargin } from '../lib/data';
 import type { Dataset, Stats } from '../lib/types';
+import { DEFAULT_VIEW_ORDER, type RotatedView } from './viewOrder.ts';
 
 export type StudyView = 'overview' | 'r0' | 'r1' | 'r2' | 'r3' | 'r4' | 'compare';
 export type TaskSet = 'A' | 'B';
@@ -41,21 +42,34 @@ export interface StudyStep {
 /** A stop on the explore step's tour: one of the views, or the opening "meet the question" page. */
 export type TourStop = StudyView | 'question' | 'layers';
 
+/** The explore tour has three parts: concepts (same for everyone), the rotated views, then all views together. */
+export type TourPart = 'learn' | 'explore' | 'compare';
+export interface TourStopInfo { view: TourStop; part: TourPart; label: string; hint: string }
+
+const TOUR_TEXT: Record<TourStop, { label: string; hint: string }> = {
+  question: { label: 'The question', hint: 'What the model was asked, and what it answered.' },
+  r0: { label: 'R0 Baseline', hint: 'How likely the model rated its answer: the confidence number AI tools usually show.' },
+  layers: { label: 'Inside the model', hint: 'The model works through the question in layers. A push nudges one of them.' },
+  overview: { label: 'All questions', hint: 'All 24 questions: how confident the model is, and how big a push flips each answer. The Japan question (Tokyo) is circled.' },
+  r1: { label: 'R1 Score', hint: 'One robustness score for Japan: the smallest push that flips it, compared with the other questions.' },
+  r2: { label: 'R2 Flip curve', hint: 'Pushes of every strength at every layer, and where the answer flips.' },
+  r3: { label: 'R3 Push it', hint: 'Push the model toward another answer with the slider, and watch when its answer flips.' },
+  r4: { label: 'R4 Counterfactual', hint: 'The finding in one sentence.' },
+  compare: { label: 'Compare all', hint: 'All the views side by side for this question.' },
+};
+
 /**
- * The explore step's tour. Each stop only uses ideas introduced before it: confidence (R0), then layers and the push (R3, R2),
- * then the other questions, then the scores that compare against them (R1, R4).
+ * The explore step's tour. The concepts come first in a fixed order (each needs the one before); R1–R4 follow in the
+ * participant's rotated order, so no view gains from always coming early or late; Compare all is last for everyone.
  */
-export const VIEW_TOUR: { view: TourStop; label: string; hint: string }[] = [
-  { view: 'question', label: 'The question', hint: 'What the model was asked, and what it answered.' },
-  { view: 'r0', label: 'R0 Baseline', hint: 'How likely the model rated its answer: the confidence number AI tools usually show.' },
-  { view: 'layers', label: 'Inside the model', hint: 'The model works through the question in layers. A push nudges one of them.' },
-  { view: 'r3', label: 'R3 Push it', hint: 'Push the model toward another answer with the slider, and watch when its answer flips.' },
-  { view: 'r2', label: 'R2 Flip curve', hint: 'The same push at every strength and every layer: where the answer flips.' },
-  { view: 'overview', label: 'All questions', hint: 'All 24 questions: how confident the model is, and how big a push flips each answer. The Japan question (Tokyo) is circled.' },
-  { view: 'r1', label: 'R1 Score', hint: 'One robustness score for Japan, the smallest push that flips it, compared with the other questions.' },
-  { view: 'r4', label: 'R4 Counterfactual', hint: 'The finding in one sentence.' },
-  { view: 'compare', label: 'Compare all', hint: 'All the views side by side for this question.' },
-];
+export function tourFor(order: readonly RotatedView[]): TourStopInfo[] {
+  const stops: [TourStop, TourPart][] = [
+    ['question', 'learn'], ['r0', 'learn'], ['layers', 'learn'], ['overview', 'learn'],
+    ...order.map((view): [TourStop, TourPart] => [view, 'explore']),
+    ['compare', 'compare'],
+  ];
+  return stops.map(([view, part]) => ({ view, part, ...TOUR_TEXT[view] }));
+}
 
 export const STUDY_VIEWS: StudyOption[] = [
   { value: 'r0', label: 'R0 · Baseline confidence' },
@@ -99,7 +113,7 @@ const multi = (id: string, prompt: string, choices: StudyOption[]): StudyQuestio
 });
 
 /** Participant-facing copy only. No answer keys or grading results are included. */
-export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet): StudyStep[] {
+export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet, viewOrder: readonly RotatedView[] = DEFAULT_VIEW_ORDER): StudyStep[] {
   if (!supportsStudyDataset(data)) return [];
 
   const set = TASK_SETS[taskSet];
@@ -126,7 +140,7 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet): 
     },
     {
       id: 'explore', section: 'B · First impressions', title: 'Take a look around', mode: 'explore',
-      description: 'Go through the views in order. Each one builds on the ones before it.',
+      description: 'Learn the ideas first, then explore each view, in order. About 3 minutes.',
       // One fixed question keeps the first look simple; the tour ends on all questions (VIEW_TOUR).
       itemIds: ['q01'], hideExplorer: false, questions: [],
     },
@@ -235,7 +249,8 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet): 
         text('D5', 'If you could add one control to Push it, what would it be?', false),
       ],
     },
-    ...STUDY_VIEWS.map((view): StudyStep => ({
+    // Rate R0 (the baseline) first, then R1–R4 in the same rotated order the participant explored them in.
+    ...['r0', ...viewOrder].map((value) => STUDY_VIEWS.find((view) => view.value === value)!).map((view): StudyStep => ({
       id: `rate-${view.value}`, section: 'E · Rate the views', title: view.label,
       description: 'Take another look at this view, then rate your experience.',
       mode: 'task', itemIds: ['q01'], initialView: view.value as StudyView,

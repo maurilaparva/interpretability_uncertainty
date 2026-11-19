@@ -12,6 +12,7 @@ import { VIEWS, type ViewKey } from './lib/views';
 import { Study } from './study/Study';
 import { buildStudySteps, studyDatasetKey, supportsStudyDataset } from './study/questionnaire';
 import { loadSession, saveSession } from './study/storage';
+import { viewOrderFor } from './study/viewOrder';
 import { GUIDE_VERSION, recordExplorerGuideExposure } from './study/guidance';
 
 function readUrl() {
@@ -64,7 +65,7 @@ function Shell({ loaded, onStartStudy }: { loaded: Loaded; onStartStudy: (autoSt
   const guidanceAllowed = useCallback(() => {
     const saved = loadSession(datasetKey);
     if (!saved || saved.completedAt || !supportsStudyDataset(data)) return true;
-    const savedSteps = buildStudySteps(data, stats, saved.taskSet);
+    const savedSteps = buildStudySteps(data, stats, saved.taskSet, viewOrderFor(saved.viewOrder));
     return saved.stepIndex >= savedSteps.findIndex((candidate) => candidate.id === 'read-answer');
   }, [datasetKey, data, stats]);
   const [guidanceEnabled, setGuidanceEnabled] = useState(guidanceAllowed);

@@ -1,5 +1,6 @@
 import { siteRoot } from '../lib/site.ts';
 import { guideVersionFor } from './guidance.ts';
+import { VIEW_ORDERS, viewOrderFor } from './viewOrder.ts';
 
 export interface StudyEvent {
   type: string;
@@ -15,6 +16,8 @@ export interface StudySession {
   id: string;
   /** Release of the site the participant started on (git tag, e.g. v0.2.0). Absent in sessions saved before v0.2.0. */
   appVersion?: string;
+  /** Row of VIEW_ORDERS: the order this participant sees R1–R4 in. Absent in sessions saved before the rotation. */
+  viewOrder?: number;
   taskSet: 'A' | 'B';
   datasetKey: string;
   startedAt: string;
@@ -58,6 +61,7 @@ function isSession(value: unknown): value is StudySession {
   return value.version === 1
     && typeof value.id === 'string' && value.id.length > 0
     && (value.appVersion === undefined || typeof value.appVersion === 'string')
+    && (value.viewOrder === undefined || (Number.isInteger(value.viewOrder) && (value.viewOrder as number) >= 0 && (value.viewOrder as number) < VIEW_ORDERS.length))
     && (value.taskSet === 'A' || value.taskSet === 'B')
     && typeof value.datasetKey === 'string'
     && isDate(value.startedAt) && isDate(value.updatedAt)
@@ -77,11 +81,13 @@ export function createSession(datasetKey: string): StudySession {
   const now = new Date().toISOString();
   const id = globalThis.crypto?.randomUUID?.()
     ?? `participant-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
-  const random = globalThis.crypto?.getRandomValues(new Uint8Array(1))[0] ?? Math.floor(Math.random() * 256);
+  const [random, orderRandom] = globalThis.crypto?.getRandomValues(new Uint8Array(2))
+    ?? [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
   return {
     version: 1,
     id,
     appVersion: APP_VERSION,
+    viewOrder: orderRandom % VIEW_ORDERS.length,
     taskSet: random % 2 === 0 ? 'A' : 'B',
     datasetKey,
     startedAt: now,
@@ -128,13 +134,18 @@ function csvCell(value: string): string {
   return `"${safe.replaceAll('"', '""')}"`;
 }
 
+/** The order this participant saw R1–R4 in, e.g. "r2 r3 r1 r4". */
+export function viewOrderText(session: StudySession): string {
+  return viewOrderFor(session.viewOrder).join(' ');
+}
+
 /** Short ID shown to the participant at the end: the start of participant_id, so it can be searched in the sheet. */
 export function submissionId(session: StudySession): string {
   return session.id.replace(/^participant-/, '').slice(0, 8);
 }
 
 export function sessionToCsv(session: StudySession): string {
-  const rows: string[][] = [['participant_id', 'task_set', 'started_at', 'completed_at', 'question_id', 'response', 'guidance_version', 'app_version']];
+  const rows: string[][] = [['participant_id', 'task_set', 'started_at', 'completed_at', 'question_id', 'response', 'guidance_version', 'app_version', 'view_order']];
   const guidanceVersion = guideVersionFor(session.events);
   for (const [questionId, answer] of Object.entries(session.answers)) {
     rows.push([
@@ -146,6 +157,7 @@ export function sessionToCsv(session: StudySession): string {
       Array.isArray(answer) ? JSON.stringify(answer) : String(answer),
       guidanceVersion,
       session.appVersion ?? '',
+      viewOrderText(session),
     ]);
   }
   return `${rows.map((row) => row.map(csvCell).join(',')).join('\r\n')}\r\n`;
@@ -165,9 +177,11 @@ export async function submitSession(session: StudySession): Promise<boolean> {
       method: 'POST',
       // text/plain keeps this a "simple" request: Apps Script cannot answer a CORS preflight.
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      // app_version also goes in as an answer: the deployed sheet script turns every new answer key into a
-      // column, so the Responses sheet gets the version without redeploying the script.
-      body: JSON.stringify({ ...session, answers: { ...session.answers, app_version: session.appVersion ?? APP_VERSION } }),
+      // app_version and view_order also go in as answers: the deployed sheet script turns every new answer key
+      // into a column, so the Responses sheet gets them without redeploying the script.
+      body: JSON.stringify({ ...session, answers: {
+        ...session.answers, app_version: session.appVersion ?? APP_VERSION, view_order: viewOrderText(session),
+      } }),
     });
     if (!response.ok) return false;
     const result: unknown = await response.json();

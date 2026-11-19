@@ -174,7 +174,7 @@
 .study-view-tabs .selected .study-tab-step { background: #234c36; color: #fff; }
 /* Dotted line joining the tour's steps, drawn from each mark down to the next one. */
 .study-tour li { position: relative; }
-.study-tour li:not(:last-child)::after { content: ''; position: absolute; left: 20px; top: 29px; bottom: -7px; border-left: 2px dotted #c3d2c0; z-index: 0; }
+.study-tour li:not(:last-child):not(.part-end):not(.study-tour-part)::after { content: ''; position: absolute; left: 20px; top: 29px; bottom: -7px; border-left: 2px dotted #c3d2c0; z-index: 0; }
 .study-tour li.seen::after { border-left-style: solid; border-left-color: #a9c9b3; }
 .study-tour button { position: relative; z-index: 1; }
 .study-tour .study-tour-mark { position: relative; z-index: 1; }
@@ -196,11 +196,15 @@
 .study-layers-cells { display: flex; gap: 4px; padding: 10px; border: 1px solid #d6e2d8; border-radius: 10px; background: #f3f7f2; }
 .study-layers-cells i { display: block; flex: 1; height: 72px; border-radius: 4px; background: #9cc2ab; }
 .study-question-intro.wide .study-intro-note { font-size: 19px; max-width: 44em; }
-/* Short laptop screens (e.g. 1366×768): keep the whole task panel visible without scrolling. */
-@media (max-height: 790px) {
+/* Short laptop screens (1366×768, 1280×800): keep the whole task panel visible without scrolling. */
+@media (max-height: 820px) {
   .study-survey.beside-evidence { padding-top: 14px; }
   .study-survey-heading h1 { font-size: 23px; }
   .study-tour button { padding-top: 3px; padding-bottom: 3px; }
-  .study-tour li:not(:last-child)::after { top: 27px; bottom: -5px; }
+  .study-tour li:not(:last-child):not(.part-end):not(.study-tour-part)::after { top: 27px; bottom: -5px; }
   .study-tour-hint { font-size: 13px; }
 }
+.study-tour .study-tour-part { margin: 6px 0 0 10px; font-size: 10px; font-weight: 650; letter-spacing: .1em; text-transform: uppercase; color: #7c8b77; }
+.study-tour .study-tour-part:first-child { margin-top: 0; }
+.study-clock { font-variant-numeric: tabular-nums; color: #3f6b57; }
+.study-tour li.part-end + .study-tour-part, .study-tour li.part-end + li:not(.study-tour-part) { margin-top: 6px; }
