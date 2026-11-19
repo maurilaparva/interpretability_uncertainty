@@ -170,7 +170,7 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet, v
         '- Pick a **question** from the menu at the top',
         '- Switch **views** with the tabs',
         '- Move the **sliders** where you see them',
-        'A guided tour of every view comes later. When you are done, you will answer a few questions about your first impressions, without coming back.',
+        'A guided tour of every view comes later. When you are done, you will answer a few questions about your first impressions, without coming back. The button to continue unlocks after **3 minutes**.',
       ].join('\n'),
       initialView: 'overview', hideExplorer: false, questions: [],
     },

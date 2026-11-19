@@ -262,3 +262,4 @@
 @media (max-height: 820px) { .study-evidence-content.evidence-overview { min-height: 400px; } }
 .study-tour-lead { flex-shrink: 0; margin: 0; padding: 10px 14px; border-left: 3px solid #8bb49b; background: #f2f8f3; border-radius: 0 8px 8px 0; font-size: 17px; line-height: 1.5; color: var(--ink-2); }
 @media (max-height: 820px) { .evidence-overview .chart-fill { min-height: 236px !important; } .study-tour-lead { padding: 7px 12px; font-size: 16px; } }
+.study-primary:disabled { background: #e7ece8; border-color: #d3dcd5; color: #4f5e54; cursor: not-allowed; box-shadow: none; font-variant-numeric: tabular-nums; }

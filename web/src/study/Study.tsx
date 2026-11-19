@@ -77,6 +77,8 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
   // Explore step: the participant walks the tour (concepts, then their rotated view order, then Compare all).
   // Free exploration: the views stay hidden until the participant has read the instructions and starts.
   const [exploreStartedStep, setExploreStartedStep] = useState<string | null>(null);
+  const [exploreStartedAt, setExploreStartedAt] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
   const [tourViewState, setTourView] = useState<TourStop>('question');
   const [tourSeenState, setTourSeen] = useState<TourStop[]>([]);
   // Entering a tour step (or coming back to one) starts at its first stop.
@@ -154,7 +156,7 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
 
   const next = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!session) return;
+    if (!session || exploreLeft > 0) return;
     const missing = missingRequired(step, session.answers);
     setInvalid(missing);
     if (missing.length) {
@@ -201,6 +203,15 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
   const showStudy = active && session && !completed;
   const showEvidence = showStudy && !step.hideExplorer;
   const waitingToExplore = step?.mode === 'explore' && exploreStartedStep !== step.id;
+  const exploring = step?.mode === 'explore' && !waitingToExplore && exploreStartedAt != null;
+  const exploreElapsed = exploring ? Math.max(0, now - exploreStartedAt) : 0;
+  // Free exploration: the participant moves on to first impressions only after a minimum time.
+  const exploreLeft = exploring ? Math.max(0, MIN_EXPLORE_MS - exploreElapsed) : 0;
+  useEffect(() => {
+    if (!exploring) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [exploring]);
 
   return (
     <div className="study-app">
@@ -275,7 +286,7 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
         <main className={`study-main${showEvidence ? ' with-evidence' : ''}`}>
           <form className={`study-survey${showEvidence ? ' beside-evidence' : ''}`} ref={formRef} onSubmit={next} noValidate>
             <div className="study-survey-heading">
-              <div className="study-step-label"><span>{step.section}</span><span>{step.mode === 'explore' && !waitingToExplore && <><ExploreClock /> · </>}{index + 1} / {steps.length}</span></div>
+              <div className="study-step-label"><span>{step.section}</span><span>{exploring && <><span className="study-clock" title="Time on this step">{clock(exploreElapsed)}</span> · </>}{index + 1} / {steps.length}</span></div>
               <h1 ref={headingRef} tabIndex={-1}>{step.title}</h1>
               {step.description && <Description text={step.description} />}
               {step.outline && (
@@ -301,6 +312,8 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
               {waitingToExplore ? (
                 <button key="explore-start" className="study-primary" type="button" onClick={() => {
                   setExploreStartedStep(step.id);
+                  setExploreStartedAt(Date.now());
+                  setNow(Date.now());
                   log({ type: 'exploration_started', stepId: step.id });
                 }}>Start exploring<span aria-hidden="true">→</span></button>
               ) : step.mode === 'tour' && nextTourView(tour, tourView) ? (
@@ -308,6 +321,8 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
                 <button key="tour-next" className="study-primary" type="button" onClick={() => showTourView(nextTourView(tour, tourView)!.view)}>
                   Next: {nextTourView(tour, tourView)!.label}<span aria-hidden="true">→</span>
                 </button>
+              ) : exploreLeft > 0 ? (
+                <button key="explore-wait" className="study-primary" type="button" disabled aria-live="polite">Share first impressions in {clock(exploreLeft + 999)}</button>
               ) : <button key="submit" className="study-primary" type="submit">{index === steps.length - 1 ? 'Finish study' : step.id === 'predict-correctness' ? 'Lock predictions & reveal' : step.mode === 'explore' ? 'Share first impressions' : step.mode === 'tour' ? tourFinishLabel(step) : 'Continue'}<span aria-hidden="true">→</span></button>}
             </div>
             <div className="study-survey-footer"><button type="button" className="btn-link" onClick={() => downloadSession(session, 'json')}>Download progress</button><button type="button" className="btn-link" onClick={() => setResetting(true)}>Leave study</button></div>
@@ -395,15 +410,12 @@ function ViewTour({ stops, view, seen, onView, finishLabel }: { stops: TourStopI
   );
 }
 
-function ExploreClock() {
-  const [elapsed, setElapsed] = useState(0);
-  useEffect(() => {
-    const started = Date.now();
-    const timer = window.setInterval(() => setElapsed(Math.floor((Date.now() - started) / 1000)), 1000);
-    return () => window.clearInterval(timer);
-  }, []);
-  // Sits in the step label row; the step's description says how long to take.
-  return <span className="study-clock" title="Time on this step">{Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}</span>;
+const MIN_EXPLORE_MS = 3 * 60 * 1000;
+
+/** m:ss, for the exploration clock and the countdown on its locked button. */
+function clock(ms: number) {
+  const seconds = Math.floor(ms / 1000);
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 }
 
 interface Tour { stops: TourStopInfo[]; view: TourStop; seen: TourStop[]; onView: (view: TourStop) => void; itemId: string; onItem: (id: string) => void }
