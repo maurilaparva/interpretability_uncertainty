@@ -9,7 +9,7 @@ import type { Item, Stats } from '../lib/types';
 import { VIEWS, type ViewKey } from '../lib/views';
 import { advanceSession, canGoBack, missingRequired, stepDuration } from './flow';
 import { canShowStudyGuide, getExplorerGuideExposure, GUIDE_VERSION } from './guidance';
-import { buildStudySteps, studyDatasetKey, tourFor, type StudyStep, type TourPart, type TourStop, type TourStopInfo } from './questionnaire';
+import { buildStudySteps, studyDatasetKey, tourFor, type StudyStep, type TourStop, type TourStopInfo } from './questionnaire';
 import { viewOrderFor } from './viewOrder';
 import { APP_VERSION, clearSession, createSession, submissionId, downloadSession, loadSession, saveSession, sheetsEnabled, submitSession, type StudyEvent, type StudySession } from './storage';
 import { SurveyField } from './SurveyFields';
@@ -31,9 +31,10 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
   const [invalid, setInvalid] = useState<string[]>([]);
   const viewOrder = viewOrderFor(session?.viewOrder);
   const steps = useMemo(() => buildStudySteps(data, stats, session?.taskSet ?? 'A', viewOrder), [data, stats, session?.taskSet, viewOrder]);
-  const tour = useMemo(() => tourFor(viewOrder), [viewOrder]);
   const index = Math.min(session?.stepIndex ?? 0, steps.length - 1);
   const step = steps[index];
+  // Each tour step walks its own part: the fixed concepts, or the rotated views followed by Compare all.
+  const tour = useMemo(() => tourFor(viewOrder).filter((stop) => (step?.tour === 'learn' ? stop.part === 'learn' : stop.part !== 'learn')), [viewOrder, step?.tour]);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const enteredAt = useRef(Date.now());
@@ -76,8 +77,13 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
   // Explore step: the participant walks the tour (concepts, then their rotated view order, then Compare all).
   // Free exploration: the views stay hidden until the participant has read the instructions and starts.
   const [exploreStartedStep, setExploreStartedStep] = useState<string | null>(null);
-  const [tourView, setTourView] = useState<TourStop>('question');
-  const [tourSeen, setTourSeen] = useState<TourStop[]>(['question']);
+  const [tourViewState, setTourView] = useState<TourStop>('question');
+  const [tourSeenState, setTourSeen] = useState<TourStop[]>([]);
+  // Entering a tour step (or coming back to one) starts at its first stop.
+  const tourView = tour.some((stop) => stop.view === tourViewState) ? tourViewState : tour[0].view;
+  const tourSeen = tourSeenState.includes(tourView) ? tourSeenState : [...tourSeenState, tourView];
+  // The question picked on All questions carries over into Explore the views.
+  const [tourItemId, setTourItemId] = useState('q01');
   const showTourView = (view: TourStop) => {
     setTourView(view);
     setTourSeen((seen) => (seen.includes(view) ? seen : [...seen, view]));
@@ -282,7 +288,7 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
                   ))}
                 </ol>
               )}
-              {step.mode === 'tour' && <ViewTour stops={tour} view={tourView} seen={tourSeen} onView={showTourView} />}
+              {step.mode === 'tour' && <ViewTour stops={tour} view={tourView} seen={tourSeen} onView={showTourView} finishLabel={tourFinishLabel(step)} />}
             </div>
             <div className="study-fields">
               {step.questions.map((question) => (
@@ -302,7 +308,7 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
                 <button key="tour-next" className="study-primary" type="button" onClick={() => showTourView(nextTourView(tour, tourView)!.view)}>
                   Next: {nextTourView(tour, tourView)!.label}<span aria-hidden="true">→</span>
                 </button>
-              ) : <button key="submit" className="study-primary" type="submit">{index === steps.length - 1 ? 'Finish study' : step.id === 'predict-correctness' ? 'Lock predictions & reveal' : step.mode === 'explore' ? 'Share first impressions' : step.mode === 'tour' ? 'Start the tasks' : 'Continue'}<span aria-hidden="true">→</span></button>}
+              ) : <button key="submit" className="study-primary" type="submit">{index === steps.length - 1 ? 'Finish study' : step.id === 'predict-correctness' ? 'Lock predictions & reveal' : step.mode === 'explore' ? 'Share first impressions' : step.mode === 'tour' ? tourFinishLabel(step) : 'Continue'}<span aria-hidden="true">→</span></button>}
             </div>
             <div className="study-survey-footer"><button type="button" className="btn-link" onClick={() => downloadSession(session, 'json')}>Download progress</button><button type="button" className="btn-link" onClick={() => setResetting(true)}>Leave study</button></div>
             {!saved && <p className="study-validation" role="alert">This browser could not save your progress. Download a copy before closing this page.</p>}
@@ -315,7 +321,7 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
           ) : showEvidence && (step.mode === 'reveal'
             ? <PredictionReview items={(step.itemIds ?? []).map((id) => data.items.find((item) => item.id === id)!)} answers={session.answers} />
             : <StudyWorkspace key={step.id} step={step} loaded={loaded} stats={stats} log={log} onGuide={openGuide}
-                tour={step.mode === 'tour' ? { stops: tour, view: tourView, seen: tourSeen, onView: showTourView } : undefined} />)}
+                tour={step.mode === 'tour' ? { stops: tour, view: tourView, seen: tourSeen, onView: showTourView, itemId: tourItemId, onItem: setTourItemId } : undefined} />)}
         </main>
       )}
 
@@ -357,19 +363,16 @@ function nextTourView(stops: TourStopInfo[], view: TourStop): TourStopInfo | und
   return stops[stops.findIndex((stop) => stop.view === view) + 1];
 }
 
-// Compare all is a single stop, so it needs no heading; the line break before it still sets it apart.
-const TOUR_PART_TITLE: Record<TourPart, string | null> = { learn: 'Learn the ideas', explore: 'Explore the views', compare: null };
+const tourFinishLabel = (step: StudyStep) => (step.tour === 'learn' ? 'Explore the views' : 'Start the tasks');
 
-function ViewTour({ stops, view, seen, onView }: { stops: TourStopInfo[]; view: TourStop; seen: TourStop[]; onView: (view: TourStop) => void }) {
+function ViewTour({ stops, view, seen, onView, finishLabel }: { stops: TourStopInfo[]; view: TourStop; seen: TourStop[]; onView: (view: TourStop) => void; finishLabel: string }) {
   return (
     <ol className="study-tour" aria-label="Views to look at, in order">
       {stops.map((stop, i) => {
         const state = stop.view === view ? 'current' : seen.includes(stop.view) ? 'seen' : 'todo';
-        const partStart = i === 0 || stops[i - 1].part !== stop.part;
         const partEnd = i < stops.length - 1 && stops[i + 1].part !== stop.part;
         return (
           <Fragment key={stop.view}>
-          {partStart && TOUR_PART_TITLE[stop.part] && <li className="study-tour-part" aria-hidden="true">{TOUR_PART_TITLE[stop.part]}</li>}
           <li className={`${state}${partEnd ? ' part-end' : ''}`}>
             <button type="button" onClick={() => onView(stop.view)} aria-current={state === 'current' ? 'step' : undefined}>
               <span className="study-tour-mark" aria-hidden="true">{state === 'seen' ? '✓' : i + 1}</span>
@@ -385,7 +388,7 @@ function ViewTour({ stops, view, seen, onView }: { stops: TourStopInfo[]; view: 
           <span className="study-tour-mark" aria-hidden="true">
             <svg width="10" height="11" viewBox="0 0 10 11"><path d="M1.5 10.5V1M1.5 1.5h6l-1.5 2 1.5 2h-6" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" /></svg>
           </span>
-          <span><strong>Start the tasks</strong></span>
+          <span><strong>{finishLabel}</strong></span>
         </button>
       </li>
     </ol>
@@ -403,16 +406,19 @@ function ExploreClock() {
   return <span className="study-clock" title="Time on this step">{Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}</span>;
 }
 
-interface Tour { stops: TourStopInfo[]; view: TourStop; seen: TourStop[]; onView: (view: TourStop) => void }
+interface Tour { stops: TourStopInfo[]; view: TourStop; seen: TourStop[]; onView: (view: TourStop) => void; itemId: string; onItem: (id: string) => void }
 
 function StudyWorkspace({ step, loaded, stats, log, onGuide, tour }: { step: StudyStep; loaded: Loaded; stats: Stats; log: LogEvent; onGuide: () => void; tour?: Tour }) {
   const allItems = loaded.data.items;
   const [ownView, setOwnView] = useState<ViewKey>(step.initialView ?? 'compare');
   const view: TourStop = tour?.view ?? ownView;
-  // The tour teaches the ideas on one question; from All questions on, participants may pick any question.
-  const tourOpen = tour != null && tour.stops.findIndex((stop) => stop.view === view) >= tour.stops.findIndex((stop) => stop.view === 'overview');
+  // Learn the ideas stays on one question until All questions; from there on, participants may pick any question.
+  const overviewAt = tour ? tour.stops.findIndex((stop) => stop.view === 'overview') : -1;
+  const tourOpen = tour != null && tour.stops.findIndex((stop) => stop.view === view) >= overviewAt;
   const availableItems = step.itemIds && !tourOpen ? step.itemIds.map((id) => allItems.find((item) => item.id === id)!) : allItems;
-  const [itemId, setItemId] = useState(availableItems[0].id);
+  const [ownItemId, setOwnItemId] = useState(availableItems[0].id);
+  const itemId = tour?.itemId ?? ownItemId;
+  const setItemId = tour?.onItem ?? setOwnItemId;
   const setView = (next: TourStop) => (tour ? tour.onView(next) : setOwnView(next as ViewKey));
   const [aboutOpen, setAboutOpen] = useState(false);
   const aboutRef = useRef<HTMLButtonElement>(null);

@@ -36,6 +36,8 @@ export interface StudyStep {
   questions: StudyQuestion[];
   /** explore = free exploration; tour = the guided "learn the views" walk-through. */
   mode?: 'form' | 'explore' | 'tour' | 'task' | 'reveal';
+  /** Tour steps: which stops they walk (tourFor): the fixed concepts, or the rotated views then Compare all. */
+  tour?: 'learn' | 'views';
   /** Parts of the study with rough minutes, shown on the opening "how this study works" step. */
   outline?: { title: string; minutes: number; text: string }[];
   itemIds?: string[];
@@ -143,7 +145,7 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet, v
       outline: [
         { title: 'About you', minutes: 2, text: 'A few questions about your background.' },
         { title: 'Explore on your own', minutes: 7, text: 'Look around the interface freely, with no instructions, then tell us your first impressions.' },
-        { title: 'Learn the views and try some tasks', minutes: 10, text: 'A short guided tour of each view, then a few tasks that use them.' },
+        { title: 'Learn the ideas, explore the views, try some tasks', minutes: 10, text: 'A few key ideas, a guided look at each view, then a few tasks that use them.' },
         { title: 'Rate the views', minutes: 5, text: 'Look at each view again and rate it.' },
         { title: 'Final questions', minutes: 6, text: 'What you understood, how far you would trust it, and any feedback.' },
       ],
@@ -186,10 +188,17 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet, v
       ],
     },
     {
-      // Concepts first (fixed order), then R1–R4 in the participant's rotated order, then Compare all (tourFor).
-      id: 'learn-views', section: 'C · Guided tasks', title: 'Learn the views', mode: 'tour',
-      description: 'Learn the ideas first, then go through each view, in order. About 6 minutes.',
+      // The concepts, in a fixed order: each needs the one before. Same for every participant.
+      id: 'learn-ideas', section: 'C · Guided tasks', title: 'Learn the ideas', mode: 'tour', tour: 'learn',
+      description: 'A few ideas you will need for the rest of the study, shown on one question. Go through them in order. About 3 minutes.',
       itemIds: ['q01'], hideExplorer: false, questions: [],
+    },
+    {
+      // R1–R4 in the participant's rotated order (viewOrder.ts), then Compare all. Kept as its own step so its
+      // timing and view events are separate from the fixed concepts: this is the part that compares displays (RQ2).
+      id: 'explore-views', section: 'C · Guided tasks', title: 'Explore the views', mode: 'tour', tour: 'views',
+      description: 'Now look at each view, in order. Each one shows the evidence in a different way. You can switch to any question. About 3 minutes.',
+      hideExplorer: false, questions: [],
     },
     {
       id: 'read-answer', section: 'C · Guided tasks', title: 'Read one answer', mode: 'task',
