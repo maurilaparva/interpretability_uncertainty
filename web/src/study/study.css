@@ -45,7 +45,7 @@
 .study-option:hover { background: #f7f9f5; border-color: #bfcfbe; }
 .study-option.selected { background: #edf5ef; border-color: #8bb49b; color: #244c35; }
 .study-option input { flex: 0 0 auto; margin: 2px 0 0; accent-color: #32734e; width: 14px; height: 14px; }
-.study-field > input, .study-field > textarea, .study-ranking select { width: 100%; border: 1px solid #dfe5da; border-radius: 8px; padding: 11px 12px; color: var(--ink); font: inherit; font-size: 13px; background: #fdfefc; }
+.study-field > input, .study-field > textarea, .study-ranking select { width: 100%; border: 1px solid #dfe5da; border-radius: 8px; padding: 11px 12px; color: var(--ink); font: inherit; font-size: 13px; background-color: #fdfefc; }
 .study-field > textarea { resize: vertical; min-height: 84px; line-height: 1.6; }
 .study-scale { display: grid; gap: 5px; }
 .study-scale label { position: relative; cursor: pointer; min-width: 0; }
@@ -74,7 +74,7 @@
 .study-workspace-label { text-transform: uppercase; letter-spacing: .08em; font-size: 10px; font-weight: 600; color: #798471; }
 .study-question-select { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .study-question-select > span { color: #697166; font-size: 11px; }
-.study-question-select select { min-width: 0; max-width: 500px; border: 1px solid #e0e6db; border-radius: 8px; font: inherit; font-size: 12px; padding: 8px 30px 8px 10px; background: #fafcf8; color: var(--ink); text-overflow: ellipsis; }
+.study-question-select select { min-width: 0; max-width: 500px; border: 1px solid #e0e6db; border-radius: 8px; font: inherit; font-size: 12px; padding: 8px 30px 8px 10px; background-color: #fafcf8; color: var(--ink); text-overflow: ellipsis; }
 .study-view-tabs { display: flex; gap: 3px; overflow-x: auto; flex: 0 0 auto; padding: 12px 18px; }
 .study-view-tabs button { background: transparent; border: 1px solid transparent; border-radius: 7px; padding: 7px 11px; color: #737c6c; white-space: nowrap; cursor: pointer; font-size: 12px; }
 .study-view-tabs button:hover { background: #f0f3ec; }

@@ -210,7 +210,8 @@ function Heatmap({
   // Cells centred on alpha values (same sqrt scale as the chart) so columns line up.
   const xs = pushScale(stats.maxAlpha, [0, iw]);
   const px = stats.alphas.map((a) => xs(a));
-  const edges = px.map((p, i) => (i === 0 ? 0 : (px[i - 1] + p) / 2));
+  // Whole-pixel cell edges (and whole-pixel 1px gaps below): browsers anti-alias half-pixel edges differently.
+  const edges = px.map((p, i) => Math.round(i === 0 ? 0 : (px[i - 1] + p) / 2));
   edges.push(iw);
   const cx = (ai: number) => edges[ai];
   const cw = (ai: number) => edges[ai + 1] - edges[ai];
@@ -227,8 +228,8 @@ function Heatmap({
               row.map((t, ai) => (
                 <rect
                   key={`${ri}-${ai}`}
-                  x={cx(ai) + (cw(ai) > 3 ? 0.5 : 0)}
-                  y={ry(ri) + 0.5}
+                  x={cx(ai)}
+                  y={ry(ri)}
                   width={Math.max(0.6, cw(ai) - (cw(ai) > 3 ? 1 : 0))}
                   height={cellH - 1}
                   fill={color[tokenRole(item, t)]}

@@ -74,7 +74,7 @@ export function R3Push({ item, stats, compact }: Props) {
           step={1}
           value={ai}
           onChange={(e) => { setPlaying(false); setAi(Number(e.target.value)); }}
-          style={{ width: '100%', accentColor: 'var(--ink)' }}
+          style={{ width: '100%' }}
           aria-valuetext={`push ${fmtPush(a)}`}
         />
         <div style={{ position: 'relative', height: 16, fontSize: 11, color: 'var(--muted)' }}>
@@ -114,7 +114,7 @@ export function R3Push({ item, stats, compact }: Props) {
           step={1}
           value={row}
           onChange={(e) => { setPlaying(false); setRow(Number(e.target.value)); }}
-          style={{ width: '100%', accentColor: 'var(--ink)' }}
+          style={{ width: '100%' }}
           aria-valuetext={`layer ${layers[row]}`}
         />
         {!compact && (

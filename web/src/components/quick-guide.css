@@ -1,5 +1,5 @@
 .quick-guide { width: min(920px, calc(100vw - 40px)); max-height: calc(100dvh - 40px); padding: 0; border: 1px solid #dce5df; border-radius: 20px; color: var(--ink); background: #fff; box-shadow: 0 24px 100px #14251e40; overflow: auto; }
-.quick-guide::backdrop { background: #14251e80; backdrop-filter: blur(5px); }
+.quick-guide::backdrop { background: #14251e80; }
 .quick-guide[open] { animation: guide-enter 220ms ease-out; }
 .guide-inner { padding: 28px 30px 0; }
 .guide-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
@@ -15,7 +15,7 @@
 .guide-body { display: grid; grid-template-columns: .85fr 1.15fr; gap: 32px; padding: 2px 0 24px; }
 .guide-copy { animation: guide-copy-in 190ms ease-out; padding-top: 9px; }
 .guide-step-number { color: #87a495; font-size: 11px; font-variant-numeric: tabular-nums; letter-spacing: .1em; }
-.guide-copy h3 { outline: none; font-size: 27px; font-weight: 600; letter-spacing: -.035em; line-height: 1.18; margin: 12px 0 18px; max-width: 16ch; text-wrap: balance; }
+.guide-copy h3 { outline: none; font-size: 27px; font-weight: 600; letter-spacing: -.035em; line-height: 1.18; margin: 12px 0 18px; max-width: 265px; text-wrap: balance; }
 .guide-copy p { font-size: 13px; color: #69736c; line-height: 1.7; margin-top: 12px; }
 .guide-copy strong { color: #33483c; font-weight: 600; }
 .guide-takeaway { border-left: 2px solid #9ab7a7; padding: 3px 0 3px 14px; margin-top: 24px; color: #385646; font-size: 13px; line-height: 1.55; }
@@ -49,7 +49,7 @@
 .guide-score-pair > div > span:last-child { display: block; color: #7e8c7b; font-size: 9px; margin-top: 5px; }
 .guide-range-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 11px; font-size: 12px; font-weight: 550; }
 .guide-range-heading output { font-variant-numeric: tabular-nums; color: #365c44; }
-.guide-range { width: 100%; accent-color: #285b43; margin: 12px 0 6px; cursor: pointer; }
+.guide-range { --range-color: #285b43; width: 100%; margin: 12px 0 6px; cursor: pointer; }
 .guide-range-ends { display: flex; justify-content: space-between; font-size: 9px; color: #8a9484; }
 .guide-result { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: 1px solid #cddff4; border-radius: 10px; padding: 13px 14px; background: #eff5fd; margin-top: 18px; transition: background 200ms, border-color 200ms; }
 .guide-result.changed { background: #fff3e9; border-color: #efcfb0; }
