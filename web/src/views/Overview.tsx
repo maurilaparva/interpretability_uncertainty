@@ -105,7 +105,7 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }
   // the mini-map below always shows all of them. The simple plot (study tour) always shows everything.
   const [zoom, setZoom] = useState<[number, number] | null>(() => (simple ? null : middleWindow(items)));
   const [drag, setDrag] = useState<{ from: number; to: number } | null>(null);
-  const m = { top: 16, right: 24, bottom: 54, left: 74 };
+  const m = { top: 16, right: 24, bottom: 68, left: 92 };
   const iw = Math.max(10, width - m.left - m.right);
   const ih = Math.max(10, height - m.top - m.bottom);
 
@@ -179,11 +179,14 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }
               <text key={t} className="tick-label" x={x(t)} y={ih + 16} textAnchor="middle">{pct(t)}</text>
             ))}
             <line x1={0} x2={iw} y1={ih} y2={ih} stroke="#d6d3d1" />
-            <text className="axis-title" x={iw / 2} y={ih + 42} textAnchor="middle" style={{ fontSize: 15, fontWeight: 600 }}>
-              Output confidence: probability of the model's answer{zoom ? ' (zoomed in)' : ''} →
+            {/* axis name on the first line, what it means on the second */}
+            <text className="axis-title" x={iw / 2} y={ih + 40} textAnchor="middle" style={{ fontSize: 15, fontWeight: 600 }}>Output confidence →</text>
+            <text className="axis-title" x={iw / 2} y={ih + 58} textAnchor="middle" style={{ fontSize: 13, fill: 'var(--muted)' }}>
+              probability of the model's answer{zoom ? ' (zoomed in)' : ''}
             </text>
-            <text className="axis-title" transform={`translate(${-m.left + 16},${ih / 2}) rotate(-90)`} textAnchor="middle" style={{ fontSize: 15, fontWeight: 600 }}>
-              Robustness: push needed to flip it (√ scale) →
+            <text className="axis-title" transform={`translate(${-m.left + 16},${ih / 2}) rotate(-90)`} textAnchor="middle" style={{ fontSize: 15, fontWeight: 600 }}>Robustness →</text>
+            <text className="axis-title" transform={`translate(${-m.left + 34},${ih / 2}) rotate(-90)`} textAnchor="middle" style={{ fontSize: 13, fill: 'var(--muted)' }}>
+              push needed to flip the answer (√ scale)
             </text>
 
             {!simple && inView(stats.medP) && <line className="median-line" x1={mxp} x2={mxp} y1={y(yMax)} y2={ih} />}
