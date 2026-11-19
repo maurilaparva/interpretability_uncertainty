@@ -31,6 +31,7 @@ export interface StudyStep {
   id: string;
   title: string;
   section: string;
+  /** Plain text; **word** renders bold (used to point at the controls). */
   description?: string;
   questions: StudyQuestion[];
   /** explore = free exploration; tour = the guided "learn the views" walk-through. */
@@ -159,7 +160,7 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet, v
       // Free, unprompted exploration (QUESTIONS.md, section B): the first impressions are only meaningful before any
       // explanation, so the guided tour comes later, at the start of C.
       id: 'explore', section: 'B · First impressions', title: 'Take a look around', mode: 'explore',
-      description: 'This part is yours to explore, for about 5 minutes. There is no right way to do it and nothing is being tested yet: choose questions, switch views, move the sliders. A guided tour of every view comes later. When you are done, you will answer a few questions about your first impressions without coming back.',
+      description: 'This part is yours to explore, for about 5 minutes. There is no right way to do it and nothing is being tested yet. Pick a **question** from the menu at the top, switch **views** with the tabs, and move the **sliders** where you see them. A guided tour of every view comes later. When you are done, you will answer a few questions about your first impressions without coming back.',
       initialView: 'overview', hideExplorer: false, questions: [],
     },
     {

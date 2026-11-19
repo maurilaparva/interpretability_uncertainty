@@ -275,7 +275,7 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
             <div className="study-survey-heading">
               <div className="study-step-label"><span>{step.section}</span><span>{step.mode === 'explore' && <><ExploreClock /> · </>}{index + 1} / {steps.length}</span></div>
               <h1 ref={headingRef} tabIndex={-1}>{step.title}</h1>
-              {step.description && <p>{step.description}</p>}
+              {step.description && <p>{withBold(step.description)}</p>}
               {step.outline && (
                 <ol className="study-outline">
                   {step.outline.map((part, i) => (
@@ -327,6 +327,11 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
       )}
     </div>
   );
+}
+
+/** Renders **word** as bold; everything else stays plain text. */
+function withBold(text: string) {
+  return text.split(/\*\*(.+?)\*\*/g).map((part, i) => (i % 2 ? <strong key={i}>{part}</strong> : part));
 }
 
 function nextTourView(stops: TourStopInfo[], view: TourStop): TourStopInfo | undefined {
@@ -405,7 +410,7 @@ function StudyWorkspace({ step, loaded, stats, log, onGuide, tour }: { step: Stu
   }, [aboutOpen, closeAbout]);
 
   return (
-    <section className="study-workspace" aria-label="Interactive evidence">
+    <section className={`study-workspace${step.mode === 'explore' ? ' point-at-controls' : ''}`} aria-label="Interactive evidence">
       <div className="study-workspace-tools">
         {availableItems.length > 1 ? (
           <label className="study-question-select"><span>Question</span><select value={item.id} onChange={(e) => setItemId(e.target.value)}>{availableItems.map((candidate) => <option key={candidate.id} value={candidate.id}>{Number(candidate.id.slice(1))}. {candidate.question}</option>)}</select></label>
