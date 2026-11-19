@@ -34,7 +34,7 @@ The answer key (gold answer, correct/incorrect) is hidden by default.
 
 ## Run the local study
 
-Click **Start study** or open `?mode=study`. The guided flow uses [QUESTIONS.md](QUESTIONS.md), randomly
+Click **Start study** or open `study/` (old `?mode=study` links redirect there). The guided flow uses [QUESTIONS.md](QUESTIONS.md), randomly
 assigns task set A or B without asking for birth month, and saves progress automatically. Resume in the
 same browser and origin (same address and port); progress lives in `localStorage` under `uncircuit.study.v1`.
 All questions are required; written feedback can use “None” when there is nothing to report.
@@ -73,7 +73,7 @@ F7 tests fragility under the tested intervention rather than claiming that fragi
 
 [.github/workflows/deploy.yml](.github/workflows/deploy.yml) tests, builds, and publishes `web/dist` on every push to
 `main`. One-time setup: in the repository, open **Settings → Pages** and set **Source** to **GitHub Actions**.
-The site is then at `https://<user>.github.io/<repo>/`, and the study at `…/?mode=study`.
+The site is then at `https://<user>.github.io/<repo>/`, and the study at `…/study/` (the link to give participants).
 
 ## Recompute the data
 

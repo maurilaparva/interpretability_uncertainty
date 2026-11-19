@@ -7,6 +7,7 @@ import { ItemList } from './components/ItemList';
 import { EvidenceView } from './components/EvidenceView';
 import { QuickGuide } from './components/QuickGuide';
 import { GuidanceContext } from './components/GuidanceContext';
+import { isStudyPath, siteRoot } from './lib/site';
 import { VIEWS, type ViewKey } from './lib/views';
 import { Study } from './study/Study';
 import { buildStudySteps, studyDatasetKey, supportsStudyDataset } from './study/questionnaire';
@@ -29,15 +30,18 @@ function hasLockedStudy(datasetKey: string): boolean {
 export default function App() {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [studyMode, setStudyMode] = useState(() => new URLSearchParams(window.location.search).get('mode') === 'study');
+  const [studyMode, setStudyMode] = useState(() => {
+    if (isStudyPath()) return true;
+    // Old study links (…/?mode=study) still work and move to the study's own address.
+    if (new URLSearchParams(window.location.search).get('mode') !== 'study') return false;
+    window.history.replaceState(null, '', `${siteRoot()}study/`);
+    return true;
+  });
   const [autoStartStudy, setAutoStartStudy] = useState(false);
 
   const setMode = (study: boolean, autoStart = false) => {
     setAutoStartStudy(study && autoStart);
-    const url = new URL(window.location.href);
-    if (study) url.searchParams.set('mode', 'study');
-    else url.searchParams.delete('mode');
-    window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+    window.history.replaceState(null, '', study ? `${siteRoot()}study/` : siteRoot());
     setStudyMode(study);
   };
 

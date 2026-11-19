@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import type { Band, Dataset, Item, Stats } from './types';
+import { siteRoot } from './site';
 
 export interface Loaded {
   data: Dataset;
@@ -30,7 +31,7 @@ async function tryLoad(url: string): Promise<Dataset> {
 }
 
 export async function loadDataset(): Promise<Loaded> {
-  const base = import.meta.env.BASE_URL;
+  const base = siteRoot(); // not BASE_URL: it is relative ('./'), which breaks from /study/
   // ?data=mock forces the mock set (handy for presenting the intended design).
   if (new URLSearchParams(window.location.search).get('data') === 'mock') {
     return { data: await tryLoad(`${base}data/mock_items.json`), isMock: true, fallbackReason: 'forced with ?data=mock' };

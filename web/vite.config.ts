@@ -1,5 +1,6 @@
 import react from '@vitejs/plugin-react'
 import { execSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 
 // Release stamp saved with every study response: the nearest git tag, plus commits since it and
@@ -14,7 +15,16 @@ function gitVersion(): string {
 process.env.VITE_APP_VERSION ??= gitVersion()
 
 // base './' so the built dist/ works from any sub-path (GitHub Pages, Netlify, file server)
+// Two pages: the explorer (index.html) and the study at study/, its own address for participants.
 export default defineConfig({
   base: './',
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      input: {
+        explorer: fileURLToPath(new URL('index.html', import.meta.url)),
+        study: fileURLToPath(new URL('study/index.html', import.meta.url)),
+      },
+    },
+  },
 })
