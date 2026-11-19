@@ -41,16 +41,19 @@ export interface StudyStep {
 /** A stop on the explore step's tour: one of the views, or the opening "meet the question" page. */
 export type TourStop = StudyView | 'question';
 
-/** The explore step's tour: one question through every view, then out to all questions. */
+/**
+ * The explore step's tour. Each stop only uses ideas introduced before it: confidence (R0), then the push (R3, R2),
+ * then the other questions, then the scores that compare against them (R1, R4).
+ */
 export const VIEW_TOUR: { view: TourStop; label: string; hint: string }[] = [
   { view: 'question', label: 'The question', hint: 'What the model was asked, and what it answered.' },
-  { view: 'r0', label: 'R0 Baseline', hint: 'How likely the model’s answer is, judged from its output alone.' },
-  { view: 'r1', label: 'R1 Score', hint: 'One robustness score: how large a push it takes to flip the answer.' },
-  { view: 'r2', label: 'R2 Flip curve', hint: 'How the answer’s probability drops as the push gets stronger, layer by layer.' },
-  { view: 'r3', label: 'R3 Push it', hint: 'Push the model yourself with the sliders and watch the answer change.' },
-  { view: 'r4', label: 'R4 Counterfactual', hint: 'The flip described in one sentence.' },
+  { view: 'r0', label: 'R0 Baseline', hint: 'How likely the model rated its answer: the confidence number AI tools usually show.' },
+  { view: 'r3', label: 'R3 Push it', hint: 'Push the model toward another answer with the slider, and watch when its answer flips.' },
+  { view: 'r2', label: 'R2 Flip curve', hint: 'The same push at every strength and every layer: where the answer flips.' },
+  { view: 'overview', label: 'All questions', hint: 'All 24 questions: how confident the model is, and how big a push flips each answer. The Japan question (Tokyo) is circled.' },
+  { view: 'r1', label: 'R1 Score', hint: 'One robustness score for Japan, the smallest push that flips it, compared with the other questions.' },
+  { view: 'r4', label: 'R4 Counterfactual', hint: 'The finding in one sentence.' },
   { view: 'compare', label: 'Compare all', hint: 'All the views side by side for this question.' },
-  { view: 'overview', label: 'All questions', hint: 'Zoom out: confidence and robustness for all 24 questions. The Japan question (Tokyo) is circled.' },
 ];
 
 export const STUDY_VIEWS: StudyOption[] = [
@@ -122,7 +125,7 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet): 
     },
     {
       id: 'explore', section: 'B · First impressions', title: 'Take a look around', mode: 'explore',
-      description: 'Go through the views in order: first one question from several angles, then all the questions at once.',
+      description: 'Go through the views in order. Each one builds on the ones before it.',
       // One fixed question keeps the first look simple; the tour ends on all questions (VIEW_TOUR).
       itemIds: ['q01'], hideExplorer: false, questions: [],
     },
