@@ -317,7 +317,7 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
           {/* After the form, so the task reads first: the form sits left of the views (see .with-evidence). */}
           {showEvidence && waitingToExplore ? (
             <section className="study-workspace study-workspace-waiting" aria-label="Interactive evidence">
-              <p>The interface appears here when you press <strong>Start exploring</strong>.</p>
+              <p>Click <strong>Start exploring</strong> to begin.</p>
             </section>
           ) : showEvidence && (step.mode === 'reveal'
             ? <PredictionReview items={(step.itemIds ?? []).map((id) => data.items.find((item) => item.id === id)!)} answers={session.answers} />
