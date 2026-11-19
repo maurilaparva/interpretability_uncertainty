@@ -439,7 +439,7 @@ function StudyWorkspace({ step, loaded, stats, log, onGuide, tour }: { step: Stu
     <section className={`study-workspace${step.mode === 'explore' ? ' point-at-controls' : ''}`} aria-label="Interactive evidence">
       <div className="study-workspace-tools">
         {availableItems.length > 1 ? (
-          <label className="study-question-select"><span>Question</span><select value={item.id} onChange={(e) => setItemId(e.target.value)}>{availableItems.map((candidate) => <option key={candidate.id} value={candidate.id}>{Number(candidate.id.slice(1))}. {candidate.question}</option>)}</select></label>
+          <label className="study-question-select"><span>Question {availableItems.indexOf(item) + 1} of {availableItems.length}</span><select value={item.id} onChange={(e) => setItemId(e.target.value)}>{availableItems.map((candidate) => <option key={candidate.id} value={candidate.id}>{Number(candidate.id.slice(1))}. {candidate.question}</option>)}</select></label>
         ) : <span className="study-workspace-label">Interactive evidence</span>}
         <div className="study-help-actions">
           {canShowStudyGuide(step) && <button className="btn guide-entry" onClick={onGuide}>Quick guide</button>}

@@ -73,7 +73,7 @@
 .study-workspace-tools .btn { white-space: nowrap; font-size: 11px; }
 .study-workspace-label { text-transform: uppercase; letter-spacing: .08em; font-size: 10px; font-weight: 600; color: #798471; }
 .study-question-select { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.study-question-select > span { color: #697166; font-size: 11px; }
+.study-question-select > span { color: #697166; font-size: 13px; white-space: nowrap; }
 .study-question-select select { min-width: 0; max-width: 500px; border: 1px solid #e0e6db; border-radius: 8px; font: inherit; font-size: 12px; padding: 8px 30px 8px 10px; background-color: #fafcf8; color: var(--ink); text-overflow: ellipsis; }
 .study-view-tabs { display: flex; flex-wrap: wrap; gap: 3px; flex: 0 0 auto; padding: 12px 18px; }
 .study-view-tabs button { background: transparent; border: 1px solid transparent; border-radius: 7px; padding: 7px 11px; color: #737c6c; white-space: nowrap; cursor: pointer; font-size: 12px; }
