@@ -191,6 +191,14 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
     if (active && sheetsEnabled && session?.completedAt && !session.submittedAt && upload === 'idle') void sendToSheets(session);
   }, [active, session, upload, sendToSheets]);
 
+  // While the responses are on their way, closing the tab asks for confirmation first.
+  useEffect(() => {
+    if (upload !== 'sending') return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [upload]);
+
   const back = () => {
     if (!session || !canGoBack(steps, index)) return;
     const at = new Date().toISOString();
@@ -261,27 +269,35 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
         </main>
       ) : completed && session ? (
         <main className="study-welcome-wrap">
+          {sheetsEnabled && !session.submittedAt && upload !== 'failed' ? (
+            // Sending: no submission ID yet, so nobody leaves with an ID for responses that never arrived.
+            <div className="study-welcome study-complete" role="status">
+              <div className="study-done-mark sending" aria-hidden="true" />
+              <div className="study-eyebrow">Almost done</div>
+              <h1>Sending your responses…</h1>
+              <p className="study-intro"><strong>Please wait and keep this page open</strong> until you see the confirmation and your submission ID. This usually takes a few seconds.</p>
+            </div>
+          ) : (
           <div className="study-welcome study-complete">
-            <div className="study-done-mark" aria-hidden="true">✓</div>
-            <div className="study-eyebrow">Session complete</div>
+            <div className="study-done-mark" aria-hidden="true">{upload === 'failed' && !session.submittedAt ? '!' : '✓'}</div>
+            <div className="study-eyebrow">{session.submittedAt ? 'Responses received' : 'Session complete'}</div>
             <h1>Thanks for your feedback.</h1>
             <SubmissionId session={session} />
             {!sheetsEnabled ? (
               <p className="study-intro">Download your responses and share the file with the research team.</p>
             ) : session.submittedAt ? (
-              <p className="study-intro" role="status">Your responses were sent to the research team. You can also keep a copy below.</p>
-            ) : upload === 'failed' ? (
+              <p className="study-intro" role="status">Your responses were received by the research team. You can close this page now, or keep a copy below.</p>
+            ) : (
               <div role="alert">
                 <p className="study-intro">We couldn’t send your responses automatically. Please try again, or download the file and share it with the research team.</p>
                 <div className="study-actions"><button className="btn" onClick={() => void sendToSheets(session)}>Try sending again</button></div>
               </div>
-            ) : (
-              <p className="study-intro" role="status">Sending your responses to the research team…</p>
             )}
             <div className="study-downloads"><button className="study-primary" onClick={() => downloadSession(session, 'csv')}>Download responses · CSV<span aria-hidden="true">↓</span></button><button className="btn" onClick={() => downloadSession(session, 'json')}>Full session · JSON</button></div>
             {!saved && <p className="study-local-note">Not saved in this browser. Download a copy before closing.</p>}
             <button className="btn-link" onClick={() => { setActive(false); setResetting(true); }}>Start another session</button>
           </div>
+          )}
         </main>
       ) : session && (
         <main className={`study-main${showEvidence ? ' with-evidence' : ''}`}>

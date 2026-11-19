@@ -276,3 +276,7 @@
 .study-reminder-preview { --shrink: .7; height: 200px; overflow: hidden; pointer-events: none; }
 /* Drawn at full size, then shrunk: a thumbnail of the real view rather than a squeezed layout. */
 .study-reminder-scaled { width: calc(100% / var(--shrink)); height: calc(100% / var(--shrink)); transform: scale(var(--shrink)); transform-origin: top left; display: flex; flex-direction: column; }
+/* Sending: a spinning ring where the check mark will appear. */
+.study-done-mark.sending { border: 3px solid #dcebe0; border-top-color: #164e42; background: none; animation: study-spin 900ms linear infinite; }
+@keyframes study-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .study-done-mark.sending { animation: none; } }
