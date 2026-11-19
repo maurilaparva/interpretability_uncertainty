@@ -201,7 +201,7 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
       {!active ? (
         <main className="study-welcome-wrap">
           <div className="study-welcome">
-            <div className="study-eyebrow">Model confidence study · about 20 minutes</div>
+            <div className="study-eyebrow">Model confidence study · 20–30 minutes</div>
             <h1>{session ? 'Welcome back.' : 'How sure is an AI model of its answer?'}</h1>
             <p className="study-intro">
               A language model can give an answer that a small change inside the model would flip. We built views that
@@ -209,7 +209,7 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
               when to trust an answer.
             </p>
             <ul className="study-facts">
-              <li><strong>About 20 minutes.</strong> Participation is voluntary and your responses are anonymous.</li>
+              <li><strong>About 20–30 minutes.</strong> Participation is voluntary and your responses are anonymous.</li>
               <li><strong>You can pause and come back</strong> in this same browser: progress is saved on this device. We recommend finishing in one sitting.</li>
               <li><strong>At the end you get a submission ID.</strong> Keep it in case you want to share it with the research team for reference.</li>
             </ul>
