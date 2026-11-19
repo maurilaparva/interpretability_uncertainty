@@ -145,7 +145,7 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet, v
       outline: [
         { title: 'About you', minutes: 2, text: 'A few questions about your background.' },
         { title: 'Explore on your own', minutes: 7, text: 'Look around the interface freely, with no instructions, then tell us your first impressions.' },
-        { title: 'Learn the ideas, explore the views, try some tasks', minutes: 10, text: 'A few key ideas, a guided look at each view, then a few tasks that use them.' },
+        { title: 'Learn the ideas, explore the views, try some tasks', minutes: 16, text: 'A few key ideas, a guided look at each view, then a few tasks that use them.' },
         { title: 'Rate the views', minutes: 5, text: 'Look at each view again and rate it.' },
         { title: 'Final questions', minutes: 6, text: 'What you understood, how far you would trust it, and any feedback.' },
       ],
@@ -197,7 +197,7 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet, v
       // R1–R4 in the participant's rotated order (viewOrder.ts), then Compare all. Kept as its own step so its
       // timing and view events are separate from the fixed concepts: this is the part that compares displays (RQ2).
       id: 'explore-views', section: 'C · Guided tasks', title: 'Explore the views', mode: 'tour', tour: 'views',
-      description: 'Now look at each view, in the order shown. Each one shows the evidence in a different way. You can switch to any question. About 3 minutes.\nEach participant sees the views in a **different order**, so R1–R4 may not come in number order. The numbers are just **names**, not a ranking.',
+      description: 'Now look at each view, in the order shown. Each one shows the evidence in a different way. Take your time with each one. You can switch to any question. About 6–8 minutes.\nEach participant sees the views in a **different order**, so R1–R4 may not come in number order. The numbers are just **names**, not a ranking.',
       hideExplorer: false, questions: [],
     },
     {
