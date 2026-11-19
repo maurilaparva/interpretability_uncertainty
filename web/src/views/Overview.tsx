@@ -98,6 +98,12 @@ function Glyph({ correct }: { correct: boolean }) {
   );
 }
 
+/** Log-odds, clamped so 0% and 100% stay on the chart. */
+function logit(p: number): number {
+  const q = Math.min(Math.max(p, 0.001), 0.999);
+  return Math.log(q / (1 - q));
+}
+
 function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }: Props) {
   const [ref, { width, height }] = useSize<HTMLDivElement>();
   const [hover, setHover] = useState<Item | null>(null);
@@ -106,7 +112,13 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }
   const ih = Math.max(10, height - m.top - m.bottom);
 
   const pExt = d3.extent(items, (it) => it.p_answer) as [number, number];
-  const x = d3.scaleLinear().domain([Math.min(0, pExt[0]), 1]).range([0, iw]);
+  // Half the answers sit between 87% and 100%, so x is a logit scale: each step toward certainty
+  // (90% → 99% → 99.9%) gets the same room, instead of everything piling up at the right edge.
+  const xl = d3.scaleLinear()
+    .domain([Math.min(logit(0.1), logit(pExt[0])), Math.max(logit(0.99), logit(pExt[1])) + 0.4])
+    .range([0, iw]);
+  const x = (p: number) => xl(logit(p));
+  const xTicks = [0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99, 0.999].filter((t) => logit(t) >= xl.domain()[0] && logit(t) <= xl.domain()[1]);
   const yMax = stats.displayMax;
   const yTop = stats.anyCensored ? stats.maxAlpha : yMax;
   const y = pushScale(yMax, [ih, 0]);
@@ -149,12 +161,12 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }
                 <text className="tick-label" x={-8} y={y(t) + 4} textAnchor="end">{t}</text>
               </g>
             ))}
-            {x.ticks(5).map((t) => (
-              <text key={t} className="tick-label" x={x(t)} y={ih + 16} textAnchor="middle">{pct(t)}</text>
+            {xTicks.map((t) => (
+              <text key={t} className="tick-label" x={x(t)} y={ih + 16} textAnchor="middle">{t >= 0.999 ? '99.9%' : pct(t)}</text>
             ))}
             <line x1={0} x2={iw} y1={ih} y2={ih} stroke="#d6d3d1" />
             <text className="axis-title" x={iw / 2} y={ih + 38} textAnchor="middle">
-              Output confidence: probability of the model's answer →
+              Output confidence: probability of the model's answer (stretched near 100%) →
             </text>
             <text className="axis-title" transform={`translate(${-m.left + 14},${ih / 2}) rotate(-90)`} textAnchor="middle">
               Robustness: push needed to flip it (√ scale) →
