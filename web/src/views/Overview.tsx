@@ -12,6 +12,8 @@ interface Props {
   revealKey: boolean;
   allowReveal?: boolean;
   onOpen: (id: string) => void;
+  /** Explorer: clicking a point opens its flip curve. Study: it only selects the question, so no view is favoured. */
+  clickOpensFlipCurve?: boolean;
   /** Stripped-down plot for first-time viewers: axes and dots, the selected question labelled, nothing else. */
   simple?: boolean;
 }
@@ -23,7 +25,7 @@ const QLABEL: Record<Quadrant, string> = {
   'unsure-fragile': 'Unsure & fragile',
 };
 
-export function Overview({ items, stats, selectedId, revealKey, onOpen, allowReveal = true, simple = false }: Props) {
+export function Overview({ items, stats, selectedId, revealKey, onOpen, allowReveal = true, simple = false, clickOpensFlipCurve = true }: Props) {
   if (simple) {
     return (
       <>
@@ -64,7 +66,7 @@ export function Overview({ items, stats, selectedId, revealKey, onOpen, allowRev
             )}
             Rank correlation between confidence and robustness: ρ = {rho.toFixed(2)}
             {Math.abs(rho) < 0.5 ? ' (weak, so the margin adds information).' : ' (strong, so the signals largely overlap).'}{' '}
-            Click a point to open its flip curve.
+            {clickOpensFlipCurve ? 'Click a point to open its flip curve.' : 'Click a point to select that question.'}
           </p>
         </div>
         <div className="legend">
@@ -80,7 +82,7 @@ export function Overview({ items, stats, selectedId, revealKey, onOpen, allowRev
         </div>
       </div>
       <div className="panel" style={{ flex: 1, minHeight: 0 }}>
-        <Scatter items={items} stats={stats} selectedId={selectedId} revealKey={revealKey} onOpen={onOpen} />
+        <Scatter items={items} stats={stats} selectedId={selectedId} revealKey={revealKey} onOpen={onOpen} clickOpensFlipCurve={clickOpensFlipCurve} />
       </div>
     </>
   );
@@ -98,7 +100,7 @@ function Glyph({ correct }: { correct: boolean }) {
   );
 }
 
-function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }: Props) {
+function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false, clickOpensFlipCurve = true }: Props) {
   const [ref, { width, height }] = useSize<HTMLDivElement>();
   const [hover, setHover] = useState<Item | null>(null);
   // Opens on the middle half of the questions (by confidence), so the extremes are off-screen and found by exploring;
@@ -271,7 +273,7 @@ function Scatter({ items, stats, selectedId, revealKey, onOpen, simple = false }
             Confidence {pct(hover.p_answer)} · Robustness {fmtMargin(hover, stats)}
             {!hover.censored && <> (layer {hover.margin_layer})</>}
           </div>
-          {!simple && <div className="t-muted">{QLABEL[quadrantOf(hover, stats)]} · click to open flip curve</div>}
+          {!simple && <div className="t-muted">{QLABEL[quadrantOf(hover, stats)]} · {clickOpensFlipCurve ? 'click to open flip curve' : 'click to select'}</div>}
         </Tip>
       )}
     </div>

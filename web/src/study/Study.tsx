@@ -467,7 +467,7 @@ function StudyWorkspace({ step, loaded, stats, log, onGuide, tour }: { step: Stu
             : tour && view === 'overview' ? <Overview simple items={allItems} stats={stats} selectedId={item.id} revealKey={false} allowReveal={false} onOpen={() => {}} />
             : <EvidenceView view={view} item={item} items={allItems} stats={stats}
             header={<AnswerHeader item={item} compact revealKey={false} allowReveal={false} onReveal={() => {}} />}
-            revealKey={false} allowReveal={false} onOpenItem={(id, nextView) => { if (availableItems.some((candidate) => candidate.id === id)) { setItemId(id); setView(nextView); } }} />}
+            revealKey={false} allowReveal={false} overviewOpensFlipCurve={false} onOpenItem={(id, nextView) => { if (availableItems.some((candidate) => candidate.id === id)) { setItemId(id); setView(nextView); } }} />}
           </GuidanceContext.Provider>
         </div>
       </div>
