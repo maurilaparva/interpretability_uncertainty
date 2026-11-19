@@ -155,7 +155,7 @@ export function ScoresIntro({ item, stats }: { item: Item; stats: Stats }) {
       </div>
       <p className="study-intro-note">
         The two scores measure <strong>different things</strong>: an answer can look confident and still be easy to flip.
-        <em> Neither</em> score tells you whether the answer is correct.
+        {' '}Keep in mind that <em>neither</em> score tells you whether the answer is correct.
       </p>
     </div>
   );
