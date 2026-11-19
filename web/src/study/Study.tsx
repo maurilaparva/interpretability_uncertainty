@@ -211,7 +211,7 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
             <ul className="study-facts">
               <li><strong>About 20 minutes.</strong> Participation is voluntary and your responses are anonymous.</li>
               <li><strong>You can pause and come back</strong> in this same browser: progress is saved on this device. We recommend finishing in one sitting.</li>
-              <li><strong>At the end you get a submission ID.</strong> Keep it in case the research team asks about your responses.</li>
+              <li><strong>At the end you get a submission ID.</strong> Keep it in case you want to share it with the research team for reference.</li>
             </ul>
             <div className="study-journey" aria-label="Study overview">
               {[['01', 'Explore', 'Get a feel for the interface.'], ['02', 'Try a few tasks', 'Read, steer, and make predictions.'], ['03', 'Share your thoughts', 'Tell us what worked for you.']].map(([number, title, text]) => (
