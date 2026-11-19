@@ -39,10 +39,10 @@ export function CompareAll({ header, item, items, stats, onOpenView }: Props) {
       {/* Every view gets a full panel (R0 used to be a one-line strip, which made it look less important).
           Top row: the lighter views, a third each. Bottom row: the chart and the controls, half each. Spans in index.css. */}
       <div className="compare-grid">
-        <Panel code="R0" onOpen={onOpenView && (() => onOpenView('r0'))} name="Baseline confidence">
+        <Panel code="R0" onOpen={onOpenView && (() => onOpenView('r0'))} name="Baseline">
           <R0Compact item={item} />
         </Panel>
-        <Panel code="R1" onOpen={onOpenView && (() => onOpenView('r1'))} name="Margin score">
+        <Panel code="R1" onOpen={onOpenView && (() => onOpenView('r1'))} name="Score">
           <R1Score item={item} items={items} stats={stats} compact />
         </Panel>
         <Panel code="R4" onOpen={onOpenView && (() => onOpenView('r4'))} name="Counterfactual">
@@ -51,7 +51,7 @@ export function CompareAll({ header, item, items, stats, onOpenView }: Props) {
         <Panel code="R2" onOpen={onOpenView && (() => onOpenView('r2'))} name="Flip curve">
           <R2FlipCurve item={item} stats={stats} compact />
         </Panel>
-        <Panel code="R3" onOpen={onOpenView && (() => onOpenView('r3'))} name="Push it yourself">
+        <Panel code="R3" onOpen={onOpenView && (() => onOpenView('r3'))} name="Push it">
           <R3Push key={item.id} item={item} stats={stats} compact />
         </Panel>
       </div>

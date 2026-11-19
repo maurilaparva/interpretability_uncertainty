@@ -43,6 +43,8 @@ export interface StudyStep {
   itemIds?: string[];
   initialView?: StudyView;
   hideExplorer?: boolean;
+  /** Form steps about the views: show these views as small reminder cards beside the questions, in this order. */
+  reminder?: StudyView[];
 }
 
 /** A stop on the explore step's tour: one of the views, or the opening "meet the question" page. */
@@ -80,13 +82,17 @@ export function tourFor(order: readonly RotatedView[]): TourStopInfo[] {
   return stops.map(([view, part]) => ({ view, part, ...TOUR_TEXT[view] }));
 }
 
+// The same names as the view tabs (lib/views.ts) and the tour, so participants rate and rank the names they saw.
 export const STUDY_VIEWS: StudyOption[] = [
-  { value: 'r0', label: 'R0 · Baseline confidence' },
-  { value: 'r1', label: 'R1 · Margin score' },
-  { value: 'r2', label: 'R2 · Flip curve' },
-  { value: 'r3', label: 'R3 · Push it yourself' },
-  { value: 'r4', label: 'R4 · Counterfactual' },
+  { value: 'r0', label: 'R0 Baseline' },
+  { value: 'r1', label: 'R1 Score' },
+  { value: 'r2', label: 'R2 Flip curve' },
+  { value: 'r3', label: 'R3 Push it' },
+  { value: 'r4', label: 'R4 Counterfactual' },
 ];
+
+/** One-line reminder of what a view shows (the tour's wording). */
+export const viewHint = (view: StudyView) => TOUR_TEXT[view].hint;
 
 const ALL_VIEWS: StudyOption[] = [
   { value: 'overview', label: 'Overview' },
@@ -305,9 +311,11 @@ export function buildStudySteps(data: Dataset, stats: Stats, taskSet: TaskSet, v
     })),
     {
       id: 'view-preferences', section: 'E · Rate the views', title: 'Which views worked best?',
-      mode: 'form', hideExplorer: true,
+      description: 'The views are shown on the right as a reminder, in the order you saw them.',
+      // Cards in the participant's own order: memory follows the order they were seen in, and the rank slots start empty.
+      mode: 'form', reminder: ['r0', ...viewOrder],
       questions: [
-        { id: 'E4', type: 'ranking', prompt: 'Rank the views from most to least useful.', options: STUDY_VIEWS, required: true },
+        { id: 'E4', type: 'ranking', prompt: 'Rank the views from most to least useful.', options: ['r0', ...viewOrder].map((value) => STUDY_VIEWS.find((view) => view.value === value)!), required: true },
         single('E5', `In R1, ${score} is labeled “${band}”. Did ${score} seem like a small or a large number to you?`, ['Small', 'Large', 'I had no sense of scale', 'Didn’t notice']),
         scale('E6', `In R4, “a ${sizeWord} internal nudge” matched the strength of ${score} shown.`),
         text('E7', 'Which view was most confusing, and why?'),

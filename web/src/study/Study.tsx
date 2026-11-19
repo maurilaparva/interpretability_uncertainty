@@ -14,6 +14,7 @@ import { viewOrderFor } from './viewOrder';
 import { APP_VERSION, clearSession, createSession, submissionId, downloadSession, loadSession, saveSession, sheetsEnabled, submitSession, type StudyEvent, type StudySession } from './storage';
 import { SurveyField } from './SurveyFields';
 import { LayersIntro, PushIntro, QuestionIntro, ScoresIntro } from './TourIntros';
+import { ViewReminder } from './ViewReminder';
 import './study.css';
 
 type LogEvent = (event: Omit<StudyEvent, 'at'>) => void;
@@ -335,6 +336,7 @@ export function Study({ loaded, autoStart = false }: { loaded: Loaded; autoStart
             </section>
           ) : showEvidence && (step.mode === 'reveal'
             ? <PredictionReview items={(step.itemIds ?? []).map((id) => data.items.find((item) => item.id === id)!)} answers={session.answers} />
+            : step.reminder ? <ViewReminder views={step.reminder} item={data.items.find((candidate) => candidate.id === 'q01')!} items={data.items} stats={stats} />
             : <StudyWorkspace key={step.id} step={step} loaded={loaded} stats={stats} log={log} onGuide={openGuide}
                 tour={step.mode === 'tour' ? { stops: tour, view: tourView, seen: tourSeen, onView: showTourView, itemId: tourItemId, onItem: setTourItemId } : undefined} />)}
         </main>
