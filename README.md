@@ -89,6 +89,7 @@ Live at `https://mivillavicencio.com/interpretability_uncertainty/` (latest) and
 | v0.3.0 | | Study at its own address (`study/`); version stamped on every response; older versions kept online. |
 | v0.3.1 | `/v1/` | `app_version` reaches the Responses sheet without redeploying the sheet script. |
 | v0.4.0 | `/v2/` | Welcome page with goal, duration, pause note and a submission ID at the end; outline of the five parts; participants never sent to the explorer. Free exploration (B) restored: 5 min, views hidden until "Start exploring", controls highlighted, Overview clicks select instead of jumping to R2. C opens with two guided steps: "Learn the ideas", the same for everyone (the quick guide is folded in as "Try a push" and "Two scores", so it no longer pops up before the tasks), then "Explore the views": R1–R4 in a counterbalanced order per participant (also used for the ratings; `view_order` recorded). Overview: linear axis with zoom and a mini-map. One color per variable. Larger, plainer explanations. One play icon for every animation. "Share first impressions" unlocks after 3 minutes. |
+| v0.5.0 | `/v3/` | "Explore the views": about 6–8 minutes. Answer key says "The model was right/wrong" and whether each prediction matched. "Which views worked best?" shows a thumbnail and a one-line reminder of each view, in the participant's order; one name per view everywhere. The submission ID appears only after the sheet confirms receipt. |
 
 ## Recompute the data
 
