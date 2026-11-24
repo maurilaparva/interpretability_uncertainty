@@ -10,16 +10,11 @@
 % inner quote marks stay legible.
 \newcommand{\pq}[1]{\emph{\guillemotleft #1\guillemotright}}
 
-
 \paperID{UNCIRCUIT} % your project ID from your proposal
 
 \begin{document}
 
-
 \title{Exploring the Evidence and Limits of Mechanistic Explanations}
-
-
-
 
 \author{Mauricio Villavicencio}
 \email{mivilla@umd.edu}
@@ -57,8 +52,6 @@
   \country{}
 }
 
-
-
 \begin{abstract}
 
 \guideline{DRAFT abstract, 210 words. Rewrite the last two sentences once the results section is final.}
@@ -80,13 +73,8 @@ exploratory. We read it as design evidence rather than as a test of effects.
 \noindent \textbf{Sharing preference}: This paper may be shared [publicly | with future 839E students only (default) | not at all].
 \end{abstract}
 
-
-
-
 \keywords{Mechanistic interpretability, uncertainty communication, interactive explanation, activation
 steering, visualization design, user study}
-
-
 
 \begin{teaserfigure}
   \includegraphics[width=\textwidth]{img/teaser.png}
@@ -94,11 +82,7 @@ steering, visualization design, user study}
   \label{fig:teaser}
 \end{teaserfigure}
 
-
-
 \maketitle
-
-
 
 \color{red}
 \section{Introduction}
@@ -132,7 +116,6 @@ address them in the following form.
   \item[RQ2] Which representation do readers find most useful for judging whether an answer is fragile?
   \item[RQ3] What design problems does showing this signal to non-experts surface?
 \end{description}
-
 
 \section{Related Work}
 
@@ -263,7 +246,6 @@ reports it in input space, for practitioners. Uncertainty communication studies 
 the output distribution in hand. We treat a mechanistic fragility signal as an uncertainty display, render it
 five ways over one question set, and put the comparison in front of non-expert participants.
 
-
 \color{black}
 \section{Methods}
 
@@ -285,15 +267,16 @@ The design of the views relies on three terms, which we introduce as follows. A 
 stack of \emph{layers}, and we can nudge the state it holds at any one of them. We call the size of a nudge its
 \emph{push strength}, scaled so that it means the same thing at every layer. The \emph{margin} is the smallest
 push strength that changes the answer, taken over all layers, so a small margin means the answer was easy to
-change. We label each margin Fragile, Moderate or Robust by its rank among the 24 items. We sorted them by
-margin and cut the list into three groups of eight. A band is therefore relative to this question set, and a
+change. The interface presents this margin to participants as a \emph{robustness} score, and that is the word
+our questionnaire items and the quotations below use. An answer with a low score is the one we call
+\emph{fragile}. We label each margin Fragile, Moderate or Robust by its rank among the 24 items. We sorted them
+by margin and cut the list into three groups of eight. A band is therefore relative to this question set, and a
 margin that reads as Robust here is still a small number in absolute terms. This is a simplification we adopted
 to make the number legible, since no threshold marks a margin as fragile in general, and we return to it in
 Section~\ref{sec:discussion}.
 
 We chose four views that span the range of forms available, from a single number, through a chart, to direct
-manipulation, to plain language. Table~\ref{tab:views} gives each one and the work it draws on. In all five we
-mark the answer token with a fixed colour and the alternative with a contrasting one.
+manipulation, to plain language. Table~\ref{tab:views} gives each one and the work it draws on.
 
 \begin{table*}[t]
   \caption{The five views. R0 is the baseline, because output confidence is the conventional uncertainty signal
@@ -410,27 +393,82 @@ falls from LLMs, through uncertainty scores, to mechanistic interpretability, wh
 2 and nobody reaches the top of the scale. When asked whether they had used a tool that edits or steers a
 model's internal activations, 4 said yes, 3 said no and 10 (59\%) were not sure, more than said no.
 
-\color{red}
-\section{Preliminary Results}
+\section{Preliminary Findings}
 
-\guideline{Outline. All numbers below are already computed in \texttt{results/final\_study.json}. Write prose
-against them, and add the two or three figures that carry the argument.}
-\begin{itemize}
-  \item Reading accuracy by task (C1--C10) and comprehension (F1--F7). Where accuracy is high, and the three
-    items where it collapses. Report ``not sure'' separately from wrong.
-  \item Prediction task. Per-item judgements against each item's band and true correctness. Note the one item
-    where nearly everyone was right, and the one where the views did not help.
-  \item Per-view ratings and the forced ranking. Which views won, and whether the interactive view's advantage
-    survives the ranking.
-  \item Scale sense. How many read 0.048 as small, and whether ``a large internal nudge'' matched.
-  \item Live-versus-precomputed attribution, against whether the caption was noticed.
-  \item Timing and interaction logs. Median 31 minutes against a 20-minute target, and which views were opened
-    unprompted in B.
-  \item First-impression themes before any framing. What people thought ``Robustness'' meant.
-\end{itemize}
+In the following we present our findings organized by the research questions that motivated this work.
 
+\subsection{Reading the signal (RQ1)}
 
-\color{black}
+We first asked whether the choice of representation changes how accurately a non-expert reads the signal. What
+we found is that participants could read the views without being able to interpret them carefully, which did not
+prevent them from judging the model's answers correctly. They took values off the screen without difficulty, and
+stumbled whenever a task asked what those values meant.
+
+The graded tasks bore this out, since every participant named the word the answer flips to, and all but one read
+the output confidence, the layer where the answer flips most easily, and what the answer became under a push.
+The picture changed as soon as a task asked them to place a value in context rather than read it off the screen.
+When we asked participants how one answer compares with the others in the set, only 9 of 17 were right, and the
+rest split evenly between a wrong answer and ``not sure''.
+
+We saw the same split in the comprehension check. Participants had no trouble saying where the push is applied
+or what a small robustness score tells them. They were much less sure what a number meant, and one participant
+put the gap plainly, writing that \pq{I can see what it means to be robust and fragile based on the interface,
+but I wouldn't be able to describe why}.
+
+The prediction task confirms this, since across the four items each of them considered, 54 of 68 judgements
+matched whether the model's answer was right. They could put the signal to use even when they could not explain
+it.
+
+\subsection{Choosing between the views (RQ2)}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{img/fig_views.pdf}
+  \caption{How participants judged the five views. (a) Mean agreement with three statements about each view.
+  (b) The overall ranking from most to least useful. The baseline leads on both, and the flip curve trails on
+  both.}
+  \Description{Grouped bars of mean agreement per view, and a bar chart of mean rank. R0 Baseline scores
+  highest and ranks first. R2 Flip curve scores lowest and ranks last.}
+  \label{fig:views}
+\end{figure*}
+
+We then asked which representation readers find most useful, and we observed that the baseline won. R0 took a
+mean rank of 1.53, with 11 of 17 participants placing it top, while the flip curve came last at 3.82. The per-
+view ratings in Figure~\ref{fig:views} point the same way, with R0 scoring highest of the five on all three
+statements and R2 lowest on all three. When we asked participants which view confused them most, they named the
+flip curve more often than any other, calling it \pq{crowded and hard to comprehend} and \pq{too busy}.
+
+We noticed, however, that participants did not reject the fragility signal, a low robustness score, even though
+they ranked the baseline first. They agreed that robustness told them something output confidence alone did not
+(5.47 of 7), and that they would want it shown next to confidence in a model interface (5.82 of 7, median 7).
+When we asked which signal they would rely on for a high-stakes question, 6 chose robustness, 6 chose both
+equally, and only 3 chose output confidence. One participant concluded that \pq{while high confidence makes the
+answer likely to be more true it is not set on stone and we need check robustness before trusting the answer
+given}.
+
+\subsection{Where the design broke down (RQ3)}
+
+We asked, last, what design problems the signal surfaces when it is shown to non-experts. The clearest concern
+was the scale of the metric itself, which continues the difficulty with interpretation we reported under RQ1.
+When we showed participants a margin of 0.048 labelled Robust, 8 of 17 read the number as small and 5 reported
+no sense of scale at all. R4 described that same strength as ``a large internal nudge'', and participants
+neither agreed nor disagreed that the wording matched what they saw (4.41 of 7). One participant named the
+problem directly, writing that \pq{0.048 seems small but it is labeled 91\% more internal push to change the
+answer}.
+
+We had expected a second problem that did not materialise. Letting people push the model could have made them
+over-attribute control to themselves, but it did not. Instead, 13 of 17 said the slider replayed recorded
+results and only one said it changed a live model. They reached that reading largely on their own, as only 6 had
+noticed the caption saying the values are precomputed. Few felt they were controlling what the model would say
+(3.41 of 7). Moreover, the interaction did explain stability, and watching the answer flip helped them see it
+(5.94 of 7).
+
+The session itself held together, with participants rating the interface easy to use at 6.00 of 7 and its mental
+demand at 3.76 of 7. Participants again stalled on where to start, which sat at the midpoint and shows the
+pilot's framing problem surviving into the main study. They also took longer than we had designed for, at a
+median of 31 minutes against a 20-minute target. Overall, participants rated the study session positively, which
+places the difficulty in our vocabulary rather than in the interface that carried it.
+
 \section{Discussion and Future Work}
 \label{sec:discussion}
 
@@ -466,7 +504,6 @@ against them, and add the two or three figures that carry the argument.}
     visualization-literacy measure as a covariate.
 \end{itemize}
 
-
 \section*{Author contributions}
 
 \guideline{
@@ -474,14 +511,12 @@ You can refer to \href{http://li.mit.edu/Archive/Activities/PubFormat/Nature/End
 Our example: Testudo Turtle wrote all the code. Seaweed Grass debugged the code and analyzed all the data. Both
 authors designed the experiment, discussed the results and future work, and prepared the manuscript.}
 
-
 \section*{Supplementary materials}
 
 \guideline{Recommended. Candidates: the live prototype and the study address, with older versions kept online,
 one per version. The questionnaire source. The offline pipeline and its README, which document the
 approximation and $\rho$. The response CSV and the analysis script. The annotated related-work map used to
 position this paper.}
-
 
 \appendix
 
