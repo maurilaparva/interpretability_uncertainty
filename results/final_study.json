@@ -1,0 +1,4271 @@
+{
+ "meta": {
+  "n": 17,
+  "nA": 7,
+  "nB": 10,
+  "first": "2026-11-19",
+  "last": "2026-11-23",
+  "median_minutes": 31.0,
+  "version": "v0.5.0",
+  "excluded": [
+   {
+    "pid": "aeb8c522",
+    "version": "(none)",
+    "started": "2026-11-17"
+   },
+   {
+    "pid": "303849ef",
+    "version": "(none)",
+    "started": "2026-11-17"
+   },
+   {
+    "pid": "1467fdda",
+    "version": "(none)",
+    "started": "2026-11-17"
+   },
+   {
+    "pid": "21ac89f2",
+    "version": "(none)",
+    "started": "2026-11-17"
+   },
+   {
+    "pid": "8dfbded7",
+    "version": "(none)",
+    "started": "2026-11-17"
+   },
+   {
+    "pid": "a46e41be",
+    "version": "(none)",
+    "started": "2026-11-17"
+   },
+   {
+    "pid": "2db42400",
+    "version": "(none)",
+    "started": "2026-11-18"
+   },
+   {
+    "pid": "2632473d",
+    "version": "v0.3.1-40-g966e38f",
+    "started": "2026-11-19"
+   }
+  ],
+  "thresholds": [
+   0.0203,
+   0.0327
+  ],
+  "orders": {
+   "r1 r2 r4 r3": 8,
+   "r2 r3 r1 r4": 4,
+   "r3 r4 r2 r1": 3,
+   "r4 r1 r3 r2": 2
+  }
+ },
+ "background": {
+  "program": {
+   "id": "A2",
+   "prompt": "What is your current program?",
+   "options": [
+    [
+     "Undergraduate",
+     15
+    ],
+    [
+     "Master’s",
+     1
+    ],
+    [
+     "PhD",
+     0
+    ],
+    [
+     "Other",
+     1
+    ],
+    [
+     "Prefer not to say",
+     0
+    ]
+   ],
+   "n": 17
+  },
+  "scales": [
+   {
+    "id": "A3",
+    "prompt": "How familiar are you with large language models?",
+    "min": 1,
+    "max": 5,
+    "counts": [
+     1,
+     0,
+     11,
+     3,
+     2
+    ],
+    "n": 17,
+    "mean": 3.29,
+    "median": 3
+   },
+   {
+    "id": "A4",
+    "prompt": "How familiar are you with mechanistic interpretability?",
+    "min": 1,
+    "max": 5,
+    "counts": [
+     9,
+     5,
+     2,
+     1,
+     0
+    ],
+    "n": 17,
+    "mean": 1.71,
+    "median": 1
+   },
+   {
+    "id": "A6",
+    "prompt": "How familiar are you with confidence or uncertainty scores in machine learning?",
+    "min": 1,
+    "max": 5,
+    "counts": [
+     4,
+     3,
+     6,
+     3,
+     1
+    ],
+    "n": 17,
+    "mean": 2.65,
+    "median": 3
+   }
+  ],
+  "steered": {
+   "id": "A5",
+   "prompt": "Have you used a tool that edits or steers a model’s internal activations?",
+   "options": [
+    [
+     "Yes",
+     4
+    ],
+    [
+     "No",
+     3
+    ],
+    [
+     "Not sure",
+     10
+    ]
+   ],
+   "n": 17
+  }
+ },
+ "first": {
+  "opened": {
+   "id": "B3",
+   "prompt": "Which views did you open?",
+   "n": 17,
+   "options": [
+    [
+     "Overview",
+     17
+    ],
+    [
+     "R0 Baseline",
+     17
+    ],
+    [
+     "R1 Score",
+     16
+    ],
+    [
+     "R2 Flip curve",
+     15
+    ],
+    [
+     "R3 Push it",
+     15
+    ],
+    [
+     "R4 Counterfactual",
+     13
+    ],
+    [
+     "Compare all",
+     15
+    ]
+   ]
+  },
+  "about": {
+   "id": "B4",
+   "prompt": "Did you open “About this method”?",
+   "options": [
+    [
+     "Yes, read most of it",
+     2
+    ],
+    [
+     "Yes, skimmed it",
+     9
+    ],
+    [
+     "No",
+     6
+    ]
+   ],
+   "n": 17
+  },
+  "clear": {
+   "id": "B5",
+   "prompt": "It was clear where to start.",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    1,
+    3,
+    3,
+    4,
+    2,
+    2,
+    2
+   ],
+   "n": 17,
+   "mean": 4,
+   "median": 4
+  }
+ },
+ "tasks": [
+  {
+   "id": "C1",
+   "label": "Output confidence for “What is the capital of Japan?”",
+   "prompt": "What is the model’s output confidence in its answer?",
+   "key": "99%",
+   "correct": 16,
+   "wrong": 1,
+   "notsure": 0,
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "answer": "99%",
+     "status": "correct"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "answer": "99%",
+     "status": "correct"
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "answer": "Tokyo",
+     "status": "wrong"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "answer": "99%",
+     "status": "correct"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "answer": "99%",
+     "status": "correct"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "answer": "99%",
+     "status": "correct"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "answer": "99%",
+     "status": "correct"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "answer": "99%",
+     "status": "correct"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "answer": "99%",
+     "status": "correct"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "answer": "99%",
+     "status": "correct"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "answer": "99%",
+     "status": "correct"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "answer": "99",
+     "status": "correct"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "answer": "99%",
+     "status": "correct"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "answer": "99%",
+     "status": "correct"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "answer": "99",
+     "status": "correct"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "answer": "99%",
+     "status": "correct"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "answer": "99",
+     "status": "correct"
+    }
+   ]
+  },
+  {
+   "id": "C2",
+   "label": "Word the answer flips to",
+   "prompt": "If the answer flips, which word does it flip to?",
+   "key": "Kyoto",
+   "correct": 17,
+   "wrong": 0,
+   "notsure": 0,
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "answer": "Kyoto",
+     "status": "correct"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "answer": "Kyoto",
+     "status": "correct"
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "answer": "kyoto",
+     "status": "correct"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "answer": "Kyoto",
+     "status": "correct"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "answer": "Kyoto",
+     "status": "correct"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "answer": "Kyoto",
+     "status": "correct"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "answer": "Kyoto",
+     "status": "correct"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "answer": "Kyoto",
+     "status": "correct"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "answer": "Kyoto",
+     "status": "correct"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "answer": "Kyoto",
+     "status": "correct"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "answer": "Kyoto",
+     "status": "correct"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "answer": "Kyoto",
+     "status": "correct"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "answer": "Kyoto",
+     "status": "correct"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "answer": "Kyoto",
+     "status": "correct"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "answer": "Kyoto",
+     "status": "correct"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "answer": "Kyoto",
+     "status": "correct"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "answer": "Kyoto",
+     "status": "correct"
+    }
+   ]
+  },
+  {
+   "id": "C3",
+   "label": "Layer where the answer is easiest to flip",
+   "prompt": "At which layer is this answer easiest to flip?",
+   "key": "22",
+   "correct": 16,
+   "wrong": 1,
+   "notsure": 0,
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "answer": "22",
+     "status": "correct"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "answer": "22",
+     "status": "correct"
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "answer": "22",
+     "status": "correct"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "answer": "layer 22",
+     "status": "correct"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "answer": "Later layers I.e. layer 22",
+     "status": "correct"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "answer": "22",
+     "status": "correct"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "answer": "22",
+     "status": "correct"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "answer": "22",
+     "status": "correct"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "answer": "22",
+     "status": "correct"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "answer": "0.048",
+     "status": "wrong"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "answer": "22",
+     "status": "correct"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "answer": "22",
+     "status": "correct"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "answer": "22",
+     "status": "correct"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "answer": "22",
+     "status": "correct"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "answer": "Not sure, but maybe layer 22",
+     "status": "correct"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "answer": "22",
+     "status": "correct"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "answer": "22",
+     "status": "correct"
+    }
+   ]
+  },
+  {
+   "id": "C4",
+   "label": "Compared with the other questions, this answer is…",
+   "prompt": "Compared with the other questions, this answer is…",
+   "key": "Harder to flip than most",
+   "correct": 9,
+   "wrong": 4,
+   "notsure": 4,
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "answer": "Harder to flip than most",
+     "status": "correct"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "answer": "Harder to flip than most",
+     "status": "correct"
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "answer": "About average",
+     "status": "wrong"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "answer": "Easier to flip than most",
+     "status": "wrong"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "answer": "Harder to flip than most",
+     "status": "correct"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "answer": "About average",
+     "status": "wrong"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "answer": "Easier to flip than most",
+     "status": "wrong"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "answer": "Harder to flip than most",
+     "status": "correct"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "answer": "Harder to flip than most",
+     "status": "correct"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "answer": "Harder to flip than most",
+     "status": "correct"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "answer": "Harder to flip than most",
+     "status": "correct"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "answer": "Harder to flip than most",
+     "status": "correct"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "answer": "Harder to flip than most",
+     "status": "correct"
+    }
+   ]
+  },
+  {
+   "id": "C6",
+   "label": "Push strength at which the answer first changed (default layer)",
+   "prompt": "At the default layer, at what push strength did the answer first change?",
+   "key": "Set A: 0.019 (marker) or 0.02 (slider) · Set B: 0.010 or 0.015",
+   "correct": 13,
+   "wrong": 4,
+   "notsure": 0,
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "answer": "0.015",
+     "status": "correct"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "answer": "0.019",
+     "status": "correct"
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "answer": "0.019",
+     "status": "correct"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "answer": "0.01",
+     "status": "correct"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "answer": "0.02",
+     "status": "correct"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "answer": "0.01",
+     "status": "correct"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "answer": "0.015",
+     "status": "correct"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "answer": "0.019",
+     "status": "correct"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "answer": "0.01",
+     "status": "correct"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "answer": "0.03",
+     "status": "wrong"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "answer": "20",
+     "status": "wrong"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "answer": "0.035",
+     "status": "wrong"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "answer": "0.01",
+     "status": "correct"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "answer": "0.019",
+     "status": "correct"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "answer": "The answer flipped after the value 0.01",
+     "status": "correct"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "answer": "0.01",
+     "status": "correct"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "answer": "0.03",
+     "status": "wrong"
+    }
+   ]
+  },
+  {
+   "id": "C7",
+   "label": "What the answer changed to",
+   "prompt": "What did the answer change to?",
+   "key": "Set A: Atlantic Ocean · Set B: Lagos",
+   "correct": 16,
+   "wrong": 1,
+   "notsure": 0,
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "answer": "Lagos",
+     "status": "correct"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "answer": "Atlantic Ocean",
+     "status": "correct"
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "answer": "Atlantic Ocean",
+     "status": "correct"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "answer": "Lagos",
+     "status": "correct"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "answer": "Atlantic",
+     "status": "correct"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "answer": "Lagos",
+     "status": "correct"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "answer": "Lagos",
+     "status": "correct"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "answer": "Atlantic Ocean",
+     "status": "correct"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "answer": "Lagos",
+     "status": "correct"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "answer": "Lagos",
+     "status": "correct"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "answer": "Kyoto",
+     "status": "wrong"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "answer": "Atlantic ocean",
+     "status": "correct"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "answer": "lagos",
+     "status": "correct"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "answer": "Atlantic Ocean",
+     "status": "correct"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "answer": "Lagos",
+     "status": "correct"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "answer": "Lagos",
+     "status": "correct"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "answer": "Lagos",
+     "status": "correct"
+    }
+   ]
+  },
+  {
+   "id": "C8",
+   "label": "At layer 5 compared with the default layer, the answer…",
+   "prompt": "At layer 5, compared with the default layer, the answer…",
+   "key": "Set A: Changed at a larger push · Set B: Never changed",
+   "correct": 15,
+   "wrong": 2,
+   "notsure": 0,
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "answer": "Never changed",
+     "status": "correct"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "answer": "Changed at a larger push",
+     "status": "correct"
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "answer": "Changed at a larger push",
+     "status": "correct"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "answer": "Never changed",
+     "status": "correct"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "answer": "Changed at a larger push",
+     "status": "correct"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "answer": "Never changed",
+     "status": "correct"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "answer": "Never changed",
+     "status": "correct"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "answer": "Changed at a larger push",
+     "status": "correct"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "answer": "Changed at a larger push",
+     "status": "wrong"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "answer": "Never changed",
+     "status": "correct"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "answer": "Never changed",
+     "status": "wrong"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "answer": "Changed at a larger push",
+     "status": "correct"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "answer": "Never changed",
+     "status": "correct"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "answer": "Changed at a larger push",
+     "status": "correct"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "answer": "Never changed",
+     "status": "correct"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "answer": "Never changed",
+     "status": "correct"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "answer": "Never changed",
+     "status": "correct"
+    }
+   ]
+  }
+ ],
+ "task_conf": {
+  "id": "C5",
+  "prompt": "How confident are you in your answers above?",
+  "min": 1,
+  "max": 7,
+  "counts": [
+   0,
+   0,
+   1,
+   2,
+   3,
+   8,
+   3
+  ],
+  "n": 17,
+  "mean": 5.59,
+  "median": 6
+ },
+ "slider_expect": {
+  "id": "C9",
+  "prompt": "What happened as I moved the slider matched what I expected.",
+  "min": 1,
+  "max": 7,
+  "counts": [
+   0,
+   0,
+   3,
+   1,
+   2,
+   4,
+   7
+  ],
+  "n": 17,
+  "mean": 5.65,
+  "median": 6
+ },
+ "autoplay": {
+  "id": "C10",
+  "prompt": "Did you use Auto-play?",
+  "options": [
+   [
+    "Yes, before dragging myself",
+    4
+   ],
+   [
+    "Yes, after dragging myself",
+    8
+   ],
+   [
+    "No",
+    5
+   ]
+  ],
+  "n": 17
+ },
+ "predictions": [
+  {
+   "id": "q09",
+   "question": "What is the capital of Australia?",
+   "answer": "Canberra",
+   "gold": "Canberra",
+   "correct": true,
+   "p": 0.9586,
+   "margin": 0.0323,
+   "band": "Moderate",
+   "sets": [
+    "A"
+   ],
+   "counts": [
+    1,
+    1,
+    1,
+    4,
+    0
+   ],
+   "n": 7,
+   "judged_right": 5
+  },
+  {
+   "id": "q17",
+   "question": "What is the capital of Burkina Faso?",
+   "answer": "Ouagadougou",
+   "gold": "Ouagadougou",
+   "correct": true,
+   "p": 0.6624,
+   "margin": 0.0244,
+   "band": "Moderate",
+   "sets": [
+    "A"
+   ],
+   "counts": [
+    0,
+    0,
+    6,
+    0,
+    1
+   ],
+   "n": 7,
+   "judged_right": 6
+  },
+  {
+   "id": "q22",
+   "question": "What is the capital of Bhutan?",
+   "answer": "Thimphu",
+   "gold": "Thimphu",
+   "correct": true,
+   "p": 0.5978,
+   "margin": 0.0126,
+   "band": "Fragile",
+   "sets": [
+    "B"
+   ],
+   "counts": [
+    2,
+    1,
+    6,
+    0,
+    1
+   ],
+   "n": 10,
+   "judged_right": 6
+  },
+  {
+   "id": "q08",
+   "question": "What is the capital of Germany?",
+   "answer": "Berlin",
+   "gold": "Berlin",
+   "correct": true,
+   "p": 0.9875,
+   "margin": 0.0476,
+   "band": "Robust",
+   "sets": [
+    "B"
+   ],
+   "counts": [
+    0,
+    0,
+    1,
+    9,
+    0
+   ],
+   "n": 10,
+   "judged_right": 10
+  },
+  {
+   "id": "q19",
+   "question": "Which element has the chemical symbol W?",
+   "answer": "Oxygen",
+   "gold": "Tungsten",
+   "correct": false,
+   "p": 0.1852,
+   "margin": 0.0034,
+   "band": "Fragile",
+   "sets": [
+    "A",
+    "B"
+   ],
+   "counts": [
+    12,
+    3,
+    2,
+    0,
+    0
+   ],
+   "n": 17,
+   "judged_right": 15
+  },
+  {
+   "id": "q21",
+   "question": "Who painted The Garden of Earthly Delights?",
+   "answer": "Leonardo",
+   "gold": "Bosch",
+   "correct": false,
+   "p": 0.1517,
+   "margin": 0.0047,
+   "band": "Fragile",
+   "sets": [
+    "A"
+   ],
+   "counts": [
+    2,
+    4,
+    0,
+    0,
+    1
+   ],
+   "n": 7,
+   "judged_right": 6
+  },
+  {
+   "id": "q23",
+   "question": "Who discovered the electron?",
+   "answer": "Rutherford",
+   "gold": "Thomson",
+   "correct": false,
+   "p": 0.3237,
+   "margin": 0.0074,
+   "band": "Fragile",
+   "sets": [
+    "B"
+   ],
+   "counts": [
+    2,
+    4,
+    3,
+    1,
+    0
+   ],
+   "n": 10,
+   "judged_right": 6
+  }
+ ],
+ "pred_views": {
+  "id": "C14",
+  "prompt": "Which views did you use to decide?",
+  "n": 17,
+  "options": [
+   [
+    "R0 Baseline",
+    12
+   ],
+   [
+    "R1 Score",
+    10
+   ],
+   [
+    "R2 Flip curve",
+    6
+   ],
+   [
+    "R3 Push it",
+    7
+   ],
+   [
+    "R4 Counterfactual",
+    4
+   ],
+   [
+    "Own knowledge",
+    6
+   ]
+  ]
+ },
+ "reliance": {
+  "id": "C15",
+  "prompt": "How much did you rely on your own knowledge versus the interface?",
+  "min": 1,
+  "max": 7,
+  "counts": [
+   0,
+   2,
+   4,
+   4,
+   4,
+   3,
+   0
+  ],
+  "n": 17,
+  "mean": 4.12,
+  "median": 4
+ },
+ "steering": [
+  {
+   "id": "D1a",
+   "prompt": "I felt like I was controlling what the model would say.",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    2,
+    2,
+    6,
+    2,
+    4,
+    1,
+    0
+   ],
+   "n": 17,
+   "mean": 3.41,
+   "median": 3
+  },
+  {
+   "id": "D1b",
+   "prompt": "I understood what “push strength” represents.",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    0,
+    0,
+    2,
+    2,
+    3,
+    7,
+    3
+   ],
+   "n": 17,
+   "mean": 5.41,
+   "median": 6
+  },
+  {
+   "id": "D1c",
+   "prompt": "I understood what “layer” represents and why it matters.",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    0,
+    1,
+    1,
+    3,
+    4,
+    4,
+    4
+   ],
+   "n": 17,
+   "mean": 5.24,
+   "median": 5
+  },
+  {
+   "id": "D1d",
+   "prompt": "Watching the answer flip helped me understand how stable the answer is.",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    0,
+    0,
+    2,
+    0,
+    1,
+    8,
+    6
+   ],
+   "n": 17,
+   "mean": 5.94,
+   "median": 6
+  },
+  {
+   "id": "D1e",
+   "prompt": "The “flips at” marker matched what I saw when I pushed.",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    0,
+    2,
+    2,
+    0,
+    4,
+    5,
+    4
+   ],
+   "n": 17,
+   "mean": 5.18,
+   "median": 6
+  },
+  {
+   "id": "D1f",
+   "prompt": "I wanted to push the model toward a word of my own choosing.",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    4,
+    5,
+    1,
+    5,
+    2,
+    0,
+    0
+   ],
+   "n": 17,
+   "mean": 2.76,
+   "median": 2
+  },
+  {
+   "id": "D1g",
+   "prompt": "Steering felt like a way to test the model, not just a demo.",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    0,
+    1,
+    4,
+    2,
+    5,
+    2,
+    3
+   ],
+   "n": 17,
+   "mean": 4.71,
+   "median": 5
+  }
+ ],
+ "live": {
+  "id": "D2",
+  "prompt": "While using Push it, did it feel like you were changing a live model or replaying recorded results?",
+  "options": [
+   [
+    "Changing the live model",
+    1
+   ],
+   [
+    "Replaying recorded results",
+    13
+   ],
+   [
+    "Not sure",
+    0
+   ],
+   [
+    "I didn’t think about it",
+    3
+   ]
+  ],
+  "n": 17
+ },
+ "note": {
+  "id": "D3",
+  "prompt": "Did you notice the note “Values are precomputed; the slider snaps to tested strengths”?",
+  "options": [
+   [
+    "Yes",
+    6
+   ],
+   [
+    "No",
+    11
+   ]
+  ],
+  "n": 17
+ },
+ "view_ratings": [
+  {
+   "view": "R0 Baseline",
+   "key": "r0",
+   "items": [
+    {
+     "id": "E1_r0",
+     "prompt": "I understood what this view was showing.",
+     "min": 1,
+     "max": 7,
+     "counts": [
+      0,
+      0,
+      1,
+      0,
+      3,
+      0,
+      13
+     ],
+     "n": 17,
+     "mean": 6.41,
+     "median": 7
+    },
+    {
+     "id": "E2_r0",
+     "prompt": "This view helped me decide whether to trust the answer.",
+     "min": 1,
+     "max": 7,
+     "counts": [
+      0,
+      1,
+      0,
+      1,
+      3,
+      6,
+      6
+     ],
+     "n": 17,
+     "mean": 5.82,
+     "median": 6
+    },
+    {
+     "id": "E3_r0",
+     "prompt": "This view was visually clear.",
+     "min": 1,
+     "max": 7,
+     "counts": [
+      0,
+      0,
+      1,
+      0,
+      2,
+      4,
+      10
+     ],
+     "n": 17,
+     "mean": 6.29,
+     "median": 7
+    }
+   ]
+  },
+  {
+   "view": "R1 Score",
+   "key": "r1",
+   "items": [
+    {
+     "id": "E1_r1",
+     "prompt": "I understood what this view was showing.",
+     "min": 1,
+     "max": 7,
+     "counts": [
+      0,
+      2,
+      0,
+      2,
+      6,
+      2,
+      5
+     ],
+     "n": 17,
+     "mean": 5.24,
+     "median": 5
+    },
+    {
+     "id": "E2_r1",
+     "prompt": "This view helped me decide whether to trust the answer.",
+     "min": 1,
+     "max": 7,
+     "counts": [
+      1,
+      2,
+      0,
+      1,
+      5,
+      5,
+      3
+     ],
+     "n": 17,
+     "mean": 5,
+     "median": 5
+    },
+    {
+     "id": "E3_r1",
+     "prompt": "This view was visually clear.",
+     "min": 1,
+     "max": 7,
+     "counts": [
+      0,
+      1,
+      4,
+      0,
+      1,
+      4,
+      7
+     ],
+     "n": 17,
+     "mean": 5.41,
+     "median": 6
+    }
+   ]
+  },
+  {
+   "view": "R2 Flip curve",
+   "key": "r2",
+   "items": [
+    {
+     "id": "E1_r2",
+     "prompt": "I understood what this view was showing.",
+     "min": 1,
+     "max": 7,
+     "counts": [
+      2,
+      2,
+      1,
+      3,
+      3,
+      4,
+      2
+     ],
+     "n": 17,
+     "mean": 4.35,
+     "median": 5
+    },
+    {
+     "id": "E2_r2",
+     "prompt": "This view helped me decide whether to trust the answer.",
+     "min": 1,
+     "max": 7,
+     "counts": [
+      2,
+      3,
+      1,
+      3,
+      4,
+      2,
+      2
+     ],
+     "n": 17,
+     "mean": 4.06,
+     "median": 4
+    },
+    {
+     "id": "E3_r2",
+     "prompt": "This view was visually clear.",
+     "min": 1,
+     "max": 7,
+     "counts": [
+      0,
+      4,
+      0,
+      3,
+      2,
+      4,
+      4
+     ],
+     "n": 17,
+     "mean": 4.82,
+     "median": 5
+    }
+   ]
+  },
+  {
+   "view": "R3 Push it",
+   "key": "r3",
+   "items": [
+    {
+     "id": "E1_r3",
+     "prompt": "I understood what this view was showing.",
+     "min": 1,
+     "max": 7,
+     "counts": [
+      0,
+      1,
+      0,
+      2,
+      4,
+      5,
+      5
+     ],
+     "n": 17,
+     "mean": 5.59,
+     "median": 6
+    },
+    {
+     "id": "E2_r3",
+     "prompt": "This view helped me decide whether to trust the answer.",
+     "min": 1,
+     "max": 7,
+     "counts": [
+      0,
+      2,
+      1,
+      2,
+      1,
+      6,
+      5
+     ],
+     "n": 17,
+     "mean": 5.35,
+     "median": 6
+    },
+    {
+     "id": "E3_r3",
+     "prompt": "This view was visually clear.",
+     "min": 1,
+     "max": 7,
+     "counts": [
+      0,
+      1,
+      1,
+      1,
+      4,
+      4,
+      6
+     ],
+     "n": 17,
+     "mean": 5.59,
+     "median": 6
+    }
+   ]
+  },
+  {
+   "view": "R4 Counterfactual",
+   "key": "r4",
+   "items": [
+    {
+     "id": "E1_r4",
+     "prompt": "I understood what this view was showing.",
+     "min": 1,
+     "max": 7,
+     "counts": [
+      0,
+      0,
+      2,
+      1,
+      4,
+      3,
+      7
+     ],
+     "n": 17,
+     "mean": 5.71,
+     "median": 6
+    },
+    {
+     "id": "E2_r4",
+     "prompt": "This view helped me decide whether to trust the answer.",
+     "min": 1,
+     "max": 7,
+     "counts": [
+      1,
+      1,
+      2,
+      3,
+      5,
+      4,
+      1
+     ],
+     "n": 17,
+     "mean": 4.53,
+     "median": 5
+    },
+    {
+     "id": "E3_r4",
+     "prompt": "This view was visually clear.",
+     "min": 1,
+     "max": 7,
+     "counts": [
+      0,
+      0,
+      2,
+      5,
+      2,
+      4,
+      4
+     ],
+     "n": 17,
+     "mean": 5.18,
+     "median": 5
+    }
+   ]
+  }
+ ],
+ "ranking": [
+  {
+   "view": "R0 Baseline",
+   "key": "r0",
+   "mean": 1.53,
+   "counts": [
+    11,
+    4,
+    1,
+    1,
+    0
+   ]
+  },
+  {
+   "view": "R3 Push it",
+   "key": "r3",
+   "mean": 2.65,
+   "counts": [
+    3,
+    4,
+    7,
+    2,
+    1
+   ]
+  },
+  {
+   "view": "R1 Score",
+   "key": "r1",
+   "mean": 3.24,
+   "counts": [
+    0,
+    6,
+    4,
+    4,
+    3
+   ]
+  },
+  {
+   "view": "R4 Counterfactual",
+   "key": "r4",
+   "mean": 3.76,
+   "counts": [
+    1,
+    2,
+    3,
+    5,
+    6
+   ]
+  },
+  {
+   "view": "R2 Flip curve",
+   "key": "r2",
+   "mean": 3.82,
+   "counts": [
+    2,
+    1,
+    2,
+    5,
+    7
+   ]
+  }
+ ],
+ "scale_sense": {
+  "id": "E5",
+  "prompt": "In R1, 0.048 is labeled “Robust”. Did 0.048 seem like a small or a large number to you?",
+  "options": [
+   [
+    "Small",
+    8
+   ],
+   [
+    "Large",
+    3
+   ],
+   [
+    "I had no sense of scale",
+    5
+   ],
+   [
+    "Didn’t notice",
+    1
+   ]
+  ],
+  "n": 17
+ },
+ "nudge_match": {
+  "id": "E6",
+  "prompt": "In R4, “a large internal nudge” matched the strength of 0.048 shown.",
+  "min": 1,
+  "max": 7,
+  "counts": [
+   0,
+   2,
+   1,
+   7,
+   4,
+   1,
+   2
+  ],
+  "n": 17,
+  "mean": 4.41,
+  "median": 4
+ },
+ "understanding": [
+  {
+   "id": "F1",
+   "label": "For question 1, “Robustness 0.048” means…",
+   "prompt": "For question 1, “Robustness 0.048” means…",
+   "key": "A push about 4.8% the size of the model’s internal state at one layer is enough to change the answer",
+   "correct": 13,
+   "wrong": 0,
+   "notsure": 4,
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "answer": "A push about 4.8% the size of the model’s internal state at one layer is enough to change the answer",
+     "status": "correct"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "answer": "A push about 4.8% the size of the model’s internal state at one layer is enough to change the answer",
+     "status": "correct"
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "answer": "A push about 4.8% the size of the model’s internal state at one layer is enough to change the answer",
+     "status": "correct"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "answer": "A push about 4.8% the size of the model’s internal state at one layer is enough to change the answer",
+     "status": "correct"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "answer": "A push about 4.8% the size of the model’s internal state at one layer is enough to change the answer",
+     "status": "correct"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "answer": "A push about 4.8% the size of the model’s internal state at one layer is enough to change the answer",
+     "status": "correct"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "answer": "A push about 4.8% the size of the model’s internal state at one layer is enough to change the answer",
+     "status": "correct"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "answer": "A push about 4.8% the size of the model’s internal state at one layer is enough to change the answer",
+     "status": "correct"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "answer": "A push about 4.8% the size of the model’s internal state at one layer is enough to change the answer",
+     "status": "correct"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "answer": "A push about 4.8% the size of the model’s internal state at one layer is enough to change the answer",
+     "status": "correct"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "answer": "A push about 4.8% the size of the model’s internal state at one layer is enough to change the answer",
+     "status": "correct"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "answer": "A push about 4.8% the size of the model’s internal state at one layer is enough to change the answer",
+     "status": "correct"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "answer": "A push about 4.8% the size of the model’s internal state at one layer is enough to change the answer",
+     "status": "correct"
+    }
+   ]
+  },
+  {
+   "id": "F2",
+   "label": "If the model’s output confidence is 99%, its answer must also be hard to flip.",
+   "prompt": "If the model’s output confidence is 99%, its answer must also be hard to flip.",
+   "key": "False",
+   "correct": 10,
+   "wrong": 5,
+   "notsure": 2,
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "answer": "FALSE",
+     "status": "correct"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "answer": "FALSE",
+     "status": "correct"
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "answer": "FALSE",
+     "status": "correct"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "answer": "FALSE",
+     "status": "correct"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "answer": "TRUE",
+     "status": "wrong"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "answer": "TRUE",
+     "status": "wrong"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "answer": "FALSE",
+     "status": "correct"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "answer": "FALSE",
+     "status": "correct"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "answer": "TRUE",
+     "status": "wrong"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "answer": "TRUE",
+     "status": "wrong"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "answer": "FALSE",
+     "status": "correct"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "answer": "FALSE",
+     "status": "correct"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "answer": "TRUE",
+     "status": "wrong"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "answer": "FALSE",
+     "status": "correct"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "answer": "FALSE",
+     "status": "correct"
+    }
+   ]
+  },
+  {
+   "id": "F3",
+   "label": "The Fragile / Moderate / Robust labels are based on…",
+   "prompt": "The Fragile / Moderate / Robust labels are based on…",
+   "key": "How the answer compares with the other questions in this set",
+   "correct": 7,
+   "wrong": 6,
+   "notsure": 4,
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "answer": "Fixed thresholds from the original paper",
+     "status": "wrong"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "answer": "How the answer compares with the other questions in this set",
+     "status": "correct"
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "answer": "Fixed thresholds from the original paper",
+     "status": "wrong"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "answer": "Whether the answer is correct",
+     "status": "wrong"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "answer": "Whether the answer is correct",
+     "status": "wrong"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "answer": "Fixed thresholds from the original paper",
+     "status": "wrong"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "answer": "How the answer compares with the other questions in this set",
+     "status": "correct"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "answer": "How the answer compares with the other questions in this set",
+     "status": "correct"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "answer": "How the answer compares with the other questions in this set",
+     "status": "correct"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "answer": "Fixed thresholds from the original paper",
+     "status": "wrong"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "answer": "How the answer compares with the other questions in this set",
+     "status": "correct"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "answer": "How the answer compares with the other questions in this set",
+     "status": "correct"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "answer": "How the answer compares with the other questions in this set",
+     "status": "correct"
+    }
+   ]
+  },
+  {
+   "id": "F4",
+   "label": "In the R2 flip curve, the grey lines show…",
+   "prompt": "In the R2 flip curve, the grey lines show…",
+   "key": "The same push at other layers",
+   "correct": 12,
+   "wrong": 0,
+   "notsure": 5,
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "answer": "The same push at other layers",
+     "status": "correct"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "answer": "The same push at other layers",
+     "status": "correct"
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "answer": "The same push at other layers",
+     "status": "correct"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "answer": "The same push at other layers",
+     "status": "correct"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "answer": "The same push at other layers",
+     "status": "correct"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "answer": "The same push at other layers",
+     "status": "correct"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "answer": "The same push at other layers",
+     "status": "correct"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "answer": "The same push at other layers",
+     "status": "correct"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "answer": "The same push at other layers",
+     "status": "correct"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "answer": "The same push at other layers",
+     "status": "correct"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "answer": "The same push at other layers",
+     "status": "correct"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "answer": "The same push at other layers",
+     "status": "correct"
+    }
+   ]
+  },
+  {
+   "id": "F5",
+   "label": "Where is the push applied?",
+   "prompt": "Where is the push applied?",
+   "key": "To the model’s internal state at one layer, while it reads the question",
+   "correct": 15,
+   "wrong": 1,
+   "notsure": 1,
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "answer": "To the wording of the question",
+     "status": "wrong"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "answer": "To the model’s internal state at one layer, while it reads the question",
+     "status": "correct"
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "answer": "To the model’s internal state at one layer, while it reads the question",
+     "status": "correct"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "answer": "To the model’s internal state at one layer, while it reads the question",
+     "status": "correct"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "answer": "To the model’s internal state at one layer, while it reads the question",
+     "status": "correct"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "answer": "To the model’s internal state at one layer, while it reads the question",
+     "status": "correct"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "answer": "To the model’s internal state at one layer, while it reads the question",
+     "status": "correct"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "answer": "To the model’s internal state at one layer, while it reads the question",
+     "status": "correct"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "answer": "To the model’s internal state at one layer, while it reads the question",
+     "status": "correct"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "answer": "To the model’s internal state at one layer, while it reads the question",
+     "status": "correct"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "answer": "To the model’s internal state at one layer, while it reads the question",
+     "status": "correct"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "answer": "To the model’s internal state at one layer, while it reads the question",
+     "status": "correct"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "answer": "To the model’s internal state at one layer, while it reads the question",
+     "status": "correct"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "answer": "To the model’s internal state at one layer, while it reads the question",
+     "status": "correct"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "answer": "To the model’s internal state at one layer, while it reads the question",
+     "status": "correct"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "answer": "To the model’s internal state at one layer, while it reads the question",
+     "status": "correct"
+    }
+   ]
+  },
+  {
+   "id": "F6",
+   "label": "If the answer changes from “William Shakespeare” to “Shakespeare”, does that count as a flip here?",
+   "prompt": "If the answer changes from “William Shakespeare” to “Shakespeare”, does that count as a flip here?",
+   "key": "No",
+   "correct": 7,
+   "wrong": 4,
+   "notsure": 6,
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "answer": "Yes",
+     "status": "wrong"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "answer": "Yes",
+     "status": "wrong"
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "answer": "No",
+     "status": "correct"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "answer": "Yes",
+     "status": "wrong"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "answer": "No",
+     "status": "correct"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "answer": "No",
+     "status": "correct"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "answer": "No",
+     "status": "correct"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "answer": "No",
+     "status": "correct"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "answer": "No",
+     "status": "correct"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "answer": "No",
+     "status": "correct"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "answer": "Yes",
+     "status": "wrong"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "answer": "Not sure",
+     "status": "notsure"
+    }
+   ]
+  },
+  {
+   "id": "F7",
+   "label": "A small robustness score tells you that…",
+   "prompt": "A small robustness score tells you that…",
+   "key": "The answer changes under a small tested internal push; this alone does not establish whether it is correct",
+   "correct": 15,
+   "wrong": 0,
+   "notsure": 2,
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "answer": "The answer changes under a small tested internal push; this alone does not establish whether it is correct",
+     "status": "correct"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "answer": "The answer changes under a small tested internal push; this alone does not establish whether it is correct",
+     "status": "correct"
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "answer": "The answer changes under a small tested internal push; this alone does not establish whether it is correct",
+     "status": "correct"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "answer": "The answer changes under a small tested internal push; this alone does not establish whether it is correct",
+     "status": "correct"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "answer": "The answer changes under a small tested internal push; this alone does not establish whether it is correct",
+     "status": "correct"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "answer": "The answer changes under a small tested internal push; this alone does not establish whether it is correct",
+     "status": "correct"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "answer": "The answer changes under a small tested internal push; this alone does not establish whether it is correct",
+     "status": "correct"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "answer": "The answer changes under a small tested internal push; this alone does not establish whether it is correct",
+     "status": "correct"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "answer": "The answer changes under a small tested internal push; this alone does not establish whether it is correct",
+     "status": "correct"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "answer": "The answer changes under a small tested internal push; this alone does not establish whether it is correct",
+     "status": "correct"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "answer": "The answer changes under a small tested internal push; this alone does not establish whether it is correct",
+     "status": "correct"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "answer": "Not sure",
+     "status": "notsure"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "answer": "The answer changes under a small tested internal push; this alone does not establish whether it is correct",
+     "status": "correct"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "answer": "The answer changes under a small tested internal push; this alone does not establish whether it is correct",
+     "status": "correct"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "answer": "The answer changes under a small tested internal push; this alone does not establish whether it is correct",
+     "status": "correct"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "answer": "The answer changes under a small tested internal push; this alone does not establish whether it is correct",
+     "status": "correct"
+    }
+   ]
+  }
+ ],
+ "trust": [
+  {
+   "id": "G1a",
+   "prompt": "Robustness told me something that output confidence alone did not.",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    1,
+    1,
+    1,
+    0,
+    1,
+    9,
+    4
+   ],
+   "n": 17,
+   "mean": 5.47,
+   "median": 6
+  },
+  {
+   "id": "G1b",
+   "prompt": "I could tell when to trust an answer and when to doubt it.",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    0,
+    3,
+    2,
+    1,
+    4,
+    6,
+    1
+   ],
+   "n": 17,
+   "mean": 4.65,
+   "median": 5
+  },
+  {
+   "id": "G1c",
+   "prompt": "I would want robustness shown next to confidence in an AI tool I use.",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    0,
+    2,
+    0,
+    1,
+    3,
+    1,
+    10
+   ],
+   "n": 17,
+   "mean": 5.82,
+   "median": 7
+  },
+  {
+   "id": "G1d",
+   "prompt": "Seeing answers flip made me trust the model less overall.",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    2,
+    1,
+    0,
+    2,
+    2,
+    6,
+    4
+   ],
+   "n": 17,
+   "mean": 5.06,
+   "median": 6
+  },
+  {
+   "id": "G1e",
+   "prompt": "The interface made the model’s internal workings feel understandable.",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    0,
+    0,
+    1,
+    2,
+    5,
+    6,
+    3
+   ],
+   "n": 17,
+   "mean": 5.47,
+   "median": 6
+  },
+  {
+   "id": "G1f",
+   "prompt": "The visuals made the model seem more reliable than I think it really is.",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    0,
+    4,
+    2,
+    5,
+    2,
+    1,
+    3
+   ],
+   "n": 17,
+   "mean": 4.18,
+   "median": 4
+  }
+ ],
+ "signal": {
+  "id": "G2",
+  "prompt": "For a high-stakes question, which signal would you rely on more?",
+  "options": [
+   [
+    "Output confidence",
+    3
+   ],
+   [
+    "Robustness",
+    6
+   ],
+   [
+    "Both equally",
+    6
+   ],
+   [
+    "Neither",
+    1
+   ],
+   [
+    "Not sure",
+    1
+   ]
+  ],
+  "n": 17
+ },
+ "usability": [
+  {
+   "id": "H1",
+   "prompt": "This interface’s capabilities meet my requirements.",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    0,
+    0,
+    2,
+    1,
+    5,
+    6,
+    3
+   ],
+   "n": 17,
+   "mean": 5.41,
+   "median": 6
+  },
+  {
+   "id": "H2",
+   "prompt": "This interface is easy to use.",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    0,
+    0,
+    0,
+    2,
+    3,
+    5,
+    7
+   ],
+   "n": 17,
+   "mean": 6,
+   "median": 6
+  },
+  {
+   "id": "H3",
+   "prompt": "How mentally demanding was it to use this interface?",
+   "min": 1,
+   "max": 7,
+   "counts": [
+    0,
+    6,
+    1,
+    4,
+    3,
+    3,
+    0
+   ],
+   "n": 17,
+   "mean": 3.76,
+   "median": 4
+  }
+ ],
+ "texts": [
+  {
+   "id": "B1",
+   "prompt": "In one or two sentences, what do you think this interface is showing you?",
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "text": "how reliable the answers to different questions are. how the answers come to be."
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "text": "Metrics of model confidence and visualizations that help explain the model's internal reasoning."
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "text": "The results of nudging AI's responses"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "text": "An AI's lack of confidence in the answers it gives, or rather its inability to find the correct answer without biases."
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "text": "I believe the interface is showing me that if you nudge a model enough regardless of how confident a model is in an answer there is a point where it flips. Additionally, it is showing that models present data with confidence despite being wrong"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "text": "It seems like the outer layers are more sensitive. Also , it seems like the relationship between confidence and robustness fluctuates based on topic/prompt."
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "text": "For me, it was extremely confusing and vague. The UI/UX is 3/10. There were little to no user clues or definitions to help the user understand what they are seeing. However, the visuals/graphs being displayed were nicely formatted and interactive."
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "text": "The confidence with which a model provides answers to different queries."
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "text": "The chance that it picked answered other than the correct one with push"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "text": "The results on how the model answers questions asked and what could go wrong"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "text": "This interface shows me the likelihood of LLM generative answers to questions along with its confidence when questioned"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "text": "It shows how a model can change its answer when you nudge it in a certain direction. The model also doesn't specify how right it is."
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "text": "I think the interface is showing how close the answer is and how easy is to flip the answer to different one."
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "text": "It's showing us a graph and detailed information on questions that have a different confidence and robustness score."
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "text": "Showing the confidence the model has on an answer"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "text": "It shows me the graphing and metrics of specific questions and the models output and the values needed to tip it into making incorrect answers."
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "text": "The susceptibility of the model´s answer by certainty or likeliness."
+    }
+   ]
+  },
+  {
+   "id": "B2",
+   "prompt": "In your own words, what does “Robustness” mean here?",
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "text": "reliable, trustworthy, based on more data"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "text": "The model's ability to answer questions across different topics."
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "text": "not sure"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "text": "An AI mode's factual accuracy, or capability to answer a wide array of questions."
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "text": "How well does a model stand up to a nudge"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "text": "The model's ability to be consistent when faced with noise."
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "text": "Cant"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "text": "The overall stability of the goven answers"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "text": "Model's ability to constantly give correct answer when given a prompt with bias."
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "text": "How accurate the model can be when answering the questions asked"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "text": "Robustness is the score given for confidence of an answer especially when asked further"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "text": "The models ability to maintain accuracy and consistency when being nudged towards inaccurate outputs."
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "text": "robustness is the push that is needed to flip the answer"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "text": "How likely it is to switch to another word."
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "text": "How strong it feels the answer is"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "text": "How much it is resistant to changing it's answer to something due to pressures in the layer."
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "text": "The tendency of the answer by the data"
+    }
+   ]
+  },
+  {
+   "id": "B6",
+   "prompt": "What was the first thing that confused you, if anything?",
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "text": "the correlation of the tabs"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "text": "At a glance, the Overview section seemed confusing and information-heavy. Understanding it was not straightforward."
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "text": "The page in general was very busy. The graph was confusing"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "text": "What this was all about in the first place."
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "text": "The flip curve was confusing at first but upon looking closer it made sense"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "text": "The general topic of the study was ambiguous."
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "text": "I didnt know what any of the views meant and had no clue what the information being displayed to me even meant."
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "text": "Understanding what exactly flipping did"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "text": "Had to look and understand each one, as it wasn't clear very quickly"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "text": "What exactly the model was doing"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "text": "I don’t understand how having a low robustness versus a low fragility differs"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "text": "The layers"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "text": "what to do with the chart"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "text": "It was harder to see on mobile so I switched to laptop but I would say the different tabs confused me at first because I didn't understand what it was showing at first."
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "text": "The different tabs, at first I thought they were showing all the same answer in different ways, the easiest one to interpret was R1 Score"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "text": "Just knowing what the first graph was showing me, but just reading it made sense, confidence is the x axis."
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "text": "R2 flip curve and internal push"
+    }
+   ]
+  },
+  {
+   "id": "C16",
+   "prompt": "Did anything surprise you once you saw the answer key?",
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "text": "not surprised"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "text": "Yes. I was able to answer the questions by using the visualizations of the model's behavior to help me reason about them."
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "text": "No"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "text": "Not really"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "text": "Not really"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "text": "The first question is pretty simple and I'm surprised the model had low confidence and generated the wrong answer."
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "text": "I could have sworn Rutherford discovered something at the atmoic level. Maybe he discovered the proton, who knows."
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "text": "Not really"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "text": "What is the capital of Bhutan? Since the answers it gave me never said Thimphu, it only said Th which is why I thought it was wrong"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "text": "Yes even if you think the answer is right you need to know exactly the word otherwise there is a possibility that the answer is not correct."
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "text": "Not much surprised me outside of realizing something I thought was correct was wrong which I would not have believed an LLM if not given the answer to be true by a person"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "text": "I was a bit doubtful that I would be right. It surprised me that I was right about all of them"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "text": "no"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "text": "Thought it was Sydney so I trusted my own knowledge more than the model but turns out I was wrong."
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "text": "I’m surprised Thimphu was right since the model was only 60% confident, which I would think is a low number"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "text": "Not really, but it'd be hard to call without prior knowledge for some questions."
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "text": "I was not sure about the first one, Who discovered the electron. But by the uncertainty of the model too, I assumed it was probably wrong"
+    }
+   ]
+  },
+  {
+   "id": "D4",
+   "prompt": "Describe a moment when pushing did something you did not expect.",
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "text": "i didnt expect the layer number to matter as much as it did"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "text": "The word changed into a connector rather than a more meaningful or coherent term."
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "text": "Pushing changed the word, but i didnt catch exactly when it happened, so i had to reduce the pushing"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "text": "N/A"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "text": "I did not expect it to flip as easily as it did for certain questions"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "text": "N/A"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "text": "Push did what I expected."
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "text": "For the layers on the largest ocean question, one of the answers was not “Pacific Ocean” or “Atlantic Ocean” when pushed"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "text": "How easily they were affected"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "text": "Right after I pushed it changed the answer which made me think whether the confidence level of the model for the answer is correct or not."
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "text": "Always pushing it, the LLM would change its answer way more easily than I would’ve thought. As I thought it wouldn’t change in an answer if it had a high word selective rate"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "text": "Not sure"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "text": "N/A"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "text": "Forgot what question but when I pushed, instead of showing the second answer it showed the third answer which was \"The\"."
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "text": "When we pushed it to layer 5, I was surprise the answer was not flipping for one of the questions"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "text": "Depends on the layer, but the thresholds seem to be not what I expected."
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "text": "At the 5th layer I was expecting a flip at the highest push, it did not happen."
+    }
+   ]
+  },
+  {
+   "id": "D5",
+   "prompt": "If you could add one control to Push it, what would it be?",
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "text": "not sure"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "text": "Unsure about it."
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "text": "no notes"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "text": "Autoplay going through the layers as well."
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "text": "Add a way to enter a specific number"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "text": "N/A"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "text": "I don't know"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "text": "Not sure"
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "text": "Updates based on user prompt"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "text": "Save"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "text": "I would want to see a trial run or pushing with a bunch of different words"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "text": "Not sure"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "text": "N/A"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "text": "Not sure"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "text": "Nothing, I can’t think of adding anything to make it better"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "text": "N/A"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "text": "I would not add anything"
+    }
+   ]
+  },
+  {
+   "id": "E7",
+   "prompt": "Which view was most confusing, and why?",
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "text": "r2 because of the graphic"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "text": "R4 Counterfactual, due to the sentence's structure and the number of words it contains."
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "text": "the r1 score, i wasnt sure what it was trying to tell me"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "text": "Flip curve, too busy"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "text": "Flip curve was just a lot to take in a first but I was able to understand it after looking at it a but"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "text": "Some additional information would help me understand the R2 baseline faster."
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "text": "I have no interpretation or user guidance on how to understand the R1 score."
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "text": "The flip curve, because it was a bit harder to understand the graph."
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "text": "R4 since it takes time to understand its impact and what a large internal nudge means"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "text": "The R3 is more confusing as it does not properly let me test the model for how the answer is flipped."
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "text": "I wasn’t sure how to read the graph in R2 exactly and mostly relied on other mwthods"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "text": "R2. Its crowded and hard to comprehend"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "text": "Most of these are well laid out but R1 score seems a little confusing to me at least. I felt it confusing because 0.048 seems small but it is labeled 91 % more internal push to change the answer."
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "text": "Probably the R2 Flip Curve. The lines seem to represent the layers but I don't know exactly what it's trying to tell me."
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "text": "I think it was confusing because I don’t have background in understanding what the numbers meant in relation to the model. Like I can see what it means to be robust and fragile based on the interface, but I wouldn’t be able to describe why"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "text": "I don't really understand the R1 score due to scaling."
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "text": "R2 Flip curve because of the multiple layers and Kyoto curve."
+    }
+   ]
+  },
+  {
+   "id": "G3",
+   "prompt": "Did you find a question where confidence and robustness disagreed? What did you conclude?",
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "text": "no"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "text": "Yes. There was one answer with a lot of confidence but little robustness. I used the flip visualization to analyze when the flip occurred and how stable the answers were across the layers."
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "text": "Not that I noticed"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "text": "Didnt go throught em all..."
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "text": "That even though the model is confident the fact it’s not robust means it might be easier to flip"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "text": "N/A"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "text": "I did not"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "text": "I don’t remember a question where they disagreed."
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "text": "Yes and that high confidence could still lead to a fragile result"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "text": "Yes, I concluded while high confidence makes the answer likely to be more true it is not set on stone and we need check robustness before trusting the answer given."
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "text": "I did not see one"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "text": "Not sure"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "text": "Not sure"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "text": "Yes, I looked more at the robustness and if it was low then I wouldn't trust the confidence score as much."
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "text": "I don’t remember."
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "text": "I don't remember the specific question honestly."
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "text": "Capital of Brazil. I concluded that although the confidence of the answer is high, it´s still vulnerable to flips. Which implies not even easily verifiable data can be 100% trusted."
+    }
+   ]
+  },
+  {
+   "id": "G4",
+   "prompt": "Describe a situation where you would actually use a tool like this.",
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "text": "incorporated to AI I already use"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "text": "Model training or fine-tuning."
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "text": "If I was building my own model"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "text": "Every time i ask AI something factual, just nice to have."
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "text": "Answering a question that has a factual answer for example what time does a train arrive according to their schedule"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "text": "it would be really helpful in academic tasks and research paper assistance to prevent hallucinations."
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "text": "I would use a tool like this to get metrics for training an in-house LM for personal use or for a company."
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "text": "For studies like this; definitely not for everyday AI use, though."
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "text": "When I am asking ai to give me answers regarding medication to use or finical advice. In an emergency or for allergy medication it would particularly be useful"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "text": "Checking the words in a sentence before getting them."
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "text": "In order to make sure LLM outputs could be trusted with thr answers they are giving me"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "text": "Almost for everything to check how reliable a model is for answering questions"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "text": "maybe when double checking a claim"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "text": "If I was a researcher trying to figure out a model's internal reliability and accuracy."
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "text": "For research purposes where I would need actual and correct data, and not something hallucinated by an AI program"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "text": "When making decisions that is more subjective and needs a little more reading into to things like scheduling or analyzing something like a school topic."
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "text": "Would use it in political information. In social media during political events, lots of contradictory  and biased news are published and pretended to be checked by ai tools."
+    }
+   ]
+  },
+  {
+   "id": "H4",
+   "prompt": "One thing we should keep exactly as it is.",
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "text": "the steps"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "text": "R0, R1 and flip visuals."
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "text": "the push and layer scale box"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "text": "Explanations of robustness and nudge"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "text": "The first screen where it shows confidence"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "text": "Everything"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "text": "Keep the general UI"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "text": "The “push it” tab."
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "text": "R0"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "text": "The R0 , Confidence level shown"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "text": "The comparisons between robustness and confidence"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "text": "R3"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "text": "R2 flip curve view"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "text": "The explanations and interface"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "text": "The tabs and directions."
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "text": "The slider, I like the push it tab."
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "text": "Overall information"
+    }
+   ]
+  },
+  {
+   "id": "H5",
+   "prompt": "One thing we should change first.",
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "text": "in \"which views did you use to decide?\" i wasnt able to click \"compare all\" and that was the one that i was using. in the final \"understanding\" i woud have liked to still see the R0 or whichever as a visual reminder"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "text": "Study completion time."
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "text": "when all boxes are showing, make the background a slightly darker color to make the boxes stand out. It was very visually distracting"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "text": "The amount of questions are too little."
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "text": "The push it should let you enter a number"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "text": "Nothing"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "text": "Need to make this more tuned for casual users who don't know all of the concepts (more interactive visuals/explanations)"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "text": "Make the flip curve easier to understand."
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "text": "R4"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "text": "The R3, I do not see any usefulness of that"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "text": "Possibly make the R2 graph more clear and less crowded"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "text": "None"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "text": "N/a"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "text": "R2 flip curve"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "text": "Make the interface more simpler and easy for phone devices. I think it was harder to maneuver around the page on a phone"
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "text": "The robustness scoring needs to be a little mroe clear."
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "text": "R2 Curves"
+    }
+   ]
+  },
+  {
+   "id": "H6",
+   "prompt": "Did anything look broken, overlap, or behave oddly?",
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "text": "the box above because instead of paragraphing it was a one long line"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "text": "No."
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "text": "I first tried this on my phone and things overlapped and looked wrong. After moving it to a computer, it looked fine."
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "text": "No"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "text": "No every thing we presented clearly"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "text": "Not really"
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "text": "No (very smooth UI)"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "text": "No."
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "text": "None"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "text": "No"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "text": "None"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "text": "None"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "text": "None"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "text": "Nope"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "text": "No."
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "text": "No"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "text": "None"
+    }
+   ]
+  },
+  {
+   "id": "H7",
+   "prompt": "Anything else you want to tell us?",
+   "answers": [
+    {
+     "pid": "6efa3e",
+     "set": "B",
+     "text": "no"
+    },
+    {
+     "pid": "66b4dc",
+     "set": "A",
+     "text": "The visuals were very engaging and informative."
+    },
+    {
+     "pid": "82ac8c",
+     "set": "A",
+     "text": "Nice work"
+    },
+    {
+     "pid": "f531e5",
+     "set": "B",
+     "text": "Nah"
+    },
+    {
+     "pid": "e1058a",
+     "set": "A",
+     "text": "This was very well put together and helped me better understand what nudges do to models"
+    },
+    {
+     "pid": "7d8edc",
+     "set": "B",
+     "text": "The interface was really good overall. It was also easy to understand regardless on LLM knowledge level."
+    },
+    {
+     "pid": "4f5150",
+     "set": "B",
+     "text": "None"
+    },
+    {
+     "pid": "cef826",
+     "set": "A",
+     "text": "No."
+    },
+    {
+     "pid": "f55b3b",
+     "set": "B",
+     "text": "Works pretty well, but R4 is kind of confusing"
+    },
+    {
+     "pid": "2c50fa",
+     "set": "B",
+     "text": "None"
+    },
+    {
+     "pid": "19f668",
+     "set": "A",
+     "text": "None"
+    },
+    {
+     "pid": "89e510",
+     "set": "A",
+     "text": "None"
+    },
+    {
+     "pid": "37a41f",
+     "set": "B",
+     "text": "NONE"
+    },
+    {
+     "pid": "c19f43",
+     "set": "A",
+     "text": "Looks good!"
+    },
+    {
+     "pid": "32ed37",
+     "set": "B",
+     "text": "No."
+    },
+    {
+     "pid": "1e0bca",
+     "set": "B",
+     "text": "N/A"
+    },
+    {
+     "pid": "694e45",
+     "set": "B",
+     "text": "None"
+    }
+   ]
+  }
+ ],
+ "people": [
+  {
+   "pid": "6efa3e",
+   "set": "B",
+   "program": "Other",
+   "llm": 3,
+   "mi": 1,
+   "minutes": 42.4,
+   "tasks": 7,
+   "pred": 4,
+   "understanding": 4,
+   "order": "r1 r2 r4 r3",
+   "top": "R0 Baseline",
+   "date": "2026-11-19"
+  },
+  {
+   "pid": "66b4dc",
+   "set": "A",
+   "program": "Undergraduate",
+   "llm": 5,
+   "mi": 1,
+   "minutes": 82.9,
+   "tasks": 7,
+   "pred": 4,
+   "understanding": 6,
+   "order": "r3 r4 r2 r1",
+   "top": "R2 Flip curve",
+   "date": "2026-11-20"
+  },
+  {
+   "pid": "82ac8c",
+   "set": "A",
+   "program": "Undergraduate",
+   "llm": 3,
+   "mi": 1,
+   "minutes": 26.6,
+   "tasks": 5,
+   "pred": 2,
+   "understanding": 2,
+   "order": "r1 r2 r4 r3",
+   "top": "R0 Baseline",
+   "date": "2026-11-20"
+  },
+  {
+   "pid": "f531e5",
+   "set": "B",
+   "program": "Undergraduate",
+   "llm": 3,
+   "mi": 2,
+   "minutes": 33.1,
+   "tasks": 6,
+   "pred": 3,
+   "understanding": 5,
+   "order": "r2 r3 r1 r4",
+   "top": "R3 Push it",
+   "date": "2026-11-20"
+  },
+  {
+   "pid": "e1058a",
+   "set": "A",
+   "program": "Master’s",
+   "llm": 4,
+   "mi": 2,
+   "minutes": 30.5,
+   "tasks": 6,
+   "pred": 4,
+   "understanding": 4,
+   "order": "r1 r2 r4 r3",
+   "top": "R3 Push it",
+   "date": "2026-11-20"
+  },
+  {
+   "pid": "7d8edc",
+   "set": "B",
+   "program": "Undergraduate",
+   "llm": 3,
+   "mi": 2,
+   "minutes": 30.9,
+   "tasks": 6,
+   "pred": 3,
+   "understanding": 3,
+   "order": "r1 r2 r4 r3",
+   "top": "R0 Baseline",
+   "date": "2026-11-20"
+  },
+  {
+   "pid": "4f5150",
+   "set": "B",
+   "program": "Undergraduate",
+   "llm": 3,
+   "mi": 1,
+   "minutes": 17.0,
+   "tasks": 7,
+   "pred": 2,
+   "understanding": 4,
+   "order": "r4 r1 r3 r2",
+   "top": "R0 Baseline",
+   "date": "2026-11-21"
+  },
+  {
+   "pid": "cef826",
+   "set": "A",
+   "program": "Undergraduate",
+   "llm": 1,
+   "mi": 1,
+   "minutes": 20.7,
+   "tasks": 6,
+   "pred": 4,
+   "understanding": 5,
+   "order": "r1 r2 r4 r3",
+   "top": "R0 Baseline",
+   "date": "2026-11-21"
+  },
+  {
+   "pid": "f55b3b",
+   "set": "B",
+   "program": "Undergraduate",
+   "llm": 4,
+   "mi": 4,
+   "minutes": 19.4,
+   "tasks": 5,
+   "pred": 2,
+   "understanding": 7,
+   "order": "r2 r3 r1 r4",
+   "top": "R0 Baseline",
+   "date": "2026-11-21"
+  },
+  {
+   "pid": "2c50fa",
+   "set": "B",
+   "program": "Undergraduate",
+   "llm": 3,
+   "mi": 3,
+   "minutes": 35.6,
+   "tasks": 4,
+   "pred": 2,
+   "understanding": 6,
+   "order": "r1 r2 r4 r3",
+   "top": "R0 Baseline",
+   "date": "2026-11-22"
+  },
+  {
+   "pid": "19f668",
+   "set": "A",
+   "program": "Undergraduate",
+   "llm": 4,
+   "mi": 2,
+   "minutes": 31.0,
+   "tasks": 4,
+   "pred": 3,
+   "understanding": 5,
+   "order": "r4 r1 r3 r2",
+   "top": "R4 Counterfactual",
+   "date": "2026-11-22"
+  },
+  {
+   "pid": "89e510",
+   "set": "A",
+   "program": "Undergraduate",
+   "llm": 3,
+   "mi": 1,
+   "minutes": 29.4,
+   "tasks": 6,
+   "pred": 4,
+   "understanding": 5,
+   "order": "r1 r2 r4 r3",
+   "top": "R3 Push it",
+   "date": "2026-11-22"
+  },
+  {
+   "pid": "37a41f",
+   "set": "B",
+   "program": "Undergraduate",
+   "llm": 5,
+   "mi": 1,
+   "minutes": 1262.3,
+   "tasks": 7,
+   "pred": 4,
+   "understanding": 5,
+   "order": "r3 r4 r2 r1",
+   "top": "R2 Flip curve",
+   "date": "2026-11-22"
+  },
+  {
+   "pid": "1e0bca",
+   "set": "B",
+   "program": "Undergraduate",
+   "llm": 3,
+   "mi": 3,
+   "minutes": 353.9,
+   "tasks": 7,
+   "pred": 4,
+   "understanding": 4,
+   "order": "r2 r3 r1 r4",
+   "top": "R0 Baseline",
+   "date": "2026-11-22"
+  },
+  {
+   "pid": "c19f43",
+   "set": "A",
+   "program": "Undergraduate",
+   "llm": 3,
+   "mi": 1,
+   "minutes": 29.1,
+   "tasks": 7,
+   "pred": 3,
+   "understanding": 5,
+   "order": "r2 r3 r1 r4",
+   "top": "R0 Baseline",
+   "date": "2026-11-23"
+  },
+  {
+   "pid": "32ed37",
+   "set": "B",
+   "program": "Undergraduate",
+   "llm": 3,
+   "mi": 1,
+   "minutes": 36.0,
+   "tasks": 6,
+   "pred": 2,
+   "understanding": 3,
+   "order": "r3 r4 r2 r1",
+   "top": "R0 Baseline",
+   "date": "2026-11-23"
+  },
+  {
+   "pid": "694e45",
+   "set": "B",
+   "program": "Undergraduate",
+   "llm": 3,
+   "mi": 2,
+   "minutes": 153.8,
+   "tasks": 6,
+   "pred": 4,
+   "understanding": 6,
+   "order": "r1 r2 r4 r3",
+   "top": "R0 Baseline",
+   "date": "2026-11-23"
+  }
+ ]
+}
