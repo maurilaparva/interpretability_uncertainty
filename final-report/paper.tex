@@ -6,6 +6,9 @@
 
 \definecolor{paperblue}{HTML}{7f99b0}
 \newcommand{\guideline}[1]{\textit{\color{paperblue}{#1}}}
+% Participant quotation: italic, set off by guillemets so the quote's own
+% inner quote marks stay legible.
+\newcommand{\pq}[1]{\emph{\guillemotleft #1\guillemotright}}
 
 
 \paperID{UNCIRCUIT} % your project ID from your proposal
@@ -101,13 +104,12 @@ steering, visualization design, user study}
 
 \guideline{Outline to write next. Target 1.5 columns.}
 \begin{itemize}
-  \item Products report output confidence. That number says nothing about whether the mechanism behind the
+  \item Interfaces that report uncertainty at all report output confidence. That number says nothing about
+    whether the mechanism behind the
     answer is stable. Name the gap in one paragraph.
   \item Mechanistic uncertainty: the causal robustness margin of
     \citet{komanduriMeasuringMechanisticUncertainty2026}, the smallest internal intervention that changes the
     output. Incorrect and uncertain answers have smaller margins.
-  \item The question of this project is not whether the signal can be measured, but how it should be shown.
-    State the three proposal questions, narrowed to the representation one.
   \item Contributions. One prototype that renders a single mechanistic signal five ways over the same question
     set. An exploratory study with 17 participants on reading accuracy, perceived usefulness and comprehension.
     A set of design problems the study surfaced, chiefly the scale-sense problem and the confusion between a
@@ -116,6 +118,19 @@ steering, visualization design, user study}
     rank-correlated with output confidence, $\rho = 0.71$. That is a limit of the stimulus, and the paper is
     about representation either way.
 \end{itemize}
+
+Our proposal asked three questions about showing mechanistic uncertainty to people. Whether visual
+representations of it help a reader build an intuition for what a model can do, whether the way it is
+displayed changes how well that uncertainty is understood, and whether the answers can be turned into guidance
+for the people who build interpretability interfaces. This study narrows them to the display question, and we
+address them in the following form.
+
+\begin{description}
+  \item[RQ1] Does the choice of representation change how accurately a non-expert reads a mechanistic
+    robustness signal?
+  \item[RQ2] Which representation do readers find most useful for judging whether an answer is fragile?
+  \item[RQ3] What design problems does showing this signal to non-experts surface?
+\end{description}
 
 
 \section{Related Work}
@@ -221,6 +236,22 @@ which is how our overview quadrants are meant to be read.
 \citet{cappuccioExplanationUserInterfaces2025} survey explanation user interfaces as a design space, which we
 used to check that our five views do not miss a family.
 
+\subsection{Measuring mechanistic uncertainty}
+
+\citet{komanduriMeasuringMechanisticUncertainty2026} define the signal we display. Their causal robustness
+margin is the smallest internal intervention that changes a model's output, so a small margin marks an answer
+whose mechanism is easy to dislodge. The intervention is applied to a hidden state rather than to the input,
+which is what separates this from adversarial work in input space. They report that incorrect and uncertain
+answers have smaller margins, which is the property that makes the margin worth showing to a reader at all.
+
+The direction of that intervention comes from a \emph{Jacobian lens}. A language model works through its
+answer in stages, and at each stage it holds a long list of numbers that carries what it has worked out so
+far. A Jacobian lens asks one question about that list. If we nudge it slightly, which way does the answer
+move? It returns the direction that most favours a competing answer over the current one, so a nudge along it
+is the most efficient way to change what the model says. The margin is the size of the smallest nudge that
+actually changes the answer, and a small margin means a small nudge was enough. Appendix~\ref{app:margin}
+gives the formal statement and the approximation we use.
+
 \subsection{Where this work sits}
 
 The premise that internal instability is worth reporting is not ours.
@@ -234,211 +265,145 @@ five ways over one question set, and put the comparison in front of non-expert p
 
 \section{Methods}
 
-\subsection{Stimulus: an approximate robustness margin}
+In this study we compare four ways of showing a model's mechanistic uncertainty from the inside against a
+baseline that shows ordinary output confidence. For this we rely on the definition of
+\citet{komanduriMeasuringMechanisticUncertainty2026}, the smallest internal change that alters the model's
+answer. Finding that change means knowing what the model would say under a given nudge, which is what a logit
+lens provides. It reads a nudged internal state through the model's own output vocabulary, so for every layer
+and every nudge we can see the word the model would produce instead.
 
-We follow the causal robustness margin of \citet{komanduriMeasuringMechanisticUncertainty2026}, the smallest
-internal intervention that changes a model's output. Our implementation approximates it, and the prototype says
-so in an ``About this method'' panel.
+We applied this method to 24 short factual questions covering world capitals, chemical elements, planets, and
+notable figures in the arts and sciences, with eight questions at each of three difficulty levels. For each
+question we obtain the model's preferred answer and its probability, and then, at every layer and every nudge
+size, the word the model would say instead. In this way we obtained a precomputed grid over questions, layers
+and nudge sizes, which is what the views we study draw on. In other words, every view shows the same numbers,
+and only the way they are shown changes. We give the implementation details in Appendix~\ref{app:margin}.
 
-We used \texttt{Qwen2.5-0.5B-Instruct}, which has 24 decoder layers, over 24 short factual questions with
-single-token answers. The items span easy, medium and hard difficulty. The model answers in a few-shot,
-one-word format, and we read logits at the last prompt position. For each item we record the answer token $a$
-and its probability $p_{\mathrm{answer}}$, which is the baseline output confidence. We also record the
-highest-probability alternative token $b$ whose decoding differs from $a$.
+The design of the views relies on three terms, which we introduce as follows. A model builds its answer over a
+stack of \emph{layers}, and we can nudge the state it holds at any one of them. We call the size of a nudge its
+\emph{push strength}, scaled so that it means the same thing at every layer. The \emph{margin} is the smallest
+push strength that changes the answer, taken over all layers, so a small margin means the answer was easy to
+change. We label margins Fragile, Moderate or Robust by splitting our question set into three equal groups, so
+the bands are relative to this set rather than absolute.
 
-The intervention is a contrastive logit-lens direction, $v = W_U[b] - W_U[a]$, normalized to $\hat{v}$. This is
-the special case of the Jacobian lens used in the original work with $J = I$. At decoder layer $\ell$, and at
-the last position only, we add $\alpha \cdot \lVert h_\ell \rVert \cdot \hat{v}$ to the layer's output hidden
-state. Scaling by the residual norm makes $\alpha$ unitless and comparable across layers. Sweeping 40 values of
-$\alpha$ up to $1.5$ for every layer gives, per layer, the probability of $a$, the probability of $b$, and the
-current top-1 token.
+We chose four views that span the range of forms available, from a single number, through a chart, to direct
+manipulation, to plain language. Table~\ref{tab:views} gives each one and the work it draws on. In all five we
+mark the answer token with a fixed colour and the alternative with a contrasting one.
 
-The per-layer margin is the smallest $\alpha$ at which top-1 is no longer $a$, refined by binary search between
-bracketing grid points. Tokens that are merely a different surface form of the same answer do not count as a
-flip. The margin for an item is the minimum over layers. We also record the layer that achieves it and the
-item's percentile within the set.
+\begin{table*}[t]
+  \caption{The five views. R0 is the baseline, because output confidence is the conventional uncertainty signal
+  for a language model. The other four each take a different position on how a fragility signal should reach
+  a reader.}
+  \label{tab:views}
+  \small
+  \begin{tabular}{@{}p{0.205\textwidth} p{0.405\textwidth} p{0.31\textwidth}@{}}
+    \toprule
+    \textbf{View} & \textbf{What it shows} & \textbf{Supporting literature} \\
+    \midrule
+    R0 Baseline confidence &
+      The probability of the answer as a bar, with the top-5 tokens. &
+      The conventional signal, and the one that work on communicating model uncertainty
+      studies~\citep{kimImNotSure2024, boRelyNotRely2024}. \\
+    R1 Margin score &
+      The margin on a banded gauge, with a numeric label and one plain-language comparison. &
+      A single summary value is the form readers take up most
+      readily~\citep{kayWhenIshMy2016, correllValueSuppressingUncertaintyPalettes2018}. \\
+    R2 Flip curve &
+      Probability of the answer against push strength, one line per layer, with the margin layer highlighted. &
+      Fragility shown as a response to perturbation
+      strength~\citep{dasBluffInteractivelyDeciphering2020, youPandaNotPanda2023,
+      stoehrActivationScalingSteering2024}. \\
+    R3 Push it yourself &
+      Sliders for strength and layer, with a live readout of what the model would answer. &
+      Tools that let a user intervene on internals
+      directly~\citep{gevaLMDebuggerInteractiveTool2022, wangHypperSteerHypotheticalSteering2020}. \\
+    R4 Counterfactual sentence &
+      One sentence naming the nudge, the target token, the strength and the layer. &
+      Counterfactual explanation in plain
+      language~\citep{chengDECEDecisionExplorer2020, wangGAMCoachInteractive2023, kuhlLetsGoAlien2023}. \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
 
-Two properties of this stimulus matter for reading our results. First, every answer flips well below the top of
-the sweep, and margins are small in absolute terms, from 0.003 to 0.077. This is the source of the scale-sense
-problem we report. Second, the margin is strongly rank-correlated with output confidence on this set, with
-Spearman $\rho = 0.71$, so the two signals do not diverge as sharply as the design assumes. The prototype
-reports $\rho$ on the overview screen rather than hiding it. Twenty-one of the 24 answers are correct.
+\subsection{Design and procedure}
 
-\subsection{The five representations}
+We designed the study as a self-contained web session that anyone could run on their own machine, with no
+facilitator present. The interface and the questionnaire live in the same page, so participants answered each
+part right after using the views rather than from memory, and the instrument recorded their responses as they
+went.
 
-The same precomputed data is rendered five ways. A fixed colour marks the answer token throughout, and a
-contrasting colour marks the alternative.
+We split the session into five gated parts, so that participants could not read ahead. They began
+with consent and background, then explored the interface freely and reported their first impressions. Next came
+guided tasks that asked them to read a view, steer the model, and predict whether its answer was right. They
+then rated the five views and closed with a comprehension check and open feedback. We give the parts in full in
+Appendix~\ref{app:procedure}.
 
-\begin{description}
-  \item[R0 Baseline confidence] the output probability of the answer as a bar, with the top-5 token
-    distribution. This is what products show today.
-  \item[R1 Margin score] the margin on a gauge with three bands, Fragile, Moderate and Robust, set at tertiles
-    of the item set. It carries a numeric label and one plain-language comparison line.
-  \item[R2 Flip curve] probability of the answer against push strength, one line per layer. The margin layer is
-    highlighted, a marker sits at the flip, and an inset shows layer by strength, coloured by which token is
-    top-1.
-  \item[R3 Push it yourself] two sliders, strength and layer, over the precomputed grid. It shows a live readout
-    of what the model would answer, animated probability bars, and an autoplay sweep.
-  \item[R4 Counterfactual sentence] one sentence naming the size of the nudge, the target token, the strength
-    and the layer, plus a percentile comparison.
-\end{description}
-
-An overview scatter plots output confidence against margin for all 24 items, with median splits and quadrant
-labels. That is where ``confident but fragile'' is meant to become visible.
-
-\subsection{Design}
-
-The study is within-subjects, so every participant sees all five representations. The views are also the
-material participants are asked to rate. Exposure order is therefore counterbalanced per participant for
-R1--R4 in the guided part, reused for the rating section, and recorded with each response as
-\texttt{view\_order}. Items for the graded tasks come in two sets, A and B, assigned at random, so that
-participants working next to each other do not converge on the same answers. Set assignment is recorded as
-\texttt{task\_set}.
+Within that structure the design is within-subjects, so every participant saw all five representations, which
+were also the material they were asked to rate. We counterbalanced the order of R1--R4 in the guided part,
+reused that order for the ratings, and recorded it with each response. The guided tasks are graded, and we
+split their items into two sets, A and B, assigned at random, so that participants working next to each other
+did not converge on the same answers.
 
 \subsection{Pilot}
 
-We ran a pilot round first, with about ten people, mostly classmates. Eight of them submitted complete
-responses through the instrument. All eight were graduate students, five at master's level and three at PhD
-level. The pilot
-tested the instrument rather than measuring anything, and it changed the interface and the questionnaire enough
-that its responses are not comparable with the main study's.
+Before the main study we ran a pilot round to test the interface, improve the user experience and find bugs.
+We recruited about ten people, mostly classmates, and seven of them submitted complete responses. All seven
+were graduate students in HCI and computer science, three at PhD level and four at master's.
 
-The pilot produced the following changes. A welcome page now states the goal, the duration, and that the session
-can be paused. An outline of the five parts was added, so that participants are never dropped into the explorer
-without framing. Free exploration became its own timed part, with the views hidden until the participant
-starts. The former pop-up quick guide was folded into two framing steps at the start of the guided part.
-Exposure to R1--R4 became counterbalanced, with the order recorded. The overview gained a linear axis with zoom
-and a mini-map, after pilot participants misread the original scale. Each variable now has one colour across
-the views, and the explanation text is plainer and larger. The answer key now says ``the model was
-right/wrong'' instead of ``correct/incorrect''. The last build also lengthened the view-by-view walkthrough to
-six to eight minutes.
+Since mechanistic uncertainty is a new topic for most of our participants, what we needed to learn first was
+whether people could find the controls, follow the five parts, and read what each view was showing. We did not
+change the questionnaire, which is the same in the pilot and in the main study.
 
-For that reason the analysis below uses only sessions run on the final build. Every response records the build
-it came from, so the split is auditable rather than a judgement call.
+All six pilot participants who wrote about their first impressions reported the same problem in nearly the same
+words: the interface presented everything at once and explained too little of it. One wrote that there was
+\pq{a lot of information all at once, since the interface opened at `Compare All'. I wasn't sure where to start
+to parse it}. Another called the interface \pq{very `in your face' with no explanations of what it does}. Four
+more reported being overwhelmed by the number of graphs on the opening screen. One of them had not noticed that
+the views could be opened one at a time, and another found the interface easier the longer they used it.
+
+Based on the feedback, we realized that participants read the first impressions section as a lack of framing, a
+flaw in the study rather than as part of it. That is why we made the intent visible instead of filling it in,
+since explaining the two scores up front would shape the impressions we wanted to capture. We added an outline
+of the study, gave free exploration its own timed part with the views hidden until the participant presses
+start, and unlocked the first impressions only after three minutes.
+
+We changed the views themselves and the guided part as well. We folded the former pop-up quick guide into two
+framing steps at its start, counterbalanced exposure to R1--R4 and recorded the order, and lengthened the
+view-by-view walkthrough to six to eight minutes. We also found that the views did not render consistently across
+browsers, so we fixed that and checked the interface in Chrome, Safari and Firefox before the main study. The
+remaining changes were minor presentation fixes, including a linear overview axis with zoom and a mini-map
+after pilot participants misread the original scale, one colour per variable across the views, plainer and
+larger explanations, and clearer wording in the answer key.
+
+Because we changed the interface this much between the two rounds, we treat only the sessions run on the final
+build as the main study, and every finding we report below comes from them.
 
 \subsection{Participants}
 
-For the main study we recruited by convenience sampling. Participants came from an undergraduate NLP class and
-from the authors' own contacts, who were free to pass the link on, so the sample also grew by snowball. Sessions
-were remote and self-paced. Participation was voluntary, anonymous and uncompensated. Every participant gave
-consent on the first screen before seeing the interface, and no identifying information was collected.
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{img/familiarity.pdf}
+  \caption{Self-rated familiarity of the 17 main-study participants, on a five-point scale from little or no
+  exposure to active practice. Segments are counts of participants. Reading top to bottom, the medians are 3, 3
+  and 1, and the means 3.29, 2.65 and 1.71.}
+  \Description{Three horizontal stacked bars. Familiarity with large language models concentrates at the
+  midpoint, familiarity with uncertainty scores spreads across the scale, and familiarity with mechanistic
+  interpretability concentrates at the bottom.}
+  \label{fig:familiarity}
+\end{figure}
 
-Of 25 recorded sessions in total, we analyze the 17 collected on the final build, \texttt{v0.5.0}, between 19
-and 23 November 2026. The other 8 are the pilot responses described above. Of the 17, 7 were assigned task set
-A and 10 set B. Median completion time was 31 minutes against a 20-minute design target.
+For the main study we recruited participants by convenience sampling, gathering them from an undergraduate NLP
+class and within the authors' own network. Most were undergraduates (15 of 17, 88\%), the other two a master's
+student and one who selected ``other''. Everyone took part voluntarily, remotely and at their own pace in a
+browser. We did not collect any demographic information.
 
-We collected no age and no gender. The background items ask for program level and for four kinds of relevant
-experience. The sample is mostly undergraduate, with 15 of 17 participants (88\%) in an undergraduate program,
-one master's student and one who selected ``other''. Self-rated familiarity with large language models, on a
-scale of 1 to 5, centres on the midpoint. The median is 3, with 11 of 17 (65\%) choosing exactly 3 and 5 (29\%)
-choosing 4 or 5. These are people who use language models but do not build them.
-
-Familiarity with mechanistic interpretability is low, which follows from the recruitment pool. The median is 1
-and the mean 1.71, with 14 of 17 (82\%) at 1 or 2 and nobody at the top of the scale. Familiarity with
-confidence or uncertainty scores in machine learning sits in between, at a median of 3 and a mean of 2.65, with
-7 of 17 (41\%) at 1 or 2. We also asked whether participants had ever used a tool that edits or steers a
-model's internal activations. Four said yes, 3 said no, and 10 (59\%) said they were not sure. More
-participants were unsure than said no, which is itself a reading of how unfamiliar the concept is.
-
-Two limits follow. The sample is self-selected and drawn largely from one class, so it is not representative.
-We also did not collect any measure of visualization literacy or HCI background, which would have been the
-natural covariate for how people read the five views. The four experience items are the only handle we have, so
-we treat the study as exploratory throughout.
-
-\subsection{Procedure}
-
-The session runs in the browser in five parts. Each part is gated, so participants cannot read ahead.
-
-\begin{enumerate}
-  \item \textbf{Consent and background (A).} Consent, program level, and four familiarity items.
-  \item \textbf{Free exploration, then first impressions (B).} The views stay hidden until the participant
-    presses ``Start exploring''. The controls are highlighted, and clicking the overview selects an item rather
-    than jumping to a view. First impressions unlock after three minutes. They ask what the interface shows,
-    what ``Robustness'' means in the participant's own words, which views were opened, whether the About panel
-    was read, and what first confused them. These answers capture the unprompted mental model, before any task
-    shapes it.
-  \item \textbf{Guided tasks (C).} Two framing steps come first. ``Learn the ideas'' is identical for everyone
-    and folds in the former quick guide as ``Try a push'' and ``Two scores''. ``Explore the views'' then walks
-    R1--R4 in the participant's counterbalanced order, over about six to eight minutes. The graded tasks cover
-    reading one answer, which means its confidence, the token it flips to, and the easiest layer. They then
-    cover steering with the slider and comparing the two signals. A prediction task follows, in which
-    participants judge for four items whether the model's answer is right. Predictions are submitted before the
-    answer key unlocks. The key then reports whether the model was right or wrong, and whether each prediction
-    matched.
-  \item \textbf{Steering experience (D) and per-view ratings (E).} Seven agreement items ask about the push
-    interaction. Two more ask whether it felt like changing a live model or replaying recorded results, and
-    whether the ``values are precomputed'' caption was noticed. Section E rates each of the five views on three
-    statements and ranks them from most to least useful. It also probes the vocabulary of the design directly.
-    One item asks whether a margin of 0.048 labelled ``Robust'' read as a small or a large number. Another asks
-    whether calling that strength ``a large internal nudge'' matched what was on screen.
-  \item \textbf{Understanding check (F), trust and open feedback (G, H).} Seven graded comprehension items ask
-    what the bands are relative to, what the grey lines in the flip curve are, where the push is applied, and
-    whether a surface-form change counts as a flip. Sections G and H collect agreement items on trust and
-    usefulness, and free-text feedback.
-\end{enumerate}
-
-Section B receives no hints beyond the interface itself, so that the About panel remains part of what is being
-tested. Sections F and D2 therefore measure comprehension after the guided framing. Participants never see
-grades.
-
-One planned task was dropped before data collection. No item in the final set combines high output confidence
-with a Fragile-band margin, so the task that would have tested the ``confident but fragile'' quadrant directly
-has no stimulus. The final comprehension item instead tests fragility under the intervention we actually ran,
-rather than claiming that fragility predicts correctness.
-
-\subsection{Measures}
-
-\begin{itemize}
-  \item \textbf{Reading accuracy.} Graded short answers in C and seven graded items in F. Each offers a
-    ``Not sure'' option, so that guessing appears as uncertainty rather than as error.
-  \item \textbf{Prediction.} For four items, a five-point judgement of whether the model's answer is right,
-    recorded per item together with the views the participant used to decide.
-  \item \textbf{Perceived usefulness and clarity.} Three 7-point agreement statements per view, and a forced
-    ranking of the five views.
-  \item \textbf{Calibration of the vocabulary.} The scale-sense items, E5 and E6, and the band question, F3.
-  \item \textbf{Attribution of control.} Whether the slider felt live or precomputed (D2), and whether the
-    precomputed caption was read (D3).
-  \item \textbf{Trust and usability.} The 7-point agreement items in G, plus open responses in E7, D4, D5 and H.
-  \item \textbf{Behaviour.} Interaction events logged by the instrument, including view switches, item
-    selection, slider moves, autoplay use, About-panel opening, guide exposure, and per-step timings.
-\end{itemize}
-
-\subsection{Apparatus and instrumentation}
-
-The prototype is a static web application. The margins are computed offline by a Python pipeline and shipped as
-JSON, so nothing runs a model in the browser. This makes the interface instant and impossible to crash during a
-session. The cost is a slider that replays precomputed values, which is what D2 and D3 probe.
-
-The study instrument lives at its own address and saves progress locally, so a session can be resumed. It posts
-one row per participant and one row per interaction event to a spreadsheet, and responses can also be downloaded
-as CSV and JSON. Every response carries \texttt{app\_version}, \texttt{task\_set}, \texttt{view\_order} and
-\texttt{guidance\_version}. Older builds stay online at their own addresses, so a version can be inspected after
-the fact.
-
-\subsection{Analysis}
-
-We have 17 participants, and a within-subjects design whose exposure order we counterbalanced but did not vary
-as a factor. We therefore report descriptive statistics and treat the study as exploratory. For every graded
-question we report counts of correct, wrong and ``not sure''. For the rating statements we report per-view means
-and distributions, and we report the ranking of the five views. Prediction accuracy is reported per item,
-alongside that item's true band and correctness, and timing is reported as medians with quantiles. Scripts in
-the repository compute these from the exported responses, so the numbers in the next section are reproducible
-from the raw CSV.
-
-Open responses, which are B1, B2, B6, D4, E7 and H, are coded by one author into themes, and a second author
-reviews the assignments. We report themes with counts and representative quotations, following the
-strategy-coding approach of \citet{kaleVisualReasoningStrategies2020}. We make no inferential claims about
-differences between views.
-
-\subsection{Ethics}
-
-The consent screen stated that the study is part of a course project and takes about twenty minutes. It also
-stated that participation is voluntary, and that responses are anonymous and used only for this report.
-Participants could stop at any time, and declining on the first item ended the session. Responses carry no
-identifying information. Use is limited to this report, and we would seek IRB review before publishing beyond
-the course. Because some participants were recruited from a class, we took care that participation was not tied
-to coursework or credit.
-
+We asked each participant to self-rate their familiarity with large language models (LLMs), with mechanistic
+interpretability and with uncertainty scores in machine learning (see Figure~\ref{fig:familiarity}). Taken
+together, the three items place our participants as regular users of LLMs who are new to model internals. Each
+uses a five-point scale on which 1 is little or no exposure and 5 is active practice or research. Familiarity
+falls from LLMs, through uncertainty scores, to mechanistic interpretability, where 14 of 17 (82\%) sit at 1 or
+2 and nobody reaches the top of the scale. When asked whether they had used a tool that edits or steers a
+model's internal activations, 4 said yes, 3 said no and 10 (59\%) were not sure, more than said no.
 
 \section{Preliminary Results}
 
@@ -512,6 +477,54 @@ one per version. The questionnaire source. The offline pipeline and its README, 
 approximation and $\rho$. The response CSV and the analysis script. The annotated related-work map used to
 position this paper.}
 
+
+\appendix
+
+\section{The approximated margin}
+\label{app:margin}
+
+We used \texttt{Qwen2.5-0.5B-Instruct}, which has 24 decoder layers. The model answers in a few-shot,
+one-word format, and we read the first token of its answer at the last prompt position. We approximate the
+margin of \citet{komanduriMeasuringMechanisticUncertainty2026} rather than reproducing it.
+
+For an item, let $a$ be the answer token, $b$ the highest-probability alternative whose decoding differs from
+$a$, and $W_U$ the unembedding matrix. We take the contrastive direction
+
+\begin{equation}
+  v = W_U[b] - W_U[a], \qquad \hat{v} = \frac{v}{\lVert v \rVert},
+\end{equation}
+
+which is the Jacobian lens of \citet{komanduriMeasuringMechanisticUncertainty2026} under $J = I$. At decoder
+layer $\ell$ with hidden state $h_\ell$, and at the last prompt position only, we add
+
+\begin{equation}
+  h_\ell \leftarrow h_\ell + \alpha \lVert h_\ell \rVert \hat{v},
+\end{equation}
+
+so that scaling by the residual norm leaves $\alpha$ unitless and comparable across layers. We sweep 40 values
+of $\alpha$ up to $1.5$ at every layer, recording the probability of $a$, the probability of $b$ and the
+current top-1 token. The per-layer margin is the smallest $\alpha$ at which the top-1 token is no longer $a$,
+refined by binary search between the bracketing grid points, and the margin of an item is the minimum over
+layers. We also record the layer that achieves it and the item's percentile within the set. Tokens that are
+merely a different surface form of the same answer do not count as a change.
+
+\section{Session procedure}
+\label{app:procedure}
+
+\begin{enumerate}
+  \item \textbf{Consent and background (A).} Consent, program level and the familiarity items.
+  \item \textbf{Free exploration, then first impressions (B).} The views stay hidden until the participant
+    presses ``Start exploring'', and the questions unlock after three minutes. They ask what the interface
+    shows, what ``Robustness'' means in the participant's own words, and what first confused them.
+  \item \textbf{Guided tasks (C).} Two framing steps come first, one identical for everyone and one that walks
+    R1--R4 in the participant's counterbalanced order. The graded tasks then cover reading an answer, steering
+    with the slider, and comparing the two signals. A prediction task follows, in which participants judge for
+    four items whether the model's answer is right, before the answer key unlocks.
+  \item \textbf{Steering experience (D) and per-view ratings (E).} Agreement items on the push interaction,
+    then ratings and a ranking of the five views, with two further items probing how the vocabulary reads.
+  \item \textbf{Understanding check (F), trust and open feedback (G, H).} Graded comprehension items, agreement
+    items on trust and usefulness, and free-text feedback.
+\end{enumerate}
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{refs,sample-base}
