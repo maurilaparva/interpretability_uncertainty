@@ -5,3 +5,19 @@ __pycache__/
 pipeline/.cache/
 *.pyc
 .DS_Store
+
+# Literature PDFs fetched for the related-work review: ~190 MB of third-party papers
+doc/papers/
+
+# LaTeX build artifacts
+final-report/*.aux
+final-report/*.log
+final-report/*.out
+final-report/*.bbl
+final-report/*.blg
+final-report/*.fls
+final-report/*.fdb_latexmk
+final-report/*.synctex.gz
+
+# Office lock files
+~$*

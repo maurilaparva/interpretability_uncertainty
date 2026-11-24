@@ -1,0 +1,19 @@
+ Criterion
+Pts
+Description
+Completeness
+4
+4 points: The paper includes all required components (project outcome, references, supplementary materials if applicable). Guidelines are followed mostly.
+3 points: Missing minor elements, such as incomplete references or major formatting inconsistencies.
+2 points: Major components (e.g., results, related work) are incomplete or missing.
+Effort
+5
+5 points: The scope and contribution are proportional to the group size. Effort is evident, with an attempt at equal authorship.
+4 points: Scope and contributions are somewhat proportional, but some aspects are unclear.
+3 points: Limited effort or significant imbalance in contributions among group members. Or an author contribution claim is missing. 
+Clarity and Organization
+5
+5 points: The paper is organized, follows a logical structure, and has minimal typos or grammatical issues.
+4 points: Mostly clear, but some noticeable issues with structure, grammar, or formatting detract from readability.
+3 points: Significant clarity or organizational issues, making the paper difficult to understand.
+

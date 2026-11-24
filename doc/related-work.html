@@ -1,0 +1,580 @@
+<title>Mechanistic Uncertainty Related Work</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+  /* Layout: one reading column; each view is a section with a claim banner and a stack of paper entries. */
+  :root {
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --ink: #15181d;
+    --ink-soft: #565d6b;
+    --rule: #dcdfe5;
+    --answer: #1f5fd0;   /* the prototype's answer-token blue */
+    --alt: #c2510d;      /* the prototype's alternative-token orange */
+    --flag: #8a6a13;
+    --display: "Spectral", Georgia, "Times New Roman", serif;
+    --body: "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #11141a;
+      --surface: #191d25;
+      --ink: #e7e9ee;
+      --ink-soft: #9aa3b2;
+      --rule: #2b313c;
+      --answer: #7aa8f5;
+      --alt: #f0975c;
+      --flag: #d8b55a;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #11141a;
+    --surface: #191d25;
+    --ink: #e7e9ee;
+    --ink-soft: #9aa3b2;
+    --rule: #2b313c;
+    --answer: #7aa8f5;
+    --alt: #f0975c;
+    --flag: #d8b55a;
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.6;
+    padding-inline: 20px;
+    padding-block: 0 72px;
+  }
+  .wrap { max-width: 56rem; margin: 0 auto; }
+  a { color: var(--answer); text-underline-offset: 2px; }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--answer); outline-offset: 2px; }
+
+  header.masthead { padding-block: 56px 28px; border-bottom: 1px solid var(--rule); }
+  .eyebrow {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-soft);
+  }
+  h1 {
+    font-family: var(--display); font-weight: 600; font-size: clamp(2rem, 5.5vw, 2.9rem);
+    line-height: 1.12; margin: 10px 0 14px; text-wrap: balance;
+  }
+  .lede { font-size: 1.08rem; max-width: 62ch; color: var(--ink); margin: 0; }
+  .anchor-note {
+    margin-top: 22px; font-size: 0.95rem; color: var(--ink-soft);
+    border-left: 3px solid var(--answer); padding: 4px 0 4px 14px;
+  }
+
+  nav.toc { margin-block: 26px 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+  nav.toc a {
+    font-family: var(--mono); font-size: 0.78rem; text-decoration: none;
+    border: 1px solid var(--rule); border-radius: 999px; padding: 5px 12px;
+    color: var(--ink-soft); background: var(--surface);
+  }
+  nav.toc a:hover { color: var(--answer); border-color: var(--answer); }
+
+  section { margin-top: 52px; }
+  h2 {
+    font-family: var(--display); font-weight: 600; font-size: 1.55rem; line-height: 1.2;
+    margin: 0 0 6px; text-wrap: balance; display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px;
+  }
+  h2 .code {
+    font-family: var(--mono); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em;
+    color: var(--alt); border: 1px solid currentColor; border-radius: 4px; padding: 2px 7px;
+  }
+  .claim {
+    margin: 14px 0 22px; padding: 14px 16px; background: var(--surface);
+    border: 1px solid var(--rule); border-radius: 3px; font-size: 0.98rem; max-width: 70ch;
+  }
+  .claim b { font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-soft); display: block; margin-bottom: 4px; font-weight: 600; }
+  p { max-width: 68ch; }
+
+  ol.gap { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 14px; }
+  ol.gap > li {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 3px; padding: 14px 16px;
+    min-width: 0;
+  }
+  ol.gap h3 {
+    font-family: var(--body); font-size: 1rem; margin: 0 0 4px; font-weight: 600;
+  }
+  ol.gap p { margin: 0; font-size: 0.95rem; color: var(--ink-soft); max-width: 68ch; }
+
+  .papers { display: grid; gap: 0; border-top: 1px solid var(--rule); }
+  .paper {
+    display: grid; grid-template-columns: 13rem 1fr; gap: 4px 24px;
+    padding: 16px 0; border-bottom: 1px solid var(--rule); align-items: start;
+  }
+  .paper > div { min-width: 0; }
+  .venue {
+    font-family: var(--mono); font-size: 0.76rem; line-height: 1.45; color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .paper .title { font-weight: 600; margin: 0 0 4px; }
+  .paper .why { margin: 0; font-size: 0.97rem; color: var(--ink); }
+  code { font-family: var(--mono); font-size: 0.86em; }
+  .flag {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--flag); border: 1px dashed currentColor; border-radius: 3px; padding: 1px 5px;
+    white-space: nowrap; margin-left: 6px;
+  }
+  @media (max-width: 640px) {
+    .paper { grid-template-columns: 1fr; gap: 6px; }
+    .venue { order: 2; }
+    .paper .body-col { order: 1; }
+  }
+
+  ul.plain { padding-left: 1.1rem; }
+  ul.plain li { margin-bottom: 8px; max-width: 68ch; }
+  footer {
+    margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--rule);
+    font-size: 0.9rem; color: var(--ink-soft);
+  }
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="eyebrow">Stage 2 · literature for the five-representation prototype</div>
+    <h1>Related work that justifies the option views</h1>
+    <p class="lede">Each section states the design claim one view of the prototype needs, then the papers
+      that support it. Venues marked <span class="flag">verify</span> come from search metadata I could not
+      confirm against a proceedings page.</p>
+    <p class="anchor-note"><strong>Anchor:</strong> Komanduri et al., <a href="https://arxiv.org/abs/2610.22636"><em>Measuring
+      Mechanistic Uncertainty in Large Language Models via Causal Robustness</em></a> (2026) — the margin is the
+      smallest internal intervention that changes the output. Everything below is the communication
+      literature that R0–R4 stand on.</p>
+    <p class="anchor-note" style="border-left-color: var(--alt)"><strong>Files:</strong> 37 PDFs — every item below except Bisantz (2005), which is paywalled — are in
+      <code>doc/papers/related-work/</code> and attached in Zotero under
+      <em>Interpretability+HCI › MechUncertaintyViews</em>, tagged <code>mech-uncertainty</code> plus
+      <code>view-r0</code>…<code>view-r4</code>.</p>
+    <nav class="toc">
+      <a href="#gap">The gap</a>
+      <a href="#r3">R3 push it yourself</a>
+      <a href="#r2">R2 flip curve</a>
+      <a href="#r1">R1 margin score</a>
+      <a href="#r4">R4 counterfactual</a>
+      <a href="#r0">R0 and Overview</a>
+      <a href="#method">Study method</a>
+      <a href="#todo">Still to check</a>
+    </nav>
+  </header>
+
+  <section id="gap">
+    <h2>The gap we are claiming</h2>
+    <p>Three literatures exist separately, and no paper joins them.</p>
+    <ol class="gap">
+      <li>
+        <h3>Interactive interpretability interfaces</h3>
+        <p>They manipulate model internals, but ask “what does this component do?”, never “how sure is this
+          answer, inside?” — LSTMVis, Seq2Seq-Vis, LM-Debugger, LM Transparency Tool, AttentionViz.</p>
+      </li>
+      <li>
+        <h3>Fragility and robustness visual analytics</h3>
+        <p>It shows how little perturbation flips a prediction, but almost always in <em>input</em> space
+          (adversarial ε) rather than through a causal internal intervention, and it is built for ML
+          practitioners — Bluff, AdvEx, Li et al.</p>
+      </li>
+      <li>
+        <h3>LLM uncertainty communication</h3>
+        <p>It studies how confidence should be worded or drawn, but the signal is always the <em>output</em>
+          distribution: token probability or verbalized hedging — Kim et al. (FAccT 2024), <em>To Rely or Not
+          to Rely?</em> (CHI 2025).</p>
+      </li>
+    </ol>
+    <p style="margin-top:18px">So mechanistic fragility has never been treated as an uncertainty display, and
+      never evaluated as a comparative design space with non-expert viewers. That is the hole the R0–R4
+      comparison fills.</p>
+    <div class="claim">
+      <b>Premise support</b>
+      Marjanović, Augenstein &amp; Lioma, <a href="https://arxiv.org/pdf/2402.13006"><em>Investigating the
+      Impact of Model Instability on Explanations and Uncertainty</em></a> (Findings of ACL 2024) — explanations
+      shift under perturbations that leave predictive uncertainty looking confident. Internal instability is a
+      real signal that current confidence displays miss.
+    </div>
+  </section>
+
+  <section id="r3">
+    <h2><span class="code">R3</span> Push it yourself</h2>
+    <div class="claim">
+      <b>Claim</b>
+      Letting a viewer move an intervention themselves and watch the answer swap is an established
+      interpretability technique, and interactivity buys comprehension that a static picture does not.
+    </div>
+    <div class="papers">
+      <div class="paper">
+        <div class="venue">IEEE TVCG 2019<br>VAST 2018</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/pdf/1804.09299">Seq2Seq-Vis</a> — Strobelt, Gehrmann, Behrisch, Perer, Pfister, Rush</p>
+          <p class="why">The canonical what-if on model internals: users change internal state and see the
+            output change. Direct ancestor of R3.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">IEEE TVCG 2018</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/pdf/1606.07461">LSTMVis</a> — Strobelt, Gehrmann, Pfister, Rush</p>
+          <p class="why">Hypothesis-driven probing of hidden state; the user's selection is the query.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">EMNLP 2022<br>system demos</div>
+        <div class="body-col">
+          <p class="title"><a href="https://aclanthology.org/2022.emnlp-demos.2">LM-Debugger</a> — Geva, Caciularu, Dar, Roit, Sadde, Shlain, Tamir, Goldberg</p>
+          <p class="why">Closest existing tool: inspection <em>and</em> intervention in transformer FFN
+            sublayers, “shifting the prediction in a direction of the user's choice”. Ours differs by making the
+            required push size the quantity on display.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">ACL 2024 demos <span class="flag">verify</span></div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/html/2404.07004v1">LM Transparency Tool</a> — Tufanov, Hambardzumyan, Ferrando, Voita</p>
+          <p class="why">Interactive input-to-output information flow with attribution to individual heads and
+            neurons. Expert-facing, no uncertainty framing.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">CHI 2025 <span class="flag">verify</span></div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/abs/2505.04260">Steerable Chatbots</a> — activation steering as a personalization control</p>
+          <p class="why">Exposes a steering coefficient as a user-facing slider and studies agency (user-led vs
+            system-led). The strongest precedent that a lay user can be handed a steering strength control.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">arXiv 2020<br>VIS short <span class="flag">verify</span></div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/pdf/2011.02149">HypperSteer</a> — Wang &amp; Ma</p>
+          <p class="why">Interactive perturbation for hypothetical testing on sequence models.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">CHI 2016</div>
+        <div class="body-col">
+          <p class="title"><a href="https://dig.cmu.edu/publications/2016-prospector.html">Prospector</a> — Krause, Perer, Ng</p>
+          <p class="why">Pre-LLM ancestor: drill into one instance, drag feature values, watch the prediction
+            move. R3 is this, moved from input space to the residual stream.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">IEEE TVCG 2020<br>VAST 2019</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/pdf/1907.04135">The What-If Tool</a> — Wexler, Pushkarna, Bolukbasi, Wattenberg, Viégas, Wilson</p>
+          <p class="why">Interactive probing as the default idiom for model inspection, including edit-a-datapoint-and-re-infer.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">CHI 2019</div>
+        <div class="body-col">
+          <p class="title"><a href="https://homes.cs.washington.edu/~ruotongw/assets/papers/explain-alg-AI-chi19.pdf">Explaining Decision-Making Algorithms through UI</a> — Cheng, Wang, Zhang, O'Connell, Gray, Harper, Zhu</p>
+          <p class="why">The empirical backbone: interactive explanations improved objective <em>and</em>
+            self-reported understanding, while static white-box improved only objective understanding — at the
+            cost of time. This is the rationale for expecting R3 to beat R1, and it names our time-on-task
+            confound.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">CHI 2021</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/pdf/2102.01264">Evaluating the Interpretability of Generative Models by Interactive Reconstruction</a> — Ross, Chen, Hang, Glassman, Doshi-Velez</p>
+          <p class="why">Uses interactive manipulation as the measurement instrument of interpretability — a
+            model for our task design, not just our interface.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">arXiv 2021</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/pdf/2109.07869">Explainability Requires Interactivity</a> — Kirchler, Graf, Kloft, Lippert</p>
+          <p class="why">Position argument that static attributions under-determine model behaviour and
+            counterfactual interaction is required.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="r2">
+    <h2><span class="code">R2</span> Flip curve</h2>
+    <div class="claim">
+      <b>Claim</b>
+      Plotting model output against intervention magnitude, and marking where the prediction flips, is an
+      existing and readable way to show fragility; per-layer curves localize it.
+    </div>
+    <div class="papers">
+      <div class="paper">
+        <div class="venue">IEEE VIS 2020<br>short</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/pdf/2009.02608">Bluff</a> — Das, Park, Wang, Hohman, Firstman, Rogers, Chau</p>
+          <p class="why">Shows neuron activation <em>over attack strengths</em> — the same x-axis as our flip
+            curve, in input space.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">arXiv 2023/24<br>venue <span class="flag">verify</span></div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/html/2311.13656v2">Panda or not Panda? (AdvEx)</a> — You, Tse, Zhao</p>
+          <p class="why">A perturbation adjuster for magnitude plus robustness analyzers for accuracy and
+            confidence before and after, built for novices. Our nearest neighbour in both audience and
+            strength-sweep encoding.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">CS889 course project<br>not peer-reviewed</div>
+        <div class="body-col">
+          <p class="title">FGSM Explainer — Guo, Tse, Vyas, You</p>
+          <p class="why">Plots the shift in confidence as the perturbation level rises: the input-space twin of
+            the flip curve, and the clearest existing picture of the encoding. A graduate course project, so use
+            it as design precedent in the text and cite AdvEx instead.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">ACM TiiS 2023</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/abs/2303.02814">Visual Analytics of Neuron Vulnerability to Adversarial Attacks on CNNs</a> — Li, Wang, Fujiwara, Ma</p>
+          <p class="why">Answers which units are vulnerable — the per-layer-margin question our layer × α
+            heatmap inset is for.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">Findings of<br>EMNLP 2024</div>
+        <div class="body-col">
+          <p class="title"><a href="https://aclanthology.org/2024.findings-emnlp.479.pdf">Activation Scaling for Steering and Interpreting Language Models</a> — Stoehr, Du, Snæbjarnarson, West, Cotterell, Schein</p>
+          <p class="why">Treats the scaling factor needed to flip a prediction as the quantity of interest: the
+            computational sibling of our margin, and the formal reason to sweep α at all.</p>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top:16px">Worth one sentence in the prose: perturbation-magnitude curves are already
+      standard practice in explanation <em>evaluation</em> (deletion and AOPC-style curves), so the encoding is
+      not exotic to an ML reader.</p>
+  </section>
+
+  <section id="r1">
+    <h2><span class="code">R1</span> Margin score</h2>
+    <div class="claim">
+      <b>Claim</b>
+      Collapsing fragility to a single banded score is defensible, and the uncertainty-visualization
+      literature says how to encode it without over-claiming precision — which matters because our margin is
+      an approximation (ρ ≈ 0.7 with output confidence).
+    </div>
+    <div class="papers">
+      <div class="paper">
+        <div class="venue">IJCAI 2020</div>
+        <div class="body-col">
+          <p class="title"><a href="https://www.ijcai.org/proceedings/2020/0319.pdf">DeepView</a> — Schulz, Hinder, Hammer</p>
+          <p class="why">Distance to the decision boundary plus per-point certainty as the visual unit. Our
+            margin is a causal-space version of “how far from flipping”.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">Handbook<br>chapter 2020</div>
+        <div class="body-col">
+          <p class="title"><a href="https://moodle2.units.it/pluginfile.php/466375/mod_resource/content/0/Uncertainty_Visualization_Padilla_Kay_Hullman_2020.pdf">Uncertainty Visualization</a> — Padilla, Kay, Hullman</p>
+          <p class="why">The frame for “which representation of the same uncertainty?”, which is our whole
+            manipulation.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">CHI 2016</div>
+        <div class="body-col">
+          <p class="title"><a href="https://vis.mit.edu/classes/6.859/readings/pdfs/Kay-WhenishIsMyBus.pdf">When (ish) is My Bus?</a> — Kay, Kola, Hullman, Munson</p>
+          <p class="why">Lay viewers read quantified uncertainty better in frequency and discrete framings than
+            in abstract intervals.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">CHI 2018</div>
+        <div class="body-col">
+          <p class="title"><a href="https://mucollective.northwestern.edu/files/2018-UncertainBusDecisions-CHI.pdf">Uncertainty Displays Using Quantile Dotplots or CDFs Improve Transit Decision-Making</a> — Fernandes, Walls, Munson, Hullman, Kay</p>
+          <p class="why">A display that improves estimation is not automatically the one that improves
+            decisions. This is why we measure prediction accuracy and not only comprehension.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">IEEE TVCG 2021<br>VIS 2020</div>
+        <div class="body-col">
+          <p class="title"><a href="https://idl.uw.edu/papers/effect-size-judgments">Visual Reasoning Strategies for Effect Size Judgments and Decisions</a> — Kale, Nguyen, Kay, Hullman</p>
+          <p class="why">Same lesson with strategy-level qualitative analysis; a model for coding our open
+            responses, where many participants switch strategies.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">CHI 2018</div>
+        <div class="body-col">
+          <p class="title"><a href="https://idl.uw.edu/papers/uncertainty-palettes">Value-Suppressing Uncertainty Palettes</a> — Correll, Moritz, Heer</p>
+          <p class="why">How to keep a fragility score from reading as more certain than it is.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">Human Factors<br>2005</div>
+        <div class="body-col">
+          <p class="title"><a href="https://www.sci.utah.edu/~kpotter/Library/Papers/bisantz:2005:DUIE/index.html">Displaying Uncertainty</a> — Bisantz et al.</p>
+          <p class="why">Older, still useful: viewers comprehended the familiar bar best yet did not find it
+            most helpful — the R0-against-R1 split between preference and performance.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="r4">
+    <h2><span class="code">R4</span> Counterfactual card</h2>
+    <div class="claim">
+      <b>Claim</b>
+      A one-sentence counterfactual (“a small nudge toward <em>Rio</em> changes the answer”) is a validated
+      explanation format for non-experts, and “the smallest change that flips it” is its usual content.
+    </div>
+    <div class="papers">
+      <div class="paper">
+        <div class="venue">IEEE TVCG 2021</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/pdf/2008.08353">DECE</a> — Cheng, Ming, Qu</p>
+          <p class="why">Counterfactuals as the user-facing unit, with interactions for customizing them;
+            argues the format is human-friendly and actionable.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">CHI 2023</div>
+        <div class="body-col">
+          <p class="title"><a href="https://www.jennwv.com/papers/gamcoach.pdf">GAM Coach</a> — Wang, Wortman Vaughan, Caruana, Chau</p>
+          <p class="why">Users slide feature values under their own constraints until the prediction flips. R3
+            and R4 are the two halves of this interaction, split apart so we can test them separately.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">Frontiers in<br>Comp. Sci. 2023</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/pdf/2205.03398">Let's Go to the Alien Zoo</a> — Kuhl, Artelt, Hammer</p>
+          <p class="why">A reusable study framework plus evidence that counterfactual explanations beat no
+            explanation on objective performance and subjective usability, and are rated more satisfying and
+            trustworthy than causal explanations.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">arXiv 2022</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/pdf/2205.05515">Keep Your Friends Close and Your Counterfactuals Closer</a> — Kuhl, Artelt, Hammer</p>
+          <p class="why">Closest counterfactuals teach better than merely plausible ones — support for
+            reporting the minimum push rather than a vivid one.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">arXiv 2024</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/pdf/2408.10633">Interactive Counterfactual Generation for Univariate Time Series</a></p>
+          <p class="why">Recent precedent for interactive counterfactual authoring outside tabular data.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="r0">
+    <h2><span class="code">R0</span> Baseline and the Overview scatter</h2>
+    <div class="claim">
+      <b>Claim</b>
+      Output-probability confidence is the right baseline because it is what the field studies and what
+      products ship; plotting the mechanistic signal against it is the contribution.
+    </div>
+    <div class="papers">
+      <div class="paper">
+        <div class="venue">FAccT 2024</div>
+        <div class="body-col">
+          <p class="title"><a href="https://www.arxiv.org/abs/2405.00623">“I'm Not Sure, But…”</a> — Kim, Liao, Vorvoreanu, Ballard, Wortman Vaughan</p>
+          <p class="why">n = 404: first-person uncertainty expressions lowered agreement with the system and
+            <em>raised</em> accuracy. The canonical result our R0 condition inherits.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">CHI 2025</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/pdf/2412.15584">To Rely or Not to Rely?</a> — interventions for appropriate reliance on LLMs</p>
+          <p class="why">Reliance interventions reduce over-reliance but mostly fail to produce
+            <em>appropriate</em> reliance. This sets the bar our fragility views must clear, and warns us off
+            claiming a trust gain.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">arXiv 2026</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/html/2605.28571">Not All Uncertainty Is Equal</a> — how uncertainty granularity shapes human verification</p>
+          <p class="why">Token-, output- and relation-level uncertainty move agreement and self-confidence
+            differently. Our per-layer curve against a single score is the mechanistic analogue of granularity.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">arXiv 2026</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/pdf/2610.32883">When Should I Trust This? Factuality Indicators for LLM-based Chatbots</a></p>
+          <p class="why">The most recent comparison of indicator formats — numeric, categorical, natural
+            language — which is the design space R0, R1 and R4 sit in.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">CHI 2023</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/pdf/2302.04732">Zeno</a> — Cabrera, Fu, Bertucci, Holstein, Talwalkar, Hong, Perer</p>
+          <p class="why">Behavioural evaluation as interactive slicing; the framing for our Overview quadrants,
+            where “confident but fragile” is a slice.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">CHI 2023</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/abs/2304.05967">Angler</a> — Robertson, Wang, Moritz, Kery, Hohman</p>
+          <p class="why">Prioritizing by where the model is weak; supports the one-sentence takeaway above the
+            scatter.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">IEEE TVCG 2024<br>VIS 2023</div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/pdf/2305.03210">AttentionViz</a> — Yeh, Chen, Wu, Chen, Viégas, Wattenberg</p>
+          <p class="why">Global-view-plus-detail structure for transformer internals: precedent for our
+            overview-to-item drill-down.</p>
+        </div>
+      </div>
+      <div class="paper">
+        <div class="venue">VIS 2024 poster ·<br>AAAI 2025 demo <span class="flag">verify</span></div>
+        <div class="body-col">
+          <p class="title"><a href="https://arxiv.org/abs/2408.04619">Transformer Explainer</a> — Cho, Kim, Karpekov, Helbling, … Chau</p>
+          <p class="why">Internals explained to non-experts with live interaction: the audience precedent for
+            the whole prototype.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="method">
+    <h2>Method papers for the study itself</h2>
+    <ul class="plain">
+      <li><strong>Cheng et al., CHI 2019</strong> — interactive against static, within-subjects comprehension
+        measures, and the time trade-off.</li>
+      <li><strong>Ross et al., CHI 2021</strong> — interaction-based interpretability measurement.</li>
+      <li><strong>Kuhl et al., 2023 (Alien Zoo)</strong> — a powered, controlled XAI user-study framework.</li>
+      <li><strong>Fernandes et al., CHI 2018</strong> and <strong>Kale et al., TVCG 2021</strong> — separating
+        estimation accuracy from decision quality, plus strategy coding for open responses.</li>
+      <li><a href="https://arxiv.org/pdf/2505.20085"><strong>Explanation User Interfaces: A Systematic
+        Literature Review</strong></a> (arXiv 2505.20085) — for positioning the design space and checking we
+        are not missing a view family.</li>
+    </ul>
+  </section>
+
+  <section id="todo">
+    <h2>Still to check</h2>
+    <ul class="plain">
+      <li>IEEE VIS 2025 and EuroVis 2025 proceedings for an SAE- or steering-focused interface paper. Searches
+        surfaced only ML-venue steering work. If such a paper exists it is our closest competitor.</li>
+      <li>Whether AdvEx (arXiv 2311.13656) reached a final venue, and the two venues flagged above
+        (Steerable Chatbots, LM Transparency Tool). Every DOI used for the ACM and journal items resolved to
+        the expected paper, so only these conference-track questions are open.</li>
+      <li>Circuit-tracing and Neuronpedia-style interfaces from 2025: tooling rather than peer-reviewed work,
+        but worth a sentence as practitioner practice.</li>
+    </ul>
+  </section>
+
+  <footer>
+    Compiled 23 November 2026 for the mechanistic-uncertainty prototype (R0–R4 and the Overview scatter).
+    Sources are linked inline; flagged venues need confirmation before they go into a bibliography.
+  </footer>
+</div>

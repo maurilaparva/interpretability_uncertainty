@@ -1,0 +1,145 @@
+\documentclass[sigconf,balance=false]{acmart}
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+
+
+\begin{document}
+
+
+\title{Exploring the Evidence and Limits of Mechanistic Explanations}
+\subtitle{CMSC839E: Group 3 Project Proposal}
+
+\author{Mauricio Villavicencio}
+\email{mivilla@umd.edu}
+\affiliation{%
+ \institution{University of Maryland, College Park}
+  \city{}
+  \state{}
+  \country{}
+}
+
+\author{Bao Ngo}
+\email{baongo85@umd.edu}
+\affiliation{%
+ \institution{University of Maryland, College Park}
+  \city{}
+  \state{}
+  \country{}
+}
+
+\author{Parthav Poudel}
+\email{baongo85@umd.edu}
+\affiliation{%
+ \institution{University of Maryland, College Park}
+  \city{}
+  \state{}
+  \country{}
+}
+
+\author{Belu Ticona}
+\email{ticona.belu@gmail.com}
+\affiliation{%
+ \institution{George Mason University}
+  \city{}
+  \state{}
+  \country{}
+}
+
+\definecolor{paperblue}{HTML}{888888}
+\newcommand{\guideline}[1]{\textit{\color{paperblue}{#1}}}
+\maketitle
+
+
+
+
+\section{Introduction}
+Mechanistic interpretability (MI) explains a model's answer by tracing the internal computation behind it, using feature analysis, circuit tracing, and interventions~\cite{sharkey2025open}. Tools such as \href{https://www.neuronpedia.org/}{Neuronpedia}\footnote{\url{https://www.neuronpedia.org/}} now turn anyone's prompt into an attribution graph, a diagram of the internal features that appear to produce the answer, though reading one still takes expertise. The graph is a hypothesis rather than ground truth, since it rests on an approximation of the model, reflects only one of many possible decompositions of the same internals, and may not hold up when the prompt is reworded. It does not say whether suppressing a feature it points to changes the answer, or whether the explanation survives a rephrasing.
+
+We propose an interface that puts this evidence next to the graph: examples of what makes a feature active, the measured effect of intervening on it, and how much the explanation varies across paraphrases (Sec.~\ref{sec:background}). Separating these views keeps apart what activates a feature, what changes the output, and how consistently an explanation holds. We then pilot whether uncertainty representations help users predict model behavior and see the limits of mechanistic evidence.
+
+\subsection{Elevator pitch}
+We propose to build an evidence explorer where users inspect features, predict and compare intervention effects, and test whether an explanation holds for a new prompt. We pilot how uncertainty visualizations support this workflow with ML-literate volunteers.
+
+\subsection{Project ID}
+UNCIRCUIT
+
+\subsection{Alignment}
+The project connects uncertainty visualization, AI explanations, and trust in AI by studying how users interpret pathway stability and intervention evidence.
+
+\section{Related work}
+
+\label{sec:background}
+\textbf{Terminology.} \emph{Features} are recurring patterns in a model's internal activations that can be given a human-readable label such as ``Texas''. \emph{Sparse autoencoders} (SAEs) and \emph{transcoders} recover them by decomposing a layer's activations into many components, few active at once. An \emph{attribution graph} chains features into a candidate pathway from the prompt's tokens to the output~\cite{ameisen2025circuit}. It is computed over a \emph{replacement model}, a reconstruction of the original in terms of these features, so its nodes and edges strictly describe that reconstruction, and \emph{error nodes} mark where the two diverge. Its claims can be tested by an \emph{intervention} (or \emph{activation patching}): a controlled change to internal activity, such as suppressing a feature, to see whether the output shifts as predicted.
+
+\subsection{Interactive Interpretability Interfaces}
+Circuit tracing~\cite{ameisen2025circuit} made attribution graphs the flagship MI visualization, and Neuronpedia~\cite{lin2023neuronpedia} lets anyone build them for custom prompts. Yet they explain the replacement model rather than the original, and error nodes and pruning controls expose that gap only partially. On the VIS side, ConceptViz~\cite{li2025conceptviz}
+supports feature exploration and validation through activation inspection and output steering, including disagreements between feature labels and activations, but targets SAE-literate experts and was evaluated only in a small usability study. Beyond MI-specific tools, LIT~\cite{tenney2020lit} combines local explanations, aggregate analysis, and counterfactual exploration for NLP models. Its workflow motivates linking explanations with behavioral tests in our interface.
+
+\subsection{Uncertainty in Mechanistic Interpretability Explanations}
+SAEs trained on the same data with different random seeds learn largely
+different features~\cite{paulo2026saes}, so any single displayed circuit is one
+sample from many possible decompositions creating inherent uncertainty. Public transcoders ship a single seed, so we visualize sensitivity to prompt wording rather than to the decomposition itself. An agenda paper lists human--computer interaction with model internals as an open problem and cautions against treating feature descriptions as definitive before validation~\cite{sharkey2025open}. Zhang and Nanda~\cite{zhang2024patching} show that activation-patching results depend on corruption methods and evaluation metrics, motivating our treatment of intervention outcomes as evidence under specified tests rather than definitive mechanisms.
+
+\subsection{Communicating Uncertainty}
+Uncertainty visualization research offers tested ways to show outcomes, such as outcome plots, quantile dotplots, and ensembles, along with the cognitive reasons people misread them~\cite{padilla2022uncertainty}. Trust calibration papers show that data scientists tend to over-trust interpretability tools~\cite{kaur2020interpreting}, that uncertainty language can reduce over-reliance on LLMs~\cite{kim2024notsure}, and that the specific granularity at which uncertainty is shown can change whether users verify AI outputs~\cite{villavicencio2026granularity}.
+\subsection{Why Internals}
+Models' own chain-of-thought explanations are often unfaithful to what actually
+drives their answers~\cite{turpin2023unfaithful}. MI explanations can be checked against the internals, which makes them a better foundation, but only if their uncertainty is visible.
+\subsection{Our Contribution/Advancement}
+We contribute an evidence-exploration workflow linking feature inspection, causal interventions, and pathway stability, plus a pilot comparison of uncertainty representations within it. Evaluating intervention predictions and transfer to a held-out paraphrase isolates the uncertainty displays rather than the benefit of the whole workflow.
+
+\section{Proposed methods}
+\textbf{Interface and workflow.} The prototype will coordinate three views: (1) token-highlighted examples for inspecting a selected feature's proposed meaning; (2) a candidate pathway linked to before/after output scores for a selected feature intervention; and (3) variation across paraphrased prompts. Users will inspect evidence, predict an effect, reveal the measured result, and test their interpretation on a new input.
+
+\textbf{Research questions.}
+\textbf{RQ1:} How do uncertainty representations affect users' intervention predictions and transfer to a held-out paraphrase within an evidence-exploration workflow, compared with no uncertainty display? We hypothesize that both uncertainty representations improve decisions on trials where the explanation is misleading, without reducing accuracy on accurate trials (H1), and that the ensemble helps most, because it shows variation directly rather than summarizing it (H2).
+
+\textbf{Stimuli.}
+Using the open-source \texttt{circuit-tracer} library with Gemma-2-2B and its public transcoders (as hosted on Neuronpedia~\cite{lin2023neuronpedia}), we will generate attribution graphs for nine factual-recall prompts (e.g., ``The capital of the state containing Dallas is''), three per condition so conditions balance within participants. For each prompt we will write six paraphrases, re-trace the graph for each, and compute a \emph{paraphrase-stability score}: the fraction of paraphrases whose graph contains the same key pathway. We match pathways by transcoder feature ID on the path to the answer token rather than by aligning graph structure. The score describes consistency across these rewordings, not the probability that the explanation is correct. Separately, in the original model, we suppress the pathway's intermediate feature (e.g., ``Texas'') and check whether the output changes as the graph predicts. For this study, \emph{accurate} and \emph{misleading} denote whether the explanation predicts the measured intervention outcome. These labels do not establish a complete mechanism. We will select prompts that cross stability (high/low) with explanation type (accurate/misleading), so that stability is not simply a cue to the correct answer. Each prompt also gets one held-out paraphrase, excluded from the displayed examples and the stability score, with its intervention outcome measured for a transfer task. All graphs, feature examples, and intervention results are precomputed, so no GPU is needed during the study.
+
+\textbf{Conditions.}
+Each explanation appears in one of three conditions, all drawing on the same paraphrase set:
+(1) \emph{control}, the same evidence interface without a stability display;
+(2) \emph{frequency}, an icon array of six dots, one per rewording~\cite{padilla2022uncertainty}; and
+(3) \emph{ensemble}, all six re-traced graphs overlaid so that consistent pathways appear denser.
+Only the presentation of paraphrase stability varies. Feature examples and intervention results are identical for a given prompt.
+
+\textbf{Design and procedure.}
+Each participant sees all three conditions, on three prompts each, in counterbalanced (Latin-square) order. A short tutorial will explain attribution graphs and features. Participants then complete one trial per prompt, nine in total, in about 30 minutes. On each trial they view the explanation and answer: ``If we reduce this internal signal, will the model still give the same answer?'' They then estimate the probability (0--100\%) that the answer will be unchanged. The interface reveals the measured intervention effect only after both responses are submitted. They then predict the same intervention's effect on the held-out paraphrase, without seeing its evidence or outcome, and briefly explain whether the earlier evidence supports that prediction. A post-study survey collects trust ratings and open-ended feedback.
+
+\textbf{Participants.}
+Following course guidance, we will run a formative pilot rather than a full experiment. We will recruit 8--12 volunteers from classmates and colleagues with machine learning coursework, recording no identifying information. Practitioners are also the current users of these tools and tend to over-trust them~\cite{kaur2020interpreting}.
+
+\textbf{Measures and analysis.}
+Our primary measure is decision accuracy, reported separately for accurate and misleading explanations to assess appropriate reliance~\cite{kim2024notsure}. Secondary measures are held-out prediction accuracy, confidence calibration (Brier score), response time, and subjective trust. We will code transfer rationales for distinctions between activation, causal effect, and stability. At pilot scale we report descriptive results with effect sizes rather than significance tests. The mixed-effects logistic model (condition and explanation type as fixed effects, participant and prompt as random intercepts) is specified for a future IRB-approved study.
+
+
+\section{Obstacles}
+Key challenges are matching pathways across paraphrases and distinguishing stability from causal evidence. Feature-ID matching avoids graph alignment but fails when paraphrases route through different features, which we will treat as low stability and verify by hand. The ensemble also conveys which pathways vary, not only how often the key one appears, so an advantage for it reflects both format and information content. If the overlay proves cluttered, we will fall back to small multiples. To limit implementation effort, the prototype extends \texttt{circuit-tracer}'s graph frontend with linked views of precomputed evidence, and tracing runs on a single GPU in Colab.
+
+
+
+
+\section{Timeline}
+Two members will build the stimulus pipeline while two implement the prototype. Deliverables are the prototype, the stimulus set with stability and intervention labels, and the pilot findings.
+\begin{itemize}
+\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}\setlength{\topsep}{2pt}
+\item \textbf{Oct. 12--25:} Finalize questions and measures, generate stimuli.
+\item \textbf{Oct. 26--Nov. 8:} Build the prototype and study tasks.
+\item \textbf{Nov. 9--22:} Test with two volunteers, refine the interface.
+\item \textbf{Nov. 23--Dec. 6:} Run the pilot, analyze, draft the paper.
+\item \textbf{Dec. 7--15:} Present findings, finalize the paper.
+\end{itemize}
+
+
+
+% \section*{Author contributions} % required for the final paper (not for proposal)
+
+\clearpage
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{sample-base}
+
+
+\end{document}

@@ -1,0 +1,519 @@
+\documentclass[sigconf]{acmart}
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+
+\definecolor{paperblue}{HTML}{7f99b0}
+\newcommand{\guideline}[1]{\textit{\color{paperblue}{#1}}}
+
+
+\paperID{UNCIRCUIT} % your project ID from your proposal
+
+\begin{document}
+
+
+\title{Exploring the Evidence and Limits of Mechanistic Explanations}
+
+
+
+
+\author{Mauricio Villavicencio}
+\email{mivilla@umd.edu}
+\affiliation{%
+ \institution{University of Maryland, College Park}
+  \city{}
+  \state{}
+  \country{}
+}
+
+\author{Bao Ngo}
+\email{baongo85@umd.edu}
+\affiliation{%
+ \institution{University of Maryland, College Park}
+  \city{}
+  \state{}
+  \country{}
+}
+
+\author{Parthav Poudel}
+\email{baongo85@umd.edu}
+\affiliation{%
+ \institution{University of Maryland, College Park}
+  \city{}
+  \state{}
+  \country{}
+}
+
+\author{Belu Ticona}
+\email{ticona.belu@gmail.com}
+\affiliation{%
+ \institution{George Mason University}
+  \city{}
+  \state{}
+  \country{}
+}
+
+
+
+\begin{abstract}
+
+\guideline{DRAFT abstract, 210 words. Rewrite the last two sentences once the results section is final.}
+
+\noindent Language model interfaces report confidence from the output distribution. That number is the
+probability of the answer the model produced, and it says nothing about how stable the mechanism behind the
+answer is. A recent line of work measures that stability instead, by asking how large an internal intervention
+is needed to change the answer. We ask how such a fragility signal should be shown to people. We built a
+prototype over 24 short factual questions answered by Qwen2.5-0.5B-Instruct and computed an approximate causal
+robustness margin for each answer. The same signal is rendered five ways: baseline output confidence, a single
+banded margin score, a per-layer flip curve, an interactive push-it-yourself slider, and a plain-language
+counterfactual sentence. An overview scatter plots confidence against margin across the question set.
+Seventeen participants worked through a self-paced session with graded reading tasks, a prediction task,
+per-view ratings and a comprehension check. We report how accurately people read each representation and which
+views they ranked as most useful. We also report whether they could tell a precomputed slider from a live
+model, and where the vocabulary of the design broke down against the numbers on screen. The study is small and
+exploratory. We read it as design evidence rather than as a test of effects.
+
+\noindent \textbf{Sharing preference}: This paper may be shared [publicly | with future 839E students only (default) | not at all].
+\end{abstract}
+
+
+
+
+\keywords{Mechanistic interpretability, uncertainty communication, interactive explanation, activation
+steering, visualization design, user study}
+
+
+
+\begin{teaserfigure}
+  \includegraphics[width=\textwidth]{img/teaser.png}
+  \caption{Teaser example, although you don't have to use a teaser.}
+  \label{fig:teaser}
+\end{teaserfigure}
+
+
+
+\maketitle
+
+
+
+\section{Introduction}
+
+\guideline{Outline to write next. Target 1.5 columns.}
+\begin{itemize}
+  \item Products report output confidence. That number says nothing about whether the mechanism behind the
+    answer is stable. Name the gap in one paragraph.
+  \item Mechanistic uncertainty: the causal robustness margin of
+    \citet{komanduriMeasuringMechanisticUncertainty2026}, the smallest internal intervention that changes the
+    output. Incorrect and uncertain answers have smaller margins.
+  \item The question of this project is not whether the signal can be measured, but how it should be shown.
+    State the three proposal questions, narrowed to the representation one.
+  \item Contributions. One prototype that renders a single mechanistic signal five ways over the same question
+    set. An exploratory study with 17 participants on reading accuracy, perceived usefulness and comprehension.
+    A set of design problems the study surfaced, chiefly the scale-sense problem and the confusion between a
+    live model and a precomputed replay.
+  \item Say plainly here that our margin approximates the published method. On our item set it is strongly
+    rank-correlated with output confidence, $\rho = 0.71$. That is a limit of the stimulus, and the paper is
+    about representation either way.
+\end{itemize}
+
+
+\section{Related Work}
+
+Three bodies of work meet in this project. Interactive interfaces intervene on a model's internals. Visual
+analytics shows how fragile a prediction is. Uncertainty communication studies how such a signal should be
+drawn or worded for a reader. As far as we can tell they have not met before. We take each in turn and then
+state where our work sits.
+
+\subsection{Interfaces that intervene on model internals}
+
+Visual analytics for neural models moved early from passive inspection to intervention. LSTMVis let analysts
+select a span of text as a hypothesis about hidden state and match it against a corpus
+\cite{strobeltLSTMVisToolVisual2016}. Seq2Seq-Vis then added what has become the canonical interaction for the
+genre: change the model's internal state, and watch the output change
+\cite{strobeltSeq2SeqVisVisualDebugging2018}.
+
+The same move appears in model-agnostic tools. Prospector let analysts drag a feature value on a single
+instance and read the prediction off a partial-dependence curve \cite{krauseInteractingPredictionsVisual2016}.
+The What-If Tool made edit-a-datapoint-and-re-infer a standard idiom \cite{wexlerWhatIfToolInteractive2019}.
+HypperSteer applied interactive perturbation to sequence models for hypothetical testing
+\cite{wangHypperSteerHypotheticalSteering2020}.
+
+For transformer language models, LM-Debugger is the closest existing system to our interactive view. It
+interprets feed-forward updates in vocabulary space and lets a user configure interventions that shift the
+prediction in a chosen direction \cite{gevaLMDebuggerInteractiveTool2022}. The LM Transparency Tool exposes the
+input-to-output information flow with attribution to individual heads and neurons
+\cite{tufanovLMTransparencyTool2024}. AttentionViz offers the global-view-plus-detail structure we borrow for
+our overview-to-item drill-down \cite{yehAttentionVizGlobalView2023}. All of these are built for experts, and
+they ask what a component does rather than how sure the model is. Two exceptions matter to us. Transformer
+Explainer explains internals to non-experts through live interaction
+\cite{choTransformerExplainerLearning2024}. Steerable Chatbots hands an end user a steering coefficient as a
+slider and studies how much agency people want over it \cite{boSteerableChatbotsExploring2025}.
+
+Why interaction at all? \citet{chengExplainingDecisionMakingAlgorithms2019} ran the comparison directly. In an
+algorithmic-admissions setting, interactive explanations improved both objective and self-reported
+understanding, while static white-box explanations improved only objective understanding. Interactivity also
+cost participants time. \citet{rossEvaluatingInterpretabilityGenerative2021a} go further and use interactive
+manipulation as the measurement of interpretability rather than as the interface under test, which shaped our
+task design. \citet{kirchlerExplainabilityRequiresInteractivity2021} argue from the model side that static
+attributions under-determine behaviour, so counterfactual interaction is required. Our push-it-yourself view is
+that tradition applied to a fragility signal. The slider does not tune a feature or a personality. It spends
+the margin.
+
+\subsection{Showing fragility as a response to perturbation strength}
+
+A second literature draws fragility as a curve over perturbation magnitude, almost always in input space.
+Bluff visualizes activation pathways over a range of attack strengths
+\cite{dasBluffInteractivelyDeciphering2020}. AdvEx gives novices a perturbation adjuster and reports accuracy
+and confidence before and after the attack, which makes it our nearest neighbour in both encoding and audience
+\cite{youPandaNotPanda2023}. \citet{liVisualAnalyticsNeuron2023} ask which units are most vulnerable, and that
+is the per-layer question our layer-by-strength inset answers. On the modelling side,
+\citet{stoehrActivationScalingSteering2024} treat the scaling factor needed to flip a prediction as the
+quantity of interest. It is the computational sibling of the margin, and the reason a strength sweep is a
+defensible thing to plot. What none of this work does is treat the curve as an uncertainty display for a lay
+reader. It remains a debugging and robustness-analysis idiom.
+
+\subsection{Representing uncertainty for a lay reader}
+
+Our single-score view inherits a long argument about how to encode uncertainty honestly.
+\citet{schulzDeepViewVisualizingClassification2019} visualize classification boundaries together with per-point
+certainty, which is the spatial version of how far an answer is from flipping.
+\citet{padillaUncertaintyVisualization2021} survey the design space our manipulation samples from.
+\citet{kayWhenIshMy2016} show that lay readers reason better about quantified uncertainty in discrete,
+frequency-framed displays than in abstract intervals. \citet{fernandesUncertaintyDisplaysUsing2018} demonstrate
+the lesson we took most seriously. The display that best supports estimating a quantity is not necessarily the
+one that best supports deciding with it. That is why we measure prediction accuracy and not only comprehension.
+\citet{kaleVisualReasoningStrategies2020} repeat the result with a strategy-level qualitative analysis, which is
+a model for how we coded open responses.
+\citet{correllValueSuppressingUncertaintyPalettes2018} address the specific risk of our margin score, a derived
+number presented as if it were precise. \citet{bisantzDisplayingUncertaintyInvestigating2005} report the
+preference-performance split we see in our own ratings, where the familiar bar is comprehended well but is not
+judged most helpful.
+
+\subsection{Counterfactual explanations in plain language}
+
+Our sentence view is a counterfactual explanation with the intervention in internal rather than input space.
+DECE treats counterfactuals as the user-facing unit and adds interactions for customizing them
+\cite{chengDECEDecisionExplorer2020}. GAM Coach has users slide feature values under their own constraints until
+the prediction flips, which is our interactive view and our sentence view fused into one interaction
+\cite{wangGAMCoachInteractive2023}. \citet{schlegelInteractiveCounterfactualGeneration2024} extend interactive
+counterfactual authoring beyond tabular data. On whether the format helps,
+\citet{kuhlLetsGoAlien2023} provide a controlled framework and evidence that counterfactual explanations beat no
+explanation on objective performance and subjective usability.
+\citet{kuhlKeepYourFriends2022} show that the closest counterfactual teaches better than a merely plausible one.
+That is why our sentence reports the minimum push rather than a vivid one.
+
+\subsection{Communicating LLM uncertainty, and reliance}
+
+Our baseline condition is the signal this literature studies. \citet{kimImNotSure2024} found, with 404
+participants, that first-person expressions of uncertainty lowered agreement with the system and raised
+accuracy. \citet{boRelyNotRely2024} temper what such interventions achieve. They reduce over-reliance but
+largely fail to produce appropriate reliance. That sets the bar for any new display, and it warns us against
+reading a preference for one of our views as a trust improvement.
+\citet{villavicencioNotAllUncertainty2026} show that the granularity at which uncertainty is expressed changes
+verification behaviour and self-confidence. \citet{warrenWhenShouldTrust2026} compare indicator formats
+directly. All of these measure the output distribution or its verbalization. The internal mechanism is not part
+of the signal.
+
+Two further strands informed the study rather than the views. Behavioural evaluation tools frame model weakness
+as something to slice and prioritize \cite{cabreraZenoInteractiveFramework2023,robertsonAnglerHelpingMachine2023},
+which is how our overview quadrants are meant to be read.
+\citet{cappuccioExplanationUserInterfaces2025} survey explanation user interfaces as a design space, which we
+used to check that our five views do not miss a family.
+
+\subsection{Where this work sits}
+
+The premise that internal instability is worth reporting is not ours.
+\citet{marjanovicInvestigatingImpactModel2024} show that explanations shift under perturbations that leave
+predictive uncertainty looking confident. What is missing is the representation question. Interactive
+interpretability tools intervene on internals but never report fragility to a reader. Fragility visual analytics
+reports it in input space, for practitioners. Uncertainty communication studies the reader, but only ever with
+the output distribution in hand. We treat a mechanistic fragility signal as an uncertainty display, render it
+five ways over one question set, and put the comparison in front of non-expert participants.
+
+
+\section{Methods}
+
+\subsection{Stimulus: an approximate robustness margin}
+
+We follow the causal robustness margin of \citet{komanduriMeasuringMechanisticUncertainty2026}, the smallest
+internal intervention that changes a model's output. Our implementation approximates it, and the prototype says
+so in an ``About this method'' panel.
+
+We used \texttt{Qwen2.5-0.5B-Instruct}, which has 24 decoder layers, over 24 short factual questions with
+single-token answers. The items span easy, medium and hard difficulty. The model answers in a few-shot,
+one-word format, and we read logits at the last prompt position. For each item we record the answer token $a$
+and its probability $p_{\mathrm{answer}}$, which is the baseline output confidence. We also record the
+highest-probability alternative token $b$ whose decoding differs from $a$.
+
+The intervention is a contrastive logit-lens direction, $v = W_U[b] - W_U[a]$, normalized to $\hat{v}$. This is
+the special case of the Jacobian lens used in the original work with $J = I$. At decoder layer $\ell$, and at
+the last position only, we add $\alpha \cdot \lVert h_\ell \rVert \cdot \hat{v}$ to the layer's output hidden
+state. Scaling by the residual norm makes $\alpha$ unitless and comparable across layers. Sweeping 40 values of
+$\alpha$ up to $1.5$ for every layer gives, per layer, the probability of $a$, the probability of $b$, and the
+current top-1 token.
+
+The per-layer margin is the smallest $\alpha$ at which top-1 is no longer $a$, refined by binary search between
+bracketing grid points. Tokens that are merely a different surface form of the same answer do not count as a
+flip. The margin for an item is the minimum over layers. We also record the layer that achieves it and the
+item's percentile within the set.
+
+Two properties of this stimulus matter for reading our results. First, every answer flips well below the top of
+the sweep, and margins are small in absolute terms, from 0.003 to 0.077. This is the source of the scale-sense
+problem we report. Second, the margin is strongly rank-correlated with output confidence on this set, with
+Spearman $\rho = 0.71$, so the two signals do not diverge as sharply as the design assumes. The prototype
+reports $\rho$ on the overview screen rather than hiding it. Twenty-one of the 24 answers are correct.
+
+\subsection{The five representations}
+
+The same precomputed data is rendered five ways. A fixed colour marks the answer token throughout, and a
+contrasting colour marks the alternative.
+
+\begin{description}
+  \item[R0 Baseline confidence] the output probability of the answer as a bar, with the top-5 token
+    distribution. This is what products show today.
+  \item[R1 Margin score] the margin on a gauge with three bands, Fragile, Moderate and Robust, set at tertiles
+    of the item set. It carries a numeric label and one plain-language comparison line.
+  \item[R2 Flip curve] probability of the answer against push strength, one line per layer. The margin layer is
+    highlighted, a marker sits at the flip, and an inset shows layer by strength, coloured by which token is
+    top-1.
+  \item[R3 Push it yourself] two sliders, strength and layer, over the precomputed grid. It shows a live readout
+    of what the model would answer, animated probability bars, and an autoplay sweep.
+  \item[R4 Counterfactual sentence] one sentence naming the size of the nudge, the target token, the strength
+    and the layer, plus a percentile comparison.
+\end{description}
+
+An overview scatter plots output confidence against margin for all 24 items, with median splits and quadrant
+labels. That is where ``confident but fragile'' is meant to become visible.
+
+\subsection{Design}
+
+The study is within-subjects, so every participant sees all five representations. The views are also the
+material participants are asked to rate. Exposure order is therefore counterbalanced per participant for
+R1--R4 in the guided part, reused for the rating section, and recorded with each response as
+\texttt{view\_order}. Items for the graded tasks come in two sets, A and B, assigned at random, so that
+participants working next to each other do not converge on the same answers. Set assignment is recorded as
+\texttt{task\_set}.
+
+\subsection{Pilot}
+
+We ran a pilot round first, with about ten people, mostly classmates. Eight of them submitted complete
+responses through the instrument. All eight were graduate students, five at master's level and three at PhD
+level. The pilot
+tested the instrument rather than measuring anything, and it changed the interface and the questionnaire enough
+that its responses are not comparable with the main study's.
+
+The pilot produced the following changes. A welcome page now states the goal, the duration, and that the session
+can be paused. An outline of the five parts was added, so that participants are never dropped into the explorer
+without framing. Free exploration became its own timed part, with the views hidden until the participant
+starts. The former pop-up quick guide was folded into two framing steps at the start of the guided part.
+Exposure to R1--R4 became counterbalanced, with the order recorded. The overview gained a linear axis with zoom
+and a mini-map, after pilot participants misread the original scale. Each variable now has one colour across
+the views, and the explanation text is plainer and larger. The answer key now says ``the model was
+right/wrong'' instead of ``correct/incorrect''. The last build also lengthened the view-by-view walkthrough to
+six to eight minutes.
+
+For that reason the analysis below uses only sessions run on the final build. Every response records the build
+it came from, so the split is auditable rather than a judgement call.
+
+\subsection{Participants}
+
+For the main study we recruited by convenience sampling. Participants came from an undergraduate NLP class and
+from the authors' own contacts, who were free to pass the link on, so the sample also grew by snowball. Sessions
+were remote and self-paced. Participation was voluntary, anonymous and uncompensated. Every participant gave
+consent on the first screen before seeing the interface, and no identifying information was collected.
+
+Of 25 recorded sessions in total, we analyze the 17 collected on the final build, \texttt{v0.5.0}, between 19
+and 23 November 2026. The other 8 are the pilot responses described above. Of the 17, 7 were assigned task set
+A and 10 set B. Median completion time was 31 minutes against a 20-minute design target.
+
+We collected no age and no gender. The background items ask for program level and for four kinds of relevant
+experience. The sample is mostly undergraduate, with 15 of 17 participants (88\%) in an undergraduate program,
+one master's student and one who selected ``other''. Self-rated familiarity with large language models, on a
+scale of 1 to 5, centres on the midpoint. The median is 3, with 11 of 17 (65\%) choosing exactly 3 and 5 (29\%)
+choosing 4 or 5. These are people who use language models but do not build them.
+
+Familiarity with mechanistic interpretability is low, which follows from the recruitment pool. The median is 1
+and the mean 1.71, with 14 of 17 (82\%) at 1 or 2 and nobody at the top of the scale. Familiarity with
+confidence or uncertainty scores in machine learning sits in between, at a median of 3 and a mean of 2.65, with
+7 of 17 (41\%) at 1 or 2. We also asked whether participants had ever used a tool that edits or steers a
+model's internal activations. Four said yes, 3 said no, and 10 (59\%) said they were not sure. More
+participants were unsure than said no, which is itself a reading of how unfamiliar the concept is.
+
+Two limits follow. The sample is self-selected and drawn largely from one class, so it is not representative.
+We also did not collect any measure of visualization literacy or HCI background, which would have been the
+natural covariate for how people read the five views. The four experience items are the only handle we have, so
+we treat the study as exploratory throughout.
+
+\subsection{Procedure}
+
+The session runs in the browser in five parts. Each part is gated, so participants cannot read ahead.
+
+\begin{enumerate}
+  \item \textbf{Consent and background (A).} Consent, program level, and four familiarity items.
+  \item \textbf{Free exploration, then first impressions (B).} The views stay hidden until the participant
+    presses ``Start exploring''. The controls are highlighted, and clicking the overview selects an item rather
+    than jumping to a view. First impressions unlock after three minutes. They ask what the interface shows,
+    what ``Robustness'' means in the participant's own words, which views were opened, whether the About panel
+    was read, and what first confused them. These answers capture the unprompted mental model, before any task
+    shapes it.
+  \item \textbf{Guided tasks (C).} Two framing steps come first. ``Learn the ideas'' is identical for everyone
+    and folds in the former quick guide as ``Try a push'' and ``Two scores''. ``Explore the views'' then walks
+    R1--R4 in the participant's counterbalanced order, over about six to eight minutes. The graded tasks cover
+    reading one answer, which means its confidence, the token it flips to, and the easiest layer. They then
+    cover steering with the slider and comparing the two signals. A prediction task follows, in which
+    participants judge for four items whether the model's answer is right. Predictions are submitted before the
+    answer key unlocks. The key then reports whether the model was right or wrong, and whether each prediction
+    matched.
+  \item \textbf{Steering experience (D) and per-view ratings (E).} Seven agreement items ask about the push
+    interaction. Two more ask whether it felt like changing a live model or replaying recorded results, and
+    whether the ``values are precomputed'' caption was noticed. Section E rates each of the five views on three
+    statements and ranks them from most to least useful. It also probes the vocabulary of the design directly.
+    One item asks whether a margin of 0.048 labelled ``Robust'' read as a small or a large number. Another asks
+    whether calling that strength ``a large internal nudge'' matched what was on screen.
+  \item \textbf{Understanding check (F), trust and open feedback (G, H).} Seven graded comprehension items ask
+    what the bands are relative to, what the grey lines in the flip curve are, where the push is applied, and
+    whether a surface-form change counts as a flip. Sections G and H collect agreement items on trust and
+    usefulness, and free-text feedback.
+\end{enumerate}
+
+Section B receives no hints beyond the interface itself, so that the About panel remains part of what is being
+tested. Sections F and D2 therefore measure comprehension after the guided framing. Participants never see
+grades.
+
+One planned task was dropped before data collection. No item in the final set combines high output confidence
+with a Fragile-band margin, so the task that would have tested the ``confident but fragile'' quadrant directly
+has no stimulus. The final comprehension item instead tests fragility under the intervention we actually ran,
+rather than claiming that fragility predicts correctness.
+
+\subsection{Measures}
+
+\begin{itemize}
+  \item \textbf{Reading accuracy.} Graded short answers in C and seven graded items in F. Each offers a
+    ``Not sure'' option, so that guessing appears as uncertainty rather than as error.
+  \item \textbf{Prediction.} For four items, a five-point judgement of whether the model's answer is right,
+    recorded per item together with the views the participant used to decide.
+  \item \textbf{Perceived usefulness and clarity.} Three 7-point agreement statements per view, and a forced
+    ranking of the five views.
+  \item \textbf{Calibration of the vocabulary.} The scale-sense items, E5 and E6, and the band question, F3.
+  \item \textbf{Attribution of control.} Whether the slider felt live or precomputed (D2), and whether the
+    precomputed caption was read (D3).
+  \item \textbf{Trust and usability.} The 7-point agreement items in G, plus open responses in E7, D4, D5 and H.
+  \item \textbf{Behaviour.} Interaction events logged by the instrument, including view switches, item
+    selection, slider moves, autoplay use, About-panel opening, guide exposure, and per-step timings.
+\end{itemize}
+
+\subsection{Apparatus and instrumentation}
+
+The prototype is a static web application. The margins are computed offline by a Python pipeline and shipped as
+JSON, so nothing runs a model in the browser. This makes the interface instant and impossible to crash during a
+session. The cost is a slider that replays precomputed values, which is what D2 and D3 probe.
+
+The study instrument lives at its own address and saves progress locally, so a session can be resumed. It posts
+one row per participant and one row per interaction event to a spreadsheet, and responses can also be downloaded
+as CSV and JSON. Every response carries \texttt{app\_version}, \texttt{task\_set}, \texttt{view\_order} and
+\texttt{guidance\_version}. Older builds stay online at their own addresses, so a version can be inspected after
+the fact.
+
+\subsection{Analysis}
+
+We have 17 participants, and a within-subjects design whose exposure order we counterbalanced but did not vary
+as a factor. We therefore report descriptive statistics and treat the study as exploratory. For every graded
+question we report counts of correct, wrong and ``not sure''. For the rating statements we report per-view means
+and distributions, and we report the ranking of the five views. Prediction accuracy is reported per item,
+alongside that item's true band and correctness, and timing is reported as medians with quantiles. Scripts in
+the repository compute these from the exported responses, so the numbers in the next section are reproducible
+from the raw CSV.
+
+Open responses, which are B1, B2, B6, D4, E7 and H, are coded by one author into themes, and a second author
+reviews the assignments. We report themes with counts and representative quotations, following the
+strategy-coding approach of \citet{kaleVisualReasoningStrategies2020}. We make no inferential claims about
+differences between views.
+
+\subsection{Ethics}
+
+The consent screen stated that the study is part of a course project and takes about twenty minutes. It also
+stated that participation is voluntary, and that responses are anonymous and used only for this report.
+Participants could stop at any time, and declining on the first item ended the session. Responses carry no
+identifying information. Use is limited to this report, and we would seek IRB review before publishing beyond
+the course. Because some participants were recruited from a class, we took care that participation was not tied
+to coursework or credit.
+
+
+\section{Preliminary Results}
+
+\guideline{Outline. All numbers below are already computed in \texttt{results/final\_study.json}. Write prose
+against them, and add the two or three figures that carry the argument.}
+\begin{itemize}
+  \item Reading accuracy by task (C1--C10) and comprehension (F1--F7). Where accuracy is high, and the three
+    items where it collapses. Report ``not sure'' separately from wrong.
+  \item Prediction task. Per-item judgements against each item's band and true correctness. Note the one item
+    where nearly everyone was right, and the one where the views did not help.
+  \item Per-view ratings and the forced ranking. Which views won, and whether the interactive view's advantage
+    survives the ranking.
+  \item Scale sense. How many read 0.048 as small, and whether ``a large internal nudge'' matched.
+  \item Live-versus-precomputed attribution, against whether the caption was noticed.
+  \item Timing and interaction logs. Median 31 minutes against a 20-minute target, and which views were opened
+    unprompted in B.
+  \item First-impression themes before any framing. What people thought ``Robustness'' meant.
+\end{itemize}
+
+
+\section{Discussion}
+
+\guideline{Outline.}
+\begin{itemize}
+  \item The representation question is separable from the measurement question. Our results speak only to the
+    first.
+  \item Scale sense is a design problem for any derived fragility number. Bands relative to a question set make
+    a tiny absolute number read as ``Robust'', and a small push read as ``large''.
+  \item Interaction buys comprehension, but it also invites over-attribution of control. Relate to
+    \citet{chengExplainingDecisionMakingAlgorithms2019} and \citet{boSteerableChatbotsExploring2025}.
+  \item What $\rho = 0.71$ means for the pitch. On this item set the mechanistic signal is largely redundant
+    with output confidence, so the claim needs an item set where the two diverge.
+  \item Reliance framing. Following \citet{boRelyNotRely2024}, a preference for a view is not evidence of
+    appropriate reliance.
+\end{itemize}
+
+
+\section{Future Work}
+
+\guideline{Because this is a course project, substantial future work is acceptable.}
+
+\begin{itemize}
+  \item An item set selected for divergence between output confidence and margin. That is the stimulus this
+    design needs, and the one we did not have.
+  \item The paper's Jacobian-lens direction and a larger model, instead of the contrastive logit-lens
+    approximation.
+  \item Absolute rather than set-relative bands, and a vocabulary test for the words ``fragile'' and ``nudge''.
+  \item A live-computation slider, to separate the interaction from the precomputed-replay artifact.
+  \item A powered between-subjects comparison of two or three views on a decision task, with appropriate
+    reliance as the dependent measure. It should draw on a sample beyond one class and collect a
+    visualization-literacy measure as a covariate.
+\end{itemize}
+
+
+\section*{Author contributions}
+
+\guideline{
+You can refer to \href{http://li.mit.edu/Archive/Activities/PubFormat/Nature/End_notes.pdf}{\underline{Nature's annotated example}}.
+Our example: Testudo Turtle wrote all the code. Seaweed Grass debugged the code and analyzed all the data. Both
+authors designed the experiment, discussed the results and future work, and prepared the manuscript.}
+
+
+\section*{Acknowledgment}
+
+\guideline{Optional}
+
+\section*{Supplementary materials}
+
+\guideline{Recommended. Candidates: the live prototype and the study address, with older versions kept online,
+one per version. The questionnaire source. The offline pipeline and its README, which document the
+approximation and $\rho$. The response CSV and the analysis script. The annotated related-work map used to
+position this paper.}
+
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{refs,sample-base}
+
+\end{document}

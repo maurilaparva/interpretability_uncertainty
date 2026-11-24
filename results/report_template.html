@@ -1,0 +1,617 @@
+<meta charset="utf-8">
+<title>Robustness Study Results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column with a sticky section index on wide screens; summary first, then one section per survey part. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #121a26; --ink-2: #485365; --muted: #6f7a8b; --line: #dde2ea;
+  --accent: #2a78d6; --accent-soft: #e3eefb;
+  --good: #1f8a5b; --bad: #cf4441; --unsure: #c9ced8;
+  --d1: #b8312f; --d2: #e2706e; --d3: #f3b9b7; --d4: #d5d9e0; --d5: #a9cbf5; --d6: #5598e7; --d7: #1c5cab;
+  --s1: #1c5cab; --s2: #3987e5; --s3: #86b6ef; --s4: #b7d3f6; --s5: #dde9f8;
+  --f-display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0e131a; --surface: #161d27; --ink: #e8edf4; --ink-2: #b2bccb; --muted: #8590a1; --line: #29323f;
+  --accent: #5598e7; --accent-soft: #1b2b40;
+  --good: #3fae7c; --bad: #e66767; --unsure: #4a5260;
+  --d1: #e66767; --d2: #ad4d4c; --d3: #6a3838; --d4: #3b424d; --d5: #274a76; --d6: #3474c4; --d7: #79afef;
+  --s1: #86b6ef; --s2: #5598e7; --s3: #2a6bbf; --s4: #214d86; --s5: #1c3352;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0e131a; --surface: #161d27; --ink: #e8edf4; --ink-2: #b2bccb; --muted: #8590a1; --line: #29323f;
+  --accent: #5598e7; --accent-soft: #1b2b40;
+  --good: #3fae7c; --bad: #e66767; --unsure: #4a5260;
+  --d1: #e66767; --d2: #ad4d4c; --d3: #6a3838; --d4: #3b424d; --d5: #274a76; --d6: #3474c4; --d7: #79afef;
+  --s1: #86b6ef; --s2: #5598e7; --s3: #2a6bbf; --s4: #214d86; --s5: #1c3352;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--f-body); margin: 0; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px;
+  display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 48px; }
+@media (max-width: 860px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-inline: 16px; } nav.toc { display: none; } }
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 13px; }
+nav.toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0 4px 12px; border-left: 2px solid var(--line); }
+nav.toc a:hover, nav.toc a:focus-visible { color: var(--accent); border-left-color: var(--accent); }
+nav.toc .letter { font-family: var(--f-data); color: var(--muted); margin-right: 6px; }
+main { min-width: 0; display: flex; flex-direction: column; gap: 56px; }
+
+h1, h2, h3 { font-family: var(--f-display); font-weight: 600; text-wrap: balance; margin: 0; }
+h1 { font-size: 38px; line-height: 1.12; letter-spacing: -0.01em; }
+h2 { font-size: 26px; line-height: 1.2; }
+h3 { font-size: 17px; font-family: var(--f-body); font-weight: 600; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow { font: 500 12px/1 var(--f-data); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lede { color: var(--ink-2); font-size: 16px; }
+section { display: flex; flex-direction: column; gap: 20px; scroll-margin-top: 24px; }
+section > header { display: flex; flex-direction: column; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.note { color: var(--muted); font-size: 13px; }
+code, .mono { font-family: var(--f-data); font-size: 0.92em; }
+
+.meta-row { display: flex; flex-wrap: wrap; gap: 8px 24px; color: var(--ink-2); font-size: 14px; }
+.meta-row b { font-family: var(--f-data); font-weight: 500; color: var(--ink); }
+
+.findings { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.finding { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.finding .num { font: 500 26px/1.1 var(--f-data); color: var(--accent); font-variant-numeric: tabular-nums; }
+.finding p { font-size: 14px; color: var(--ink-2); }
+.finding h3 { font-size: 15px; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 20px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.panel h3 + .note { margin-top: -8px; }
+
+/* legend */
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+/* bar rows */
+.rows { display: flex; flex-direction: column; gap: 10px; container-type: inline-size; }
+.row { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) 4.4rem; gap: 12px; align-items: center; }
+.row .lab { font-size: 13.5px; color: var(--ink); line-height: 1.35; }
+.row .lab small { display: block; color: var(--muted); font-size: 12px; }
+.row .val { white-space: nowrap; font: 500 13px var(--f-data); color: var(--ink-2); text-align: right; font-variant-numeric: tabular-nums; }
+@container (max-width: 560px) { .row { grid-template-columns: minmax(0, 40%) minmax(0, 1fr) 4rem; } }
+@container (max-width: 360px) { .row { grid-template-columns: minmax(0, 1fr) 4rem; } .row .lab { grid-column: 1 / -1; } }
+.track { position: relative; height: 18px; }
+.track.center::before { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--muted); opacity: .6; }
+.seg { position: absolute; top: 0; height: 100%; border-right: 2px solid var(--surface); cursor: default; }
+.seg:last-child { border-right: 0; }
+.seg.first { border-radius: 4px 0 0 4px; } .seg.last { border-radius: 0 4px 4px 0; }
+.seg.only { border-radius: 4px; }
+.seg:hover, .seg:focus-visible { filter: brightness(1.08); outline: 2px solid var(--ink); outline-offset: -1px; }
+.bar { position: absolute; left: 0; top: 2px; height: 14px; background: var(--accent); border-radius: 0 4px 4px 0; }
+.bar.alt { background: var(--muted); }
+
+/* graded task details */
+details.task { border-top: 1px solid var(--line); padding-top: 10px; }
+details.task:first-of-type { border-top: 0; padding-top: 0; }
+details.task > summary { list-style: none; cursor: pointer; }
+details.task > summary::-webkit-details-marker { display: none; }
+details.task > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+.key { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.key b { color: var(--ink-2); font-weight: 500; }
+.answers { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip { font: 12px/1.3 var(--f-data); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; color: var(--ink-2); max-width: 100%; overflow-wrap: anywhere; }
+.chip.correct { border-color: var(--good); }
+.chip.wrong { border-color: var(--bad); }
+.chip .st { font-weight: 500; margin-right: 4px; }
+.chip.correct .st { color: var(--good); } .chip.wrong .st { color: var(--bad); } .chip.notsure .st { color: var(--muted); }
+.caret { font-family: var(--f-data); color: var(--accent); font-size: 12px; }
+
+/* predictions */
+.pred { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) 4.4rem; gap: 12px; align-items: center; }
+@media (max-width: 560px) { .pred { grid-template-columns: minmax(0, 1fr) 3.2rem; } .pred .lab { grid-column: 1 / -1; } }
+.tag { display: inline-block; font: 500 11px/1 var(--f-data); padding: 3px 6px; border-radius: 4px; margin-right: 4px; letter-spacing: .02em; }
+.tag.right { color: var(--good); border: 1px solid var(--good); }
+.tag.wrong { color: var(--bad); border: 1px solid var(--bad); }
+.tag.band { color: var(--ink-2); border: 1px solid var(--line); }
+
+/* heat table */
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font: 500 11.5px var(--f-data); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+td.n { font-family: var(--f-data); font-variant-numeric: tabular-nums; text-align: right; }
+th.n { text-align: right; }
+td.heat { text-align: center; font-family: var(--f-data); font-variant-numeric: tabular-nums; border-bottom: 2px solid var(--surface); border-right: 2px solid var(--surface); border-radius: 4px; }
+
+/* open text */
+details.qa { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+details.qa > summary { cursor: pointer; padding: 14px 18px; font-weight: 500; display: flex; justify-content: space-between; gap: 12px; }
+details.qa > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+details.qa > summary .count { font: 12px var(--f-data); color: var(--muted); white-space: nowrap; }
+details.qa ul { list-style: none; margin: 0; padding: 0 18px 16px; display: flex; flex-direction: column; gap: 10px; }
+details.qa li { font-size: 14px; padding-left: 12px; border-left: 2px solid var(--line); max-width: 75ch; overflow-wrap: anywhere; }
+details.qa li .who { font: 11.5px var(--f-data); color: var(--muted); margin-left: 6px; }
+
+ul.plain { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; max-width: 70ch; color: var(--ink-2); font-size: 14px; }
+
+/* how to read */
+.scales { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px 20px; margin: 0; }
+.scales div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.scales dt { font: 500 13px var(--f-data); color: var(--ink); }
+.scales dd { margin: 0; font-size: 13px; color: var(--ink-2); }
+
+/* participant excerpts */
+.quotes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.quotes > h3 { grid-column: 1 / -1; }
+figure.q { margin: 0; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+figure.q .about { font: 500 11px/1 var(--f-data); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+figure.q blockquote { margin: 0; font-family: var(--f-display); font-size: 16px; line-height: 1.45; color: var(--ink); overflow-wrap: anywhere; }
+figure.q figcaption { font: 12px var(--f-data); color: var(--muted); }
+figure.q.flag { border-color: var(--bad); }
+
+#tip { position: fixed; z-index: 10; pointer-events: none; background: var(--ink); color: var(--bg); font: 12.5px/1.4 var(--f-body);
+  padding: 6px 9px; border-radius: 6px; max-width: 280px; opacity: 0; transition: opacity .08s; }
+#tip.on { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { #tip { transition: none; } }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="Sections">
+    <a href="#summary"><span class="letter">·</span>Summary</a>
+    <a href="#participants"><span class="letter">A</span>Participants</a>
+    <a href="#first"><span class="letter">B</span>First impressions</a>
+    <a href="#tasks"><span class="letter">C</span>Guided tasks</a>
+    <a href="#predictions"><span class="letter">C13</span>Predictions</a>
+    <a href="#steering"><span class="letter">D</span>Steering</a>
+    <a href="#views"><span class="letter">E</span>Rating the views</a>
+    <a href="#understanding"><span class="letter">F</span>Understanding</a>
+    <a href="#trust"><span class="letter">G</span>Trust</a>
+    <a href="#usability"><span class="letter">H</span>Usability</a>
+    <a href="#text"><span class="letter">¶</span>Open answers</a>
+    <a href="#people"><span class="letter">#</span>Per participant</a>
+  </nav>
+
+  <main>
+    <section id="summary">
+      <div class="eyebrow">Mechanistic Uncertainty Interface · user study</div>
+      <h1>Final study results</h1>
+      <p class="lede">How participants read, steered and judged the robustness views. Scores come from the in-app questionnaire, graded against the dataset in <code>web/public/data/items.json</code>.</p>
+      <div class="meta-row" id="meta"></div>
+
+      <div class="panel">
+        <h3>How to read the numbers</h3>
+        <dl class="scales">
+          <div><dt>12/17 or 12 of 17</dt><dd>Number of participants. There are 17 in total (7 on task set A, 10 on set B), so questions asked of one set only count out of 7 or 10.</dd></div>
+          <div><dt>5.94 /7</dt><dd>Average agreement on a 1&ndash;7 scale: 1 = strongly disagree, 4 = neutral, 7 = strongly agree. Not a score out of 10, and not a rank. The bar shows how many chose each point.</dd></div>
+          <div><dt>3.29 /5</dt><dd>Average on a 1&ndash;5 familiarity scale (background questions only): 1 = least familiar, 5 = most.</dd></div>
+          <div><dt>Rank 1.53</dt><dd>Average position when participants ranked the five views from most useful (1) to least useful (5). Lower is better.</dd></div>
+          <div><dt>Mental demand</dt><dd>Also 1&ndash;7, but 1 = very low and 7 = very high, so lower is better there.</dd></div>
+        </dl>
+      </div>
+
+      <div class="findings">
+        <div class="finding"><div class="num" id="f-read"></div><h3>Reading a single answer was easy</h3>
+          <p>Confidence, flip word, flip layer, and steering results were read correctly by 13–17 of 17. Placing the answer relative to the others (C4) was the weak spot: 9 of 17.</p></div>
+        <div class="finding"><div class="num" id="f-pred"></div><h3>Predictions mostly matched the answer key</h3>
+          <p>The robust, correct answer (Berlin) was judged right by all 10, and the fragile, wrong one (W → Oxygen) was judged wrong by 15 of 17. The fragile but correct Thimphu split the room.</p></div>
+        <div class="finding"><div class="num" id="f-rank"></div><h3>The plain confidence view ranked first</h3>
+          <p>R0 Baseline was ranked most useful by 11 of 17 and rated highest on every item. R3 Push it came second; R2 Flip curve came last and was rated the least clear.</p></div>
+        <div class="finding"><div class="num" id="f-want"></div><h3>People want robustness shown</h3>
+          <p>“I would want robustness shown next to confidence” scored the highest of the trust items, and 12 of 17 would rely on robustness at least as much as confidence for a high-stakes question.</p></div>
+        <div class="finding"><div class="num" id="f-gap"></div><h3>Two ideas did not land</h3>
+          <p>That the Fragile/Moderate/Robust bands are relative to this question set (F3), and that a token of the same answer is not a flip (F6), were each answered correctly by only 7 of 17.</p></div>
+        <div class="finding"><div class="num" id="f-replay"></div><h3>Steering read as a replay</h3>
+          <p>13 of 17 said Push it felt like replaying recorded results, and the sense of control was low. Only 6 noticed the “values are precomputed” note.</p></div>
+      </div>
+
+      <div class="panel">
+        <h3>Read with care</h3>
+        <ul class="plain">
+          <li><b>Small, homogeneous sample.</b> 17 people, 15 undergraduates, mostly new to mechanistic interpretability. Treat counts as directions, not effects.</li>
+          <li><b>View order is unbalanced.</b> The four rotations of R1–R4 were not used equally (see the participants section), so order effects are not fully cancelled.</li>
+          <li><b>R0 is always rated first and is the familiar format.</b> Its lead in the ranking may partly reflect familiarity and position.</li>
+          <li><b>Predictions mix interface and knowledge.</b> Several items (e.g. the symbol W) can be answered from general knowledge; C14–C15 show how much each person relied on it.</li>
+          <li><b>R0 shows partial answers.</b> The R0 top-words list and its caption show the model’s first token (“Th” for Thimphu, “R” for Rutherford, “Ou” for Ouagadougou). This may have pushed some predictions toward “wrong” on three of the seven prediction items.</li>
+          <li><b>Free-text grading is lenient.</b> “99” counts for 99%, “maybe layer 22” for 22, and for push strength both the “flips at” marker value and the first slider stop past it are accepted. Click any task to see every raw answer.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="participants">
+      <header><div class="eyebrow">Section A</div><h2>Participants</h2></header>
+      <div class="grid2">
+        <div class="panel"><h3>Program</h3><div class="rows" id="program"></div></div>
+        <div class="panel"><h3>Used a tool that steers activations?</h3><div class="rows" id="steered"></div></div>
+      </div>
+      <div class="panel"><h3>Familiarity</h3><p class="note">1 = lowest, 5 = highest on each scale.</p>
+        <div class="legend" id="leg-seq5"></div><div class="rows" id="familiar"></div></div>
+      <div class="panel"><h3>Order the views were explored in</h3><p class="note">R0 always comes first; R1–R4 rotate. Equal counts would balance order effects.</p><div class="rows" id="orders"></div></div>
+    </section>
+
+    <section id="first">
+      <header><div class="eyebrow">Section B</div><h2>First impressions</h2>
+        <p class="note">After about 5 minutes of free exploration, before any explanation.</p></header>
+      <div class="grid2">
+        <div class="panel"><h3>Views opened</h3><div class="rows" id="opened"></div></div>
+        <div class="panel"><h3>Opened “About this method”?</h3><div class="rows" id="about"></div></div>
+      </div>
+      <div class="panel"><h3>Agreement</h3><p class="note">Average on a 1–7 scale (7 = strongly agree). Bars are centred on neutral (4): disagreement extends left, agreement right.</p><div class="legend leg7"></div><div class="rows" id="clear"></div></div>
+      <div class="quotes">
+        <h3>In their words</h3>
+        <figure class="q"><div class="about">What the interface shows (B1)</div><blockquote>“It seems like the outer layers are more sensitive. Also, it seems like the relationship between confidence and robustness fluctuates based on topic/prompt.”</blockquote><figcaption>7d8edc · set B</figcaption></figure>
+        <figure class="q"><div class="about">What robustness means (B2)</div><blockquote>“How much it is resistant to changing it’s answer to something due to pressures in the layer.”</blockquote><figcaption>1e0bca · set B</figcaption></figure>
+        <figure class="q"><div class="about">What robustness means (B2)</div><blockquote>“The model’s ability to answer questions across different topics.”</blockquote><figcaption>66b4dc · set A · read as capability, before the guided tour</figcaption></figure>
+        <figure class="q"><div class="about">What robustness means (B2)</div><blockquote>“How accurate the model can be when answering the questions asked”</blockquote><figcaption>2c50fa · set B · read as accuracy, before the guided tour</figcaption></figure>
+        <figure class="q"><div class="about">First confusion (B6)</div><blockquote>“At a glance, the Overview section seemed confusing and information-heavy. Understanding it was not straightforward.”</blockquote><figcaption>66b4dc · set A</figcaption></figure>
+        <figure class="q"><div class="about">First confusion (B6)</div><blockquote>“I don’t understand how having a low robustness versus a low fragility differs”</blockquote><figcaption>19f668 · set A</figcaption></figure>
+        <figure class="q"><div class="about">First confusion (B6)</div><blockquote>“I didnt know what any of the views meant and had no clue what the information being displayed to me even meant.”</blockquote><figcaption>4f5150 · set B</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="tasks">
+      <header><div class="eyebrow">Section C · Tasks 1–2</div><h2>Guided tasks</h2>
+        <p class="note">Task 1 reads “What is the capital of Japan?” in Compare all. Task 2 steers a question in Push it (set A: largest ocean; set B: capital of Nigeria). Click a task to see every answer.</p></header>
+      <div class="panel"><div class="legend" id="leg-grade"></div><div id="graded"></div></div>
+      <div class="panel"><h3>About the tasks</h3><div class="legend leg7"></div><div class="rows" id="taskscales"></div></div>
+      <div class="panel"><h3>Used Auto-play?</h3><div class="rows" id="autoplay"></div></div>
+    </section>
+
+    <section id="predictions">
+      <header><div class="eyebrow">Section C · Task 4</div><h2>Predicting whether the model is right</h2>
+        <p class="note">Each set judged four answers, two right and two wrong, before seeing the answer key. Bars run from “Definitely wrong” (left of centre) to “Definitely right” (right of centre). The number counts judgments on the side that matches the answer key.</p></header>
+      <div class="panel"><div class="legend" id="leg-pred"></div><div class="rows" id="pred"></div></div>
+      <div class="grid2">
+        <div class="panel"><h3>Views used to decide</h3><div class="rows" id="predviews"></div></div>
+        <div class="panel"><h3>Own knowledge vs. interface</h3><p class="note">1 = only my own knowledge, 7 = only the interface.</p><div class="legend" id="leg-seq7"></div><div class="rows" id="reliance"></div></div>
+      </div>
+      <div class="quotes">
+        <h3>In their words: after the answer key (C16)</h3>
+        <figure class="q"><div class="about">Fragile but correct</div><blockquote>“I’m surprised Thimphu was right since the model was only 60% confident, which I would think is a low number”</blockquote><figcaption>32ed37 · set B</figcaption></figure>
+        <figure class="q flag"><div class="about">Possible interface issue</div><blockquote>“Since the answers it gave me never said Thimphu, it only said Th which is why I thought it was wrong”</blockquote><figcaption>f55b3b · set B · confirmed: R0 lists raw first tokens (“Th”, “R”, “Ou”), not the full answer</figcaption></figure>
+        <figure class="q"><div class="about">Used the uncertainty</div><blockquote>“I was not sure about the first one, Who discovered the electron. But by the uncertainty of the model too, I assumed it was probably wrong”</blockquote><figcaption>694e45 · set B</figcaption></figure>
+        <figure class="q"><div class="about">Used the views</div><blockquote>“I was able to answer the questions by using the visualizations of the model’s behavior to help me reason about them.”</blockquote><figcaption>66b4dc · set A</figcaption></figure>
+        <figure class="q"><div class="about">Own knowledge won out</div><blockquote>“Thought it was Sydney so I trusted my own knowledge more than the model but turns out I was wrong.”</blockquote><figcaption>c19f43 · set A</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="steering">
+      <header><div class="eyebrow">Section D</div><h2>Steering experience</h2></header>
+      <div class="panel"><h3>Agreement</h3><p class="note">Average on a 1–7 scale (7 = strongly agree). Bars are centred on neutral (4): disagreement extends left, agreement right.</p><div class="legend leg7"></div><div class="rows" id="steer"></div></div>
+      <div class="grid2">
+        <div class="panel"><h3>Live model or recorded results?</h3><div class="rows" id="live"></div></div>
+        <div class="panel"><h3>Noticed “values are precomputed”?</h3><div class="rows" id="note"></div></div>
+      </div>
+      <div class="quotes">
+        <h3>In their words: pushing the model (D4, D5)</h3>
+        <figure class="q"><div class="about">Unexpected</div><blockquote>“i didnt expect the layer number to matter as much as it did”</blockquote><figcaption>6efa3e · set B</figcaption></figure>
+        <figure class="q"><div class="about">Unexpected</div><blockquote>“Always pushing it, the LLM would change its answer way more easily than I would’ve thought. As I thought it wouldn’t change in an answer if it had a high word selective rate”</blockquote><figcaption>19f668 · set A</figcaption></figure>
+        <figure class="q"><div class="about">Unexpected</div><blockquote>“Right after I pushed it changed the answer which made me think whether the confidence level of the model for the answer is correct or not.”</blockquote><figcaption>2c50fa · set B</figcaption></figure>
+        <figure class="q"><div class="about">Unexpected</div><blockquote>“when I pushed, instead of showing the second answer it showed the third answer which was "The".”</blockquote><figcaption>c19f43 · set A</figcaption></figure>
+        <figure class="q"><div class="about">Control to add</div><blockquote>“Add a way to enter a specific number”</blockquote><figcaption>e1058a · set A</figcaption></figure>
+        <figure class="q"><div class="about">Control to add</div><blockquote>“Autoplay going through the layers as well.”</blockquote><figcaption>f531e5 · set B</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="views">
+      <header><div class="eyebrow">Section E</div><h2>Rating the views</h2></header>
+      <div class="panel"><h3>Ranked most to least useful</h3><p class="note">Each participant ordered the five views from most useful (1) to least useful (5). Bar segments count how many people put the view at each position; the number is its average position, so lower is better.</p>
+        <div class="legend" id="leg-rank"></div><div class="rows" id="ranking"></div></div>
+      <div class="panel"><h3>Mean rating per view</h3><p class="note">Each cell is the average agreement on a 1–7 scale (7 = strongly agree, 4 = neutral). Darker is higher; hover a cell for how many people chose each point.</p>
+        <div class="tablewrap"><table id="heat"></table></div></div>
+      <div class="grid2">
+        <div class="panel"><h3 id="e5-title"></h3><div class="rows" id="scale"></div></div>
+        <div class="panel"><h3>Wording matched the number</h3><div class="legend leg7"></div><div class="rows" id="nudge"></div></div>
+      </div>
+      <div class="quotes">
+        <h3>In their words: the most confusing view (E7)</h3>
+        <figure class="q"><div class="about">R1 Score</div><blockquote>“I felt it confusing because 0.048 seems small but it is labeled 91 % more internal push to change the answer.”</blockquote><figcaption>37a41f · set B</figcaption></figure>
+        <figure class="q"><div class="about">R1 Score</div><blockquote>“I don’t really understand the R1 score due to scaling.”</blockquote><figcaption>1e0bca · set B</figcaption></figure>
+        <figure class="q"><div class="about">R2 Flip curve</div><blockquote>“The lines seem to represent the layers but I don’t know exactly what it’s trying to tell me.”</blockquote><figcaption>c19f43 · set A</figcaption></figure>
+        <figure class="q"><div class="about">R2 Flip curve</div><blockquote>“Flip curve was just a lot to take in a first but I was able to understand it after looking at it a but”</blockquote><figcaption>e1058a · set A</figcaption></figure>
+        <figure class="q"><div class="about">R4 Counterfactual</div><blockquote>“R4 since it takes time to understand its impact and what a large internal nudge means”</blockquote><figcaption>f55b3b · set B</figcaption></figure>
+        <figure class="q"><div class="about">Overall</div><blockquote>“I can see what it means to be robust and fragile based on the interface, but I wouldn’t be able to describe why”</blockquote><figcaption>32ed37 · set B</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="understanding">
+      <header><div class="eyebrow">Section F</div><h2>Understanding check</h2>
+        <p class="note">Multiple choice with “Not sure” always available. Click a question for the full spread.</p></header>
+      <div class="panel"><div class="legend" id="leg-grade2"></div><div id="ugraded"></div></div>
+    </section>
+
+    <section id="trust">
+      <header><div class="eyebrow">Section G</div><h2>Trust and usefulness</h2></header>
+      <div class="panel"><h3>Agreement</h3><p class="note">Average on a 1–7 scale (7 = strongly agree). Bars are centred on neutral (4): disagreement extends left, agreement right.</p><div class="legend leg7"></div><div class="rows" id="trustrows"></div></div>
+      <div class="panel"><h3>For a high-stakes question, which signal would you rely on more?</h3><div class="rows" id="signal"></div></div>
+      <div class="quotes">
+        <h3>In their words: trust and use (G3, G4)</h3>
+        <figure class="q"><div class="about">Confidence vs. robustness</div><blockquote>“while high confidence makes the answer likely to be more true it is not set on stone and we need check robustness before trusting the answer given.”</blockquote><figcaption>2c50fa · set B</figcaption></figure>
+        <figure class="q"><div class="about">Confidence vs. robustness</div><blockquote>“Capital of Brazil. I concluded that although the confidence of the answer is high, it´s still vulnerable to flips.”</blockquote><figcaption>694e45 · set B</figcaption></figure>
+        <figure class="q"><div class="about">Confidence vs. robustness</div><blockquote>“I looked more at the robustness and if it was low then I wouldn’t trust the confidence score as much.”</blockquote><figcaption>c19f43 · set A</figcaption></figure>
+        <figure class="q"><div class="about">Where they would use it</div><blockquote>“When I am asking ai to give me answers regarding medication to use or finical advice. In an emergency or for allergy medication it would particularly be useful”</blockquote><figcaption>f55b3b · set B</figcaption></figure>
+        <figure class="q"><div class="about">Where they would use it</div><blockquote>“For studies like this; definitely not for everyday AI use, though.”</blockquote><figcaption>cef826 · set A</figcaption></figure>
+        <figure class="q"><div class="about">Where they would use it</div><blockquote>“I would use a tool like this to get metrics for training an in-house LM for personal use or for a company.”</blockquote><figcaption>4f5150 · set B</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="usability">
+      <header><div class="eyebrow">Section H</div><h2>Usability</h2></header>
+      <div class="panel"><div class="legend leg7"></div><div class="rows" id="usab"></div>
+        <p class="note">Mental demand runs from 1 = very low to 7 = very high, so lower is better there.</p></div>
+      <div class="quotes">
+        <h3>In their words: keep, change, anything else (H4–H7)</h3>
+        <figure class="q"><div class="about">Keep</div><blockquote>“The slider, I like the push it tab.”</blockquote><figcaption>1e0bca · set B</figcaption></figure>
+        <figure class="q"><div class="about">Keep</div><blockquote>“The first screen where it shows confidence”</blockquote><figcaption>e1058a · set A</figcaption></figure>
+        <figure class="q"><div class="about">Change</div><blockquote>“Need to make this more tuned for casual users who don’t know all of the concepts (more interactive visuals/explanations)”</blockquote><figcaption>4f5150 · set B</figcaption></figure>
+        <figure class="q"><div class="about">Change</div><blockquote>“The robustness scoring needs to be a little mroe clear.”</blockquote><figcaption>1e0bca · set B</figcaption></figure>
+        <figure class="q"><div class="about">Change</div><blockquote>“in "which views did you use to decide?" i wasnt able to click "compare all" and that was the one that i was using.”</blockquote><figcaption>6efa3e · set B</figcaption></figure>
+        <figure class="q"><div class="about">Broken on phones</div><blockquote>“I first tried this on my phone and things overlapped and looked wrong. After moving it to a computer, it looked fine.”</blockquote><figcaption>82ac8c · set A</figcaption></figure>
+        <figure class="q"><div class="about">Anything else</div><blockquote>“This was very well put together and helped me better understand what nudges do to models”</blockquote><figcaption>e1058a · set A</figcaption></figure>
+        <figure class="q"><div class="about">Anything else</div><blockquote>“It was also easy to understand regardless on LLM knowledge level.”</blockquote><figcaption>7d8edc · set B</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="text">
+      <header><div class="eyebrow">All sections</div><h2>Open answers</h2>
+        <p class="note">Every free-text answer, verbatim, including the ones excerpted above. Labels show the participant ID and task set.</p></header>
+      <div id="qa" class="rows"></div>
+    </section>
+
+    <section id="people">
+      <header><div class="eyebrow">Table</div><h2>Per participant</h2>
+        <p class="note">Tasks out of 7 (C1–C4, C6–C8), predictions out of 4, understanding out of 7. Minutes include any pauses.</p></header>
+      <div class="panel"><div class="tablewrap"><table id="ptable"></table></div></div>
+      <p class="note" id="excluded"></p>
+    </section>
+  </main>
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+(() => {
+// Everything stays in this function scope, so no name collides with globals of the page that hosts the report.
+try {
+const D = /*DATA*/null;
+const $ = (id) => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const pct = (a, b) => b ? Math.round(100 * a / b) + '%' : '–';
+const D7 = ['--d1', '--d2', '--d3', '--d4', '--d5', '--d6', '--d7'];
+const SEQ5 = ['--s5', '--s4', '--s3', '--s2', '--s1'];
+const AGREE7 = ['Strongly disagree', 'Disagree', 'Somewhat disagree', 'Neutral', 'Somewhat agree', 'Agree', 'Strongly agree'];
+
+// Tooltip: any element with data-tip.
+const tip = $('tip');
+function showTip(e) {
+  const t = e.target.closest('[data-tip]'); if (!t) return;
+  tip.textContent = t.dataset.tip; tip.classList.add('on');
+  const r = t.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
+  tip.style.top = (r.top - h - 8 < 8 ? r.bottom + 8 : r.top - h - 8) + 'px';
+}
+document.addEventListener('mouseover', showTip); document.addEventListener('focusin', showTip);
+document.addEventListener('mouseout', (e) => { if (e.target.closest('[data-tip]')) tip.classList.remove('on'); });
+document.addEventListener('focusout', () => tip.classList.remove('on'));
+addEventListener('scroll', () => tip.classList.remove('on'), { passive: true });
+
+function legend(target, items) {
+  for (const node of (typeof target === 'string' ? document.querySelectorAll(target) : [target])) {
+    node.replaceChildren(...items.map(([label, color]) => {
+      const s = el('span'); const i = el('i'); i.style.background = `var(${color})`; s.append(i, label); return s;
+    }));
+  }
+}
+
+function row(label, sub, track, val) {
+  const r = el('div', 'row'); const l = el('div', 'lab', label);
+  if (sub) l.append(el('small', null, sub));
+  r.append(l, track, el('div', 'val', val)); return r;
+}
+
+function seg(track, left, width, color, tipText, cls = '') {
+  if (width <= 0) return;
+  const s = el('div', 'seg ' + cls); s.style.left = left + '%'; s.style.width = width + '%';
+  s.style.background = `var(${color})`; s.dataset.tip = tipText; s.tabIndex = 0; track.append(s);
+}
+function roundEnds(track) {
+  const s = [...track.querySelectorAll('.seg')]; if (!s.length) return;
+  if (s.length === 1) s[0].classList.add('only'); else { s[0].classList.add('first'); s.at(-1).classList.add('last'); }
+}
+
+// Simple horizontal bars for single/multi choice; scaled to n respondents.
+function bars(target, q, scaleN) {
+  const n = scaleN || q.n; const box = $(target);
+  for (const [label, c] of q.options) {
+    const t = el('div', 'track'); const b = el('div', 'bar'); b.style.width = (100 * c / n) + '%';
+    if (c === 0) b.style.width = '2px';
+    b.dataset.tip = `${label}: ${c} of ${n} (${pct(c, n)})`; b.tabIndex = 0; t.append(b);
+    box.append(row(label, null, t, `${c}`));
+  }
+}
+
+// Diverging stacked bars for 1–7 agreement, centred on the neutral point; one shared scale per group.
+function likert(target, qs, labels = AGREE7) {
+  const box = $(target);
+  const side = (q) => { const half = q.counts[3] / 2; return [q.counts[0] + q.counts[1] + q.counts[2] + half, q.counts[4] + q.counts[5] + q.counts[6] + half]; };
+  const ext = Math.max(...qs.flatMap((q) => side(q).map((v) => v / q.n)));
+  for (const q of qs) {
+    const t = el('div', 'track center'); let x = 50 - 50 * side(q)[0] / q.n / ext;
+    q.counts.forEach((c, i) => { const w = 50 * c / q.n / ext;
+      seg(t, x, w, D7[i], `${i + 1} · ${labels[i]}: ${c} of ${q.n}`); x += w; });
+    roundEnds(t);
+    const agree = q.counts[4] + q.counts[5] + q.counts[6];
+    box.append(row(q.prompt, `${q.id} · ${agree} of ${q.n} agree (5–7)`, t, `${q.mean.toFixed(2)} /7`));
+  }
+}
+
+// Sequential 100% stacked bars for 1–5 (or 1–7) scales that are not agreement.
+function seqStack(target, qs, names) {
+  const box = $(target);
+  for (const q of qs) {
+    const t = el('div', 'track'); let x = 0; const k = q.counts.length;
+    const colors = k === 5 ? SEQ5 : ['--s5', '--s5', '--s4', '--s3', '--s2', '--s1', '--s1'];
+    q.counts.forEach((c, i) => { const w = 100 * c / q.n; seg(t, x, w, colors[i], `${i + 1}: ${c} of ${q.n}`); x += w; });
+    roundEnds(t);
+    box.append(row(names ? names[q.id] : q.prompt, `${q.id} · average on a 1–${q.max} scale`, t, `${q.mean.toFixed(2)} /${q.max}`));
+  }
+}
+
+// Correct / wrong / not sure, expandable to every raw answer.
+function graded(target, tasks) {
+  const box = $(target);
+  for (const q of tasks) {
+    const n = q.correct + q.wrong + q.notsure;
+    const d = el('details', 'task'); const s = el('summary');
+    const t = el('div', 'track'); let x = 0;
+    [['correct', '--good', 'Correct'], ['wrong', '--bad', 'Wrong'], ['notsure', '--unsure', 'Not sure']].forEach(([k, c, name]) => {
+      const w = 100 * q[k] / n; seg(t, x, w, c, `${name}: ${q[k]} of ${n}`); x += w; });
+    roundEnds(t);
+    const r = row(q.label, null, t, `${q.correct} of ${n}`);
+    const lab = r.querySelector('.lab'); lab.prepend(el('span', 'caret', q.id + ' ▸ '));
+    const key = el('div', 'key'); key.append('Key: '); key.append(el('b', null, q.key)); lab.append(key);
+    s.append(r); d.append(s);
+    const ans = el('div', 'answers');
+    for (const a of q.answers) {
+      const c = el('span', 'chip ' + a.status);
+      c.append(el('span', 'st', { correct: '✓', wrong: '✗', notsure: '?' }[a.status]), `${a.answer || '(blank)'}`);
+      c.title = `${a.pid} · set ${a.set}`; ans.append(c);
+    }
+    d.append(ans);
+    d.addEventListener('toggle', () => { lab.querySelector('.caret').textContent = q.id + (d.open ? ' ▾ ' : ' ▸ '); });
+    box.append(d);
+  }
+}
+
+// ---------- fill ----------
+const M = D.meta;
+$('meta').innerHTML = '';
+[['Participants', M.n], ['Task set A / B', `${M.nA} / ${M.nB}`], ['Collected', `${M.first} → ${M.last}`],
+ ['Median time', `${Math.round(M.median_minutes)} min`], ['App', M.version]].forEach(([k, v]) => {
+  const s = el('span'); s.append(k + ' '); s.append(el('b', null, String(v))); $('meta').append(s); });
+
+const readTasks = D.tasks.filter((t) => ['C1', 'C2', 'C3', 'C6', 'C7', 'C8'].includes(t.id));
+const readOk = readTasks.reduce((a, t) => a + t.correct, 0), readN = readTasks.length * M.n;
+$('f-read').textContent = pct(readOk, readN);
+const pj = D.predictions.reduce((a, p) => a + p.judged_right, 0), pn = M.n * 4;
+$('f-pred').textContent = `${pj}/${pn}`;
+$('f-rank').textContent = `${D.ranking[0].counts[0]}/${M.n}`;
+$('f-want').textContent = D.trust.find((q) => q.id === 'G1c').mean.toFixed(1) + ' / 7';
+$('f-gap').textContent = `${D.understanding.find((q) => q.id === 'F3').correct}/${M.n}`;
+$('f-replay').textContent = `${D.live.options[1][1]}/${M.n}`;
+
+legend('.leg7', AGREE7.map((l, i) => [`${i + 1} ${l}`, D7[i]]));
+legend($('leg-seq5'), [1, 2, 3, 4, 5].map((v, i) => [String(v), SEQ5[i]]));
+legend($('leg-seq7'), [['1–2', '--s5'], ['3', '--s4'], ['4', '--s3'], ['5', '--s2'], ['6–7', '--s1']]);
+legend($('leg-grade'), [['Correct', '--good'], ['Wrong', '--bad'], ['Not sure', '--unsure']]);
+legend($('leg-grade2'), [['Correct', '--good'], ['Wrong', '--bad'], ['Not sure', '--unsure']]);
+legend($('leg-rank'), [1, 2, 3, 4, 5].map((v, i) => [`Rank ${v}`, SEQ5[4 - i]]));
+
+const B = D.background;
+bars('program', B.program); bars('steered', B.steered);
+seqStack('familiar', B.scales, { A3: 'Large language models', A4: 'Mechanistic interpretability', A6: 'Confidence / uncertainty scores' });
+bars('orders', { n: M.n, options: Object.entries(M.orders).map(([o, c]) => ['R0 → ' + o.toUpperCase().split(' ').join(' → '), c]) });
+
+bars('opened', D.first.opened); bars('about', D.first.about);
+likert('clear', [D.first.clear]);
+
+graded('graded', D.tasks);
+likert('taskscales', [D.task_conf, D.slider_expect], ['Not at all confident / Strongly disagree', 'Disagree', 'Somewhat disagree', 'Neutral', 'Somewhat agree', 'Agree', 'Very confident / Strongly agree']);
+bars('autoplay', D.autoplay);
+
+// Predictions: wrong side left of centre, right side right of centre; Not sure as a separate grey tail.
+legend($('leg-pred'), [['Definitely wrong', '--d1'], ['Probably wrong', '--d3'], ['Probably right', '--d5'], ['Definitely right', '--d7'], ['Not sure', '--unsure']]);
+(() => {
+  const box = $('pred'); const LV = ['Definitely wrong', 'Probably wrong', 'Probably right', 'Definitely right', 'Not sure'];
+  const COL = ['--d1', '--d3', '--d5', '--d7'];
+  const ext = Math.max(...D.predictions.flatMap((p) => [(p.counts[0] + p.counts[1]) / p.n, (p.counts[2] + p.counts[3] + p.counts[4]) / p.n]));
+  for (const p of D.predictions) {
+    const t = el('div', 'track center'); let x = 50 - 50 * (p.counts[0] + p.counts[1]) / p.n / ext;
+    for (let i = 0; i < 4; i++) { const w = 50 * p.counts[i] / p.n / ext; seg(t, x, w, COL[i], `${LV[i]}: ${p.counts[i]} of ${p.n}`); x += w; }
+    const w = 50 * p.counts[4] / p.n / ext; seg(t, x, w, '--unsure', `Not sure: ${p.counts[4]} of ${p.n}`);
+    roundEnds(t);
+    const r = el('div', 'pred'); const l = el('div', 'lab'); l.append(p.question);
+    const sm = el('small');
+    sm.append(el('span', 'tag ' + (p.correct ? 'right' : 'wrong'), p.correct ? 'model right' : 'model wrong'));
+    sm.append(el('span', 'tag band', p.band));
+    sm.append(`answered “${p.answer}” · ${Math.round(p.p * 100)}% confident · robustness ${p.margin.toFixed(3)} · set ${p.sets.join(', ')}`);
+    l.append(sm);
+    const v = el('div', 'val', `${p.judged_right} of ${p.n}`); v.dataset.tip = `${p.judged_right} of ${p.n} judged it on the side that matches the answer key`;
+    r.append(l, t, v); box.append(r);
+  }
+})();
+bars('predviews', D.pred_views);
+seqStack('reliance', [D.reliance], { C15: 'Own knowledge ← → interface' });
+
+likert('steer', D.steering);
+bars('live', D.live); bars('note', D.note);
+
+// Ranking
+(() => {
+  const box = $('ranking');
+  for (const v of D.ranking) {
+    const t = el('div', 'track'); let x = 0; const n = v.counts.reduce((a, b) => a + b, 0);
+    v.counts.forEach((c, i) => { const w = 100 * c / n; seg(t, x, w, SEQ5[4 - i], `Rank ${i + 1}: ${c} of ${n}`); x += w; });
+    roundEnds(t);
+    box.append(row(v.view, `ranked first by ${v.counts[0]} of ${n}`, t, `rank ${v.mean.toFixed(2)}`));
+  }
+})();
+// Heat table of view ratings
+(() => {
+  const tb = $('heat'); const head = el('tr');
+  ['View', 'Understood it (E1)', 'Helped decide trust (E2)', 'Visually clear (E3)'].forEach((h, i) => head.append(el('th', null, i ? h + ' · avg /7' : h)));
+  tb.append(head);
+  const SEQ = ['--s5', '--s4', '--s3', '--s2', '--s1'];
+  for (const v of D.view_ratings) {
+    const tr = el('tr'); tr.append(el('td', null, v.view));
+    for (const q of v.items) {
+      const td = el('td', 'heat', `${q.mean.toFixed(2)} /7`);
+      const k = Math.max(0, Math.min(4, Math.floor((q.mean - 4) / 0.6)));
+      td.style.background = `var(${SEQ[k]})`; td.style.color = k >= 3 ? 'var(--surface)' : 'var(--ink)';
+      td.dataset.tip = `${v.view} · ${q.prompt}  ${q.counts.map((c, i) => `${i + 1}: ${c}`).join(' · ')}`; td.tabIndex = 0;
+      tr.append(td);
+    }
+    tb.append(tr);
+  }
+})();
+$('e5-title').textContent = D.scale_sense.prompt;
+bars('scale', D.scale_sense);
+likert('nudge', [D.nudge_match]);
+
+graded('ugraded', D.understanding.map((q) => ({ ...q, label: q.prompt })));
+
+likert('trustrows', D.trust);
+bars('signal', D.signal);
+likert('usab', D.usability);
+
+// Open answers
+(() => {
+  const box = $('qa');
+  for (const q of D.texts) {
+    const d = el('details', 'qa'); const s = el('summary');
+    const t = el('span'); t.append(el('span', 'mono', q.id + '  '), q.prompt);
+    s.append(t, el('span', 'count', `${q.answers.length} answers`)); d.append(s);
+    const ul = el('ul');
+    for (const a of q.answers) { const li = el('li', null, a.text); li.append(el('span', 'who', `${a.pid} · ${a.set}`)); ul.append(li); }
+    d.append(ul); box.append(d);
+  }
+})();
+
+// Participants table
+(() => {
+  const tb = $('ptable'); const cols = [['ID', 'pid'], ['Date', 'date'], ['Set', 'set'], ['Program', 'program'], ['LLM', 'llm', 1], ['Mech. interp.', 'mi', 1],
+    ['Tasks /7', 'tasks', 1], ['Predictions /4', 'pred', 1], ['Understanding /7', 'understanding', 1], ['Ranked first', 'top'], ['View order', 'order'], ['Minutes', 'minutes', 1]];
+  const head = el('tr'); cols.forEach(([h, , n]) => head.append(el('th', n ? 'n' : null, h))); tb.append(head);
+  for (const p of D.people) {
+    const tr = el('tr');
+    cols.forEach(([, k, n]) => tr.append(el('td', n ? 'n' : (k === 'pid' || k === 'order' ? 'mono' : null), k === 'order' ? p[k].toUpperCase() : String(p[k]))));
+    tb.append(tr);
+  }
+  const ex = M.excluded;
+  $('excluded').textContent = `Excluded as pilot: ${ex.length} earlier responses (${ex.map((e) => `${e.pid} ${e.started}, app ${e.version}`).join('; ')}).`;
+})();
+} catch (err) {
+  // Show the failure on the page instead of leaving the charts silently empty.
+  const box = document.createElement('p'); box.className = 'note';
+  box.textContent = 'The charts failed to draw: ' + (err && err.stack || err);
+  document.getElementById('summary').append(box);
+}
+})();
+</script>
