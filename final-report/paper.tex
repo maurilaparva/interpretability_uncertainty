@@ -285,8 +285,11 @@ The design of the views relies on three terms, which we introduce as follows. A 
 stack of \emph{layers}, and we can nudge the state it holds at any one of them. We call the size of a nudge its
 \emph{push strength}, scaled so that it means the same thing at every layer. The \emph{margin} is the smallest
 push strength that changes the answer, taken over all layers, so a small margin means the answer was easy to
-change. We label margins Fragile, Moderate or Robust by splitting our question set into three equal groups, so
-the bands are relative to this set rather than absolute.
+change. We label each margin Fragile, Moderate or Robust by its rank among the 24 items. We sorted them by
+margin and cut the list into three groups of eight. A band is therefore relative to this question set, and a
+margin that reads as Robust here is still a small number in absolute terms. This is a simplification we adopted
+to make the number legible, since no threshold marks a margin as fragile in general, and we return to it in
+Section~\ref{sec:discussion}.
 
 We chose four views that span the range of forms available, from a single number, through a chart, to direct
 manipulation, to plain language. Table~\ref{tab:views} gives each one and the work it draws on. In all five we
@@ -429,13 +432,18 @@ against them, and add the two or three figures that carry the argument.}
 
 \color{black}
 \section{Discussion and Future Work}
+\label{sec:discussion}
 
 \guideline{Outline. Because this is a course project, substantial future work is acceptable.}
 \begin{itemize}
   \item The representation question is separable from the measurement question. Our results speak only to the
     first.
   \item Scale sense is a design problem for any derived fragility number. Bands relative to a question set make
-    a tiny absolute number read as ``Robust'', and a small push read as ``large''.
+    a tiny absolute number read as ``Robust'', and a small push read as ``large''. The deeper issue is that
+    there is no threshold at which a margin becomes fragile in general. Any banding has to be calibrated
+    against something, and in deployment that something is the use case, since the fragility a reader should
+    tolerate in a trivia answer and in a clinical one are not the same. Ours is calibrated against our own 24
+    items, which is a simplification we adopted to make the number legible.
   \item Interaction buys comprehension, but it also invites over-attribution of control. Relate to
     \citet{chengExplainingDecisionMakingAlgorithms2019} and \citet{boSteerableChatbotsExploring2025}.
   \item What $\rho = 0.71$ means for the pitch. On this item set the mechanistic signal is largely redundant
