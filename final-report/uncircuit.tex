@@ -54,21 +54,7 @@
 
 \begin{abstract}
 
-\guideline{DRAFT abstract, 210 words. Rewrite the last two sentences once the results section is final.}
-
-\noindent Language model interfaces report confidence from the output distribution. That number is the
-probability of the answer the model produced, and it says nothing about how stable the mechanism behind the
-answer is. A recent line of work measures that stability instead, by asking how large an internal intervention
-is needed to change the answer. We ask how such a fragility signal should be shown to people. We built a
-prototype over 24 short factual questions answered by Qwen2.5-0.5B-Instruct and computed an approximate causal
-robustness margin for each answer. The same signal is rendered five ways: baseline output confidence, a single
-banded margin score, a per-layer flip curve, an interactive push-it-yourself slider, and a plain-language
-counterfactual sentence. An overview scatter plots confidence against margin across the question set.
-Seventeen participants worked through a self-paced session with graded reading tasks, a prediction task,
-per-view ratings and a comprehension check. We report how accurately people read each representation and which
-views they ranked as most useful. We also report whether they could tell a precomputed slider from a live
-model, and where the vocabulary of the design broke down against the numbers on screen. The study is small and
-exploratory. We read it as design evidence rather than as a test of effects.
+\noindent Language model interfaces show how confident a model is in its answer, but not how easily that answer could be changed. Recent work measures this as the robustness margin: the smallest push to a model's internal state that changes its answer. We studied how to show this margin to people who use language models but are new to how they work inside. We built a prototype that presents the margin for 24 factual questions in four ways (a banded score, a per-layer curve, an interactive slider and a counterfactual sentence), alongside output confidence, and ran an exploratory study with 17 participants. Participants could read what each view showed and judged correctly whether the model was right in 54 of 68 predictions, but many could not explain what a margin meant or tell whether it was small. They ranked confidence as the most useful view, yet wanted the margin shown beside it. Our results suggest that a margin needs a reference point, such as a threshold suited to the task, before non-experts can make sense of it.
 
 \noindent \textbf{Sharing preference}: This paper may be shared [publicly | with future 839E students only (default) | not at all].
 \end{abstract}
@@ -77,176 +63,103 @@ exploratory. We read it as design evidence rather than as a test of effects.
 steering, visualization design, user study}
 
 \begin{teaserfigure}
-  \includegraphics[width=\textwidth]{img/teaser.png}
-  \caption{Teaser example, although you don't have to use a teaser.}
+  \includegraphics[width=\textwidth]{img/teaser_visual.png}
+  \caption{Five views of one answer's fragility. The model answers ``Pacific Ocean'' with 79\% probability (R0), yet a push of 0.019 at layer 22 flips it to ``Atlantic Ocean'' (R1--R4).}
   \label{fig:teaser}
 \end{teaserfigure}
 
 \maketitle
 
-\color{red}
+
 \section{Introduction}
 
-\guideline{Outline to write next. Target 1.5 columns.}
-\begin{itemize}
-  \item Interfaces that report uncertainty at all report output confidence. That number says nothing about
-    whether the mechanism behind the
-    answer is stable. Name the gap in one paragraph.
-  \item Mechanistic uncertainty: the causal robustness margin of
-    \citet{komanduriMeasuringMechanisticUncertainty2026}, the smallest internal intervention that changes the
-    output. Incorrect and uncertain answers have smaller margins.
-  \item Contributions. One prototype that renders a single mechanistic signal five ways over the same question
-    set. An exploratory study with 17 participants on reading accuracy, perceived usefulness and comprehension.
-    A set of design problems the study surfaced, chiefly the scale-sense problem and the confusion between a
-    live model and a precomputed replay.
-  \item Say plainly here that our margin approximates the published method. On our item set it is strongly
-    rank-correlated with output confidence, $\rho = 0.71$. That is a limit of the stimulus, and the paper is
-    about representation either way.
-\end{itemize}
+When language model interfaces report uncertainty, they usually report output confidence: the probability the
+model assigns to its answer, shown as a number or put into words such as ``I'm not sure, but\ldots''
+\cite{kimImNotSure2024, warrenWhenShouldTrust2026}. Confidence tells a reader how strongly the model favours its
+answer. It does not tell them how much it would take to make the model give a different one.
 
-Our proposal asked three questions about showing mechanistic uncertainty to people. Whether visual
-representations of it help a reader build an intuition for what a model can do, whether the way it is
-displayed changes how well that uncertainty is understood, and whether the answers can be turned into guidance
-for the people who build interpretability interfaces. This study narrows them to the display question, and we
-address them in the following form.
+A language model computes its answer through a stack of layers, and at each layer it holds an internal state, a
+long list of numbers that carries what it has worked out so far. A small change to that state, which we call a
+\emph{push}, can change the answer. \citet{komanduriMeasuringMechanisticUncertainty2026} define the
+\emph{robustness margin} as the smallest push that changes the model's answer. They report that incorrect and
+uncertain answers have smaller margins, and that the margin complements output-based uncertainty. The margin
+could therefore tell a reader how far to trust an answer, as confidence does, but by measuring how little it
+would take to change it.
+
+How this uncertainty should be shown to people is an open question. Tools that push a model's internals help
+people inspect or adjust what the model does, not judge how far to trust an answer
+\cite{gevaLMDebuggerInteractiveTool2022, boSteerableChatbotsExploring2025}. Displays of fragile predictions mostly
+change the input rather than the internal state \cite{dasBluffInteractivelyDeciphering2020, youPandaNotPanda2023},
+and uncertainty visualization research has studied only probabilities
+\cite{kayWhenIshMy2016, correllValueSuppressingUncertaintyPalettes2018}. The margin is harder to read than a
+probability. Readers know that 90\% is high, but nothing tells them whether a push of 0.05 is large or small, and
+the margin means little until the reader sees the different answer that push would produce.
+
+We built a prototype\footnote{The study is at \url{https://mivillavicencio.com/interpretability_uncertainty/study/}.} that shows the robustness margin for 24 factual questions answered by
+Qwen2.5-0.5B-Instruct in four forms: a banded score, a curve per layer, a slider to push the model yourself, and
+a sentence describing the smallest push that changes the answer. A fifth view shows output confidence as a
+baseline. Seventeen participants who use language models but are new to their internals used all five views.
+We asked:
 
 \begin{description}
-  \item[RQ1] Does the choice of representation change how accurately a non-expert reads a mechanistic
-    robustness signal?
-  \item[RQ2] Which representation do readers find most useful for judging whether an answer is fragile?
-  \item[RQ3] What design problems does showing this signal to non-experts surface?
+  \item[RQ1] How well can non-experts read and interpret the robustness margin, and can they use it to judge
+    whether a model's answer is correct?
+  \item[RQ2] How do non-experts judge views of the robustness margin against output confidence?
+  \item[RQ3] What design problems come up when the robustness margin is shown to non-experts?
 \end{description}
+
+We contribute a prototype that shows the robustness margin four ways alongside output confidence, an exploratory
+study of how non-experts read, rank and use these views, and a set of design problems for showing the margin,
+chief among them that no scale tells a reader when a margin is small. Our margin approximates the published
+method, and on our questions it ranks answers much as confidence does ($\rho = 0.71$). Our findings are
+therefore about how to present the margin, not about whether it adds information beyond confidence.
 
 \section{Related Work}
 
-Three bodies of work meet in this project. Interactive interfaces intervene on a model's internals. Visual
-analytics shows how fragile a prediction is. Uncertainty communication studies how such a signal should be
-drawn or worded for a reader. As far as we can tell they have not met before. We take each in turn and then
-state where our work sits.
+Several interactive tools already let a user reach inside a model, change what it holds and watch the answer
+change \cite{strobeltSeq2SeqVisVisualDebugging2018, gevaLMDebuggerInteractiveTool2022,
+wangHypperSteerHypotheticalSteering2020}. This interaction is by now well established, and it is built around
+a component and an expert who wants to know what that component does. A few recent systems bring it to people
+who are not experts, either to teach them how a model works or to hand them a control over its behaviour
+\cite{choTransformerExplainerLearning2024, boSteerableChatbotsExploring2025}. We reuse the same interaction
+and give it a different purpose, which is to let a reader find out how little it takes to change an answer.
 
-\subsection{Interfaces that intervene on model internals}
+We made one of our views interactive because an explanation a reader can manipulate appears easier to grasp
+than a fixed one. \citet{chengExplainingDecisionMakingAlgorithms2019} compared the two on an admissions
+algorithm. The interactive version improved both how much people understood and how much they felt they
+understood, where the static version improved only the first.
+\citet{rossEvaluatingInterpretabilityGenerative2021a} go further and treat manipulation as a way to measure
+understanding. Our tasks therefore ask participants to push the model themselves rather than only read a
+display.
 
-Visual analytics for neural models moved early from passive inspection to intervention. LSTMVis let analysts
-select a span of text as a hypothesis about hidden state and match it against a corpus
-\cite{strobeltLSTMVisToolVisual2016}. Seq2Seq-Vis then added what has become the canonical interaction for the
-genre: change the model's internal state, and watch the output change
-\cite{strobeltSeq2SeqVisVisualDebugging2018}.
+Work on adversarial robustness gives us the encoding for a second view, since it draws how well a prediction
+holds up as a change grows stronger \cite{dasBluffInteractivelyDeciphering2020, youPandaNotPanda2023,
+liVisualAnalyticsNeuron2023}. \citet{stoehrActivationScalingSteering2024} show that the strength needed to
+flip a prediction is worth measuring in its own right. That is what makes a curve over push strength a
+reasonable thing to draw. This work addresses practitioners who are testing a model, however, and not a reader
+who is deciding whether to believe one answer.
 
-The same move appears in model-agnostic tools. Prospector let analysts drag a feature value on a single
-instance and read the prediction off a partial-dependence curve \cite{krauseInteractingPredictionsVisual2016}.
-The What-If Tool made edit-a-datapoint-and-re-infer a standard idiom \cite{wexlerWhatIfToolInteractive2019}.
-HypperSteer applied interactive perturbation to sequence models for hypothetical testing
-\cite{wangHypperSteerHypotheticalSteering2020}.
+Uncertainty visualization has studied lay readers closely, though always with probabilities rather than
+margins, and two of its results shaped our design. \citet{kayWhenIshMy2016} found that readers reason better
+about a chance put in concrete, countable terms than about an abstract interval.
+\citet{correllValueSuppressingUncertaintyPalettes2018}, in turn, warn that a single derived number can look
+more precise than the estimate behind it, which is the risk our own score runs.
+\citet{fernandesUncertaintyDisplaysUsing2018} then found that the display which best helps a reader estimate a
+quantity is not the one that best helps them decide with it. We therefore measured whether participants could
+predict the model's answer, and not only whether they could read the numbers off the screen.
 
-For transformer language models, LM-Debugger is the closest existing system to our interactive view. It
-interprets feed-forward updates in vocabulary space and lets a user configure interventions that shift the
-prediction in a chosen direction \cite{gevaLMDebuggerInteractiveTool2022}. The LM Transparency Tool exposes the
-input-to-output information flow with attribution to individual heads and neurons
-\cite{tufanovLMTransparencyTool2024}. AttentionViz offers the global-view-plus-detail structure we borrow for
-our overview-to-item drill-down \cite{yehAttentionVizGlobalView2023}. All of these are built for experts, and
-they ask what a component does rather than how sure the model is. Two exceptions matter to us. Transformer
-Explainer explains internals to non-experts through live interaction
-\cite{choTransformerExplainerLearning2024}. Steerable Chatbots hands an end user a steering coefficient as a
-slider and studies how much agency people want over it \cite{boSteerableChatbotsExploring2025}.
+Our remaining view puts the smallest push into a sentence, following work on counterfactual explanation that
+hands a user the smallest change which would alter a decision \cite{chengDECEDecisionExplorer2020,
+wangGAMCoachInteractive2023}. \citet{kuhlKeepYourFriends2022} found that the nearest such change teaches a
+reader more than a merely plausible one. Our sentence therefore reports the smallest push we could find rather
+than a striking one.
 
-Why interaction at all? \citet{chengExplainingDecisionMakingAlgorithms2019} ran the comparison directly. In an
-algorithmic-admissions setting, interactive explanations improved both objective and self-reported
-understanding, while static white-box explanations improved only objective understanding. Interactivity also
-cost participants time. \citet{rossEvaluatingInterpretabilityGenerative2021a} go further and use interactive
-manipulation as the measurement of interpretability rather than as the interface under test, which shaped our
-task design. \citet{kirchlerExplainabilityRequiresInteractivity2021} argue from the model side that static
-attributions under-determine behaviour, so counterfactual interaction is required. Our push-it-yourself view is
-that tradition applied to a fragility signal. The slider does not tune a feature or a personality. It spends
-the margin.
+Work on communicating a language model's own uncertainty, finally, studies the signal we use as a baseline and
+has tested it as numbers, as words and as hedges \cite{kimImNotSure2024, warrenWhenShouldTrust2026,
+villavicencioNotAllUncertainty2026}. \citet{boRelyNotRely2024} report that these displays reduce over-reliance
+without reliably producing appropriate reliance. We read that as the bar our own views have to clear, and as a
+caution against treating a preference for one view as a gain in trust.
 
-\subsection{Showing fragility as a response to perturbation strength}
-
-A second literature draws fragility as a curve over perturbation magnitude, almost always in input space.
-Bluff visualizes activation pathways over a range of attack strengths
-\cite{dasBluffInteractivelyDeciphering2020}. AdvEx gives novices a perturbation adjuster and reports accuracy
-and confidence before and after the attack, which makes it our nearest neighbour in both encoding and audience
-\cite{youPandaNotPanda2023}. \citet{liVisualAnalyticsNeuron2023} ask which units are most vulnerable, and that
-is the per-layer question our layer-by-strength inset answers. On the modelling side,
-\citet{stoehrActivationScalingSteering2024} treat the scaling factor needed to flip a prediction as the
-quantity of interest. It is the computational sibling of the margin, and the reason a strength sweep is a
-defensible thing to plot. What none of this work does is treat the curve as an uncertainty display for a lay
-reader. It remains a debugging and robustness-analysis idiom.
-
-\subsection{Representing uncertainty for a lay reader}
-
-Our single-score view inherits a long argument about how to encode uncertainty honestly.
-\citet{schulzDeepViewVisualizingClassification2019} visualize classification boundaries together with per-point
-certainty, which is the spatial version of how far an answer is from flipping.
-\citet{padillaUncertaintyVisualization2021} survey the design space our manipulation samples from.
-\citet{kayWhenIshMy2016} show that lay readers reason better about quantified uncertainty in discrete,
-frequency-framed displays than in abstract intervals. \citet{fernandesUncertaintyDisplaysUsing2018} demonstrate
-the lesson we took most seriously. The display that best supports estimating a quantity is not necessarily the
-one that best supports deciding with it. That is why we measure prediction accuracy and not only comprehension.
-\citet{kaleVisualReasoningStrategies2020} repeat the result with a strategy-level qualitative analysis, which is
-a model for how we coded open responses.
-\citet{correllValueSuppressingUncertaintyPalettes2018} address the specific risk of our margin score, a derived
-number presented as if it were precise. \citet{bisantzDisplayingUncertaintyInvestigating2005} report the
-preference-performance split we see in our own ratings, where the familiar bar is comprehended well but is not
-judged most helpful.
-
-\subsection{Counterfactual explanations in plain language}
-
-Our sentence view is a counterfactual explanation with the intervention in internal rather than input space.
-DECE treats counterfactuals as the user-facing unit and adds interactions for customizing them
-\cite{chengDECEDecisionExplorer2020}. GAM Coach has users slide feature values under their own constraints until
-the prediction flips, which is our interactive view and our sentence view fused into one interaction
-\cite{wangGAMCoachInteractive2023}. \citet{schlegelInteractiveCounterfactualGeneration2024} extend interactive
-counterfactual authoring beyond tabular data. On whether the format helps,
-\citet{kuhlLetsGoAlien2023} provide a controlled framework and evidence that counterfactual explanations beat no
-explanation on objective performance and subjective usability.
-\citet{kuhlKeepYourFriends2022} show that the closest counterfactual teaches better than a merely plausible one.
-That is why our sentence reports the minimum push rather than a vivid one.
-
-\subsection{Communicating LLM uncertainty, and reliance}
-
-Our baseline condition is the signal this literature studies. \citet{kimImNotSure2024} found, with 404
-participants, that first-person expressions of uncertainty lowered agreement with the system and raised
-accuracy. \citet{boRelyNotRely2024} temper what such interventions achieve. They reduce over-reliance but
-largely fail to produce appropriate reliance. That sets the bar for any new display, and it warns us against
-reading a preference for one of our views as a trust improvement.
-\citet{villavicencioNotAllUncertainty2026} show that the granularity at which uncertainty is expressed changes
-verification behaviour and self-confidence. \citet{warrenWhenShouldTrust2026} compare indicator formats
-directly. All of these measure the output distribution or its verbalization. The internal mechanism is not part
-of the signal.
-
-Two further strands informed the study rather than the views. Behavioural evaluation tools frame model weakness
-as something to slice and prioritize \cite{cabreraZenoInteractiveFramework2023,robertsonAnglerHelpingMachine2023},
-which is how our overview quadrants are meant to be read.
-\citet{cappuccioExplanationUserInterfaces2025} survey explanation user interfaces as a design space, which we
-used to check that our five views do not miss a family.
-
-\subsection{Measuring mechanistic uncertainty}
-
-\citet{komanduriMeasuringMechanisticUncertainty2026} define the signal we display. Their causal robustness
-margin is the smallest internal intervention that changes a model's output, so a small margin marks an answer
-whose mechanism is easy to dislodge. The intervention is applied to a hidden state rather than to the input,
-which is what separates this from adversarial work in input space. They report that incorrect and uncertain
-answers have smaller margins, which is the property that makes the margin worth showing to a reader at all.
-
-The direction of that intervention comes from a \emph{Jacobian lens}. A language model works through its
-answer in stages, and at each stage it holds a long list of numbers that carries what it has worked out so
-far. A Jacobian lens asks one question about that list. If we nudge it slightly, which way does the answer
-move? It returns the direction that most favours a competing answer over the current one, so a nudge along it
-is the most efficient way to change what the model says. The margin is the size of the smallest nudge that
-actually changes the answer, and a small margin means a small nudge was enough. Appendix~\ref{app:margin}
-gives the formal statement and the approximation we use.
-
-\subsection{Where this work sits}
-
-The premise that internal instability is worth reporting is not ours.
-\citet{marjanovicInvestigatingImpactModel2024} show that explanations shift under perturbations that leave
-predictive uncertainty looking confident. What is missing is the representation question. Interactive
-interpretability tools intervene on internals but never report fragility to a reader. Fragility visual analytics
-reports it in input space, for practitioners. Uncertainty communication studies the reader, but only ever with
-the output distribution in hand. We treat a mechanistic fragility signal as an uncertainty display, render it
-five ways over one question set, and put the comparison in front of non-expert participants.
-
-\color{black}
 \section{Methods}
 
 In this study we compare four ways of showing a model's mechanistic uncertainty from the inside against a
@@ -472,51 +385,33 @@ places the difficulty in our vocabulary rather than in the interface that carrie
 \section{Discussion and Future Work}
 \label{sec:discussion}
 
-\guideline{Outline. Because this is a course project, substantial future work is acceptable.}
-\begin{itemize}
-  \item The representation question is separable from the measurement question. Our results speak only to the
-    first.
-  \item Scale sense is a design problem for any derived fragility number. Bands relative to a question set make
-    a tiny absolute number read as ``Robust'', and a small push read as ``large''. The deeper issue is that
-    there is no threshold at which a margin becomes fragile in general. Any banding has to be calibrated
-    against something, and in deployment that something is the use case, since the fragility a reader should
-    tolerate in a trivia answer and in a clinical one are not the same. Ours is calibrated against our own 24
-    items, which is a simplification we adopted to make the number legible.
-  \item Interaction buys comprehension, but it also invites over-attribution of control. Relate to
-    \citet{chengExplainingDecisionMakingAlgorithms2019} and \citet{boSteerableChatbotsExploring2025}.
-  \item What $\rho = 0.71$ means for the pitch. On this item set the mechanistic signal is largely redundant
-    with output confidence, so the claim needs an item set where the two diverge.
-  \item Reliance framing. Following \citet{boRelyNotRely2024}, a preference for a view is not evidence of
-    appropriate reliance.
-\end{itemize}
+In this study we proposed to examine how a robustness margin should be shown to someone who uses a language
+model without having looked inside one. Four of our views drew on the same measurement, the smallest push
+strength that changes an answer, and each put it in a different form.
 
-\noindent What the study points to next:
+Our main result is that participants recognised the relevance of robustness, the score we derived from the
+margin to express mechanistic uncertainty. They used it to judge most of the model's answers correctly, and they
+came to see the limits of relying on output confidence alone. They could not, however, explain the concept in
+their own words, and we take recognising a signal's relevance and articulating what it measures to be different
+abilities. That gap matters for trust, because someone who cannot say why an answer looks fragile has no way to
+tell a sound judgement from a lucky one.
 
-\begin{itemize}
-  \item An item set selected for divergence between output confidence and margin. That is the stimulus this
-    design needs, and the one we did not have.
-  \item The paper's Jacobian-lens direction and a larger model, instead of the contrastive logit-lens
-    approximation.
-  \item Absolute rather than set-relative bands, and a vocabulary test for the words ``fragile'' and ``nudge''.
-  \item A live-computation slider, to separate the interaction from the precomputed-replay artifact.
-  \item A powered between-subjects comparison of two or three views on a decision task, with appropriate
-    reliance as the dependent measure. It should draw on a sample beyond one class and collect a
-    visualization-literacy measure as a covariate.
-\end{itemize}
+Participants showed us most clearly that the number itself carried no scale they could use. They read a value
+labelled Robust and still described it as small, and several reported no sense of scale at all. We attribute
+this less to our wording than to the kind of quantity it had to describe, because a probability lets a reader
+picture how often something happens while the size of an intervention offers no such picture. We tried to supply
+that scale by ranking our 24 items into three bands, which made the figure legible and yet let a very small
+absolute value read as Robust.
 
-\section*{Author contributions}
+Participants preferred the familiar display, and yet they did not reject the margin for it. They ranked output
+confidence first and the per-layer curve last, and they still asked for the margin to appear beside confidence
+rather than in place of it. We read this as agreement with \citet{komanduriMeasuringMechanisticUncertainty2026},
+who proposed the margin as a complement to output-based uncertainty rather than a replacement for it. Our
+findings therefore point to future work on how the two signals could be combined, rather than to a study that
+asks participants which of them they prefer.
 
-\guideline{
-You can refer to \href{http://li.mit.edu/Archive/Activities/PubFormat/Nature/End_notes.pdf}{\underline{Nature's annotated example}}.
-Our example: Testudo Turtle wrote all the code. Seaweed Grass debugged the code and analyzed all the data. Both
-authors designed the experiment, discussed the results and future work, and prepared the manuscript.}
-
-\section*{Supplementary materials}
-
-\guideline{Recommended. Candidates: the live prototype and the study address, with older versions kept online,
-one per version. The questionnaire source. The offline pipeline and its README, which document the
-approximation and $\rho$. The response CSV and the analysis script. The annotated related-work map used to
-position this paper.}
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{refs}
 
 \appendix
 
@@ -565,8 +460,5 @@ merely a different surface form of the same answer do not count as a change.
   \item \textbf{Understanding check (F), trust and open feedback (G, H).} Graded comprehension items, agreement
     items on trust and usefulness, and free-text feedback.
 \end{enumerate}
-
-\bibliographystyle{ACM-Reference-Format}
-\bibliography{refs}
 
 \end{document}
